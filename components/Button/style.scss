@@ -1,0 +1,84 @@
+@import '__variables';
+
+$transition-speed: 140ms;
+
+a.Button {
+  display: inline-block;
+  padding: 1.3rem 1.8rem;
+
+  &--large {
+    padding: 1.3rem 4.2rem;
+  }
+
+  &--tiny {
+    font-size: 0.85rem;
+    line-height: 1.2rem;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0.5rem 0.8rem;
+    font-weight: normal;
+  }
+}
+
+button.Button {
+  display: block;
+  padding: 1rem 1.8rem;
+
+  &--large {
+    padding: 1rem 4.2rem;
+  }
+
+  &--tiny {
+    padding: 1rem;
+  }
+}
+
+.Button {
+  color: $color-white;
+  font-size: 1.5rem;
+  line-height: 1.8rem;
+  margin: 0 auto;
+  text-align: center;
+  padding: 1.3rem 1.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  z-index: 0;
+  position: relative;
+  background-size: 100%;
+  transition: all $transition-speed ease-in;
+  border: 1px solid $color-background;
+
+  &:focus,
+  &:hover {
+    color: $color-white;
+    box-shadow: 1px 1px 3px $color-block-border;
+    text-shadow: 1px 1px 1px $color-text;
+    outline: none;
+
+    opacity: 0.7;
+  }
+
+  &--primary {
+    background-color: $color-menu-background;
+  }
+
+  &--secondary {
+    background-color: $color-background;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: $color-text;
+    }
+
+    &:focus,
+    &:hover {
+      box-shadow: 1px 1px 3px $color-block-border;
+      text-shadow: 1px 1px 1px $color-block-border;
+    }
+  }
+
+  &--delete {
+    background-color: $color-background-red;
+  }
+}

@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Button renders the button as expected 1`] = `
+<button
+  className="Button__StyledButton-sc-1hxbnbg-0  Button Button--primary "
+  disabled={false}
+  type="button"
+>
+  Hello
+</button>
+`;

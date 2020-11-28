@@ -1,0 +1,15 @@
+@import '__variables';
+
+.Header {
+  display: block;
+  text-align: right;
+
+  &__logo {
+    display: block;
+    margin: 3.5em 1em 0;
+
+    img {
+      width: 220px;
+    }
+  }
+}

@@ -1,0 +1,134 @@
+@import '__reset';
+@import '__variables';
+
+html,
+body {
+  font: 16px/16px 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: $color-background;
+  color: $color-text;
+
+  @media (prefers-color-scheme: dark) {
+    background: #101010;
+    color: #f3f3f3;
+  }
+}
+
+a {
+  color: $color-link;
+  text-decoration: underline;
+  transition: all 60ms ease-in;
+
+  @media (prefers-color-scheme: dark) {
+    color: $color-link-hover;
+  }
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    color: $color-link-hover;
+
+    @media (prefers-color-scheme: dark) {
+      color: $color-menu-background-hover;
+    }
+  }
+
+  &.style-less {
+    color: unset;
+    text-decoration: unset;
+  }
+}
+
+code,
+pre {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+pre {
+  font-family: 'Courier New', Courier, monospace;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 1em;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+.wrapper {
+  margin: 1rem auto;
+  display: block;
+  max-width: $max-width;
+  min-width: $min-width;
+}
+
+button {
+  -webkit-app-region: no-drag;
+}
+
+.hidden {
+  display: none;
+}
+
+// Tweak CSS for modal from https://github.com/chenjiahan/rodal/issues/27#issuecomment-381396700
+.rodal,
+.rodal-mask {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  flex-direction: row;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  position: fixed !important;
+  padding: 10px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-box-align: center;
+  align-items: center;
+}
+.rodal-dialog {
+  display: flex;
+  margin: auto;
+  height: auto !important;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  flex-direction: column;
+  background-color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 1.25em;
+  border-radius: 0.3125em;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-box-pack: center;
+  justify-content: center;
+  position: relative !important;
+  width: 32em;
+  max-width: 100%;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: $color-text;
+  }
+}
+
+// Tweak CSS for switch
+.switch {
+  background-color: #ccc;
+  border: none;
+  border-radius: 20px;
+
+  &.on {
+    background-color: #80a881;
+  }
+}
+.switch-toggle {
+  border-radius: 20px;
+  box-shadow: none;
+}

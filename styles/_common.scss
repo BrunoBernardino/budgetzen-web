@@ -1,0 +1,45 @@
+@import '__variables';
+
+.common {
+  padding: 20px 10px;
+
+  &__line {
+    margin: 0 auto 1rem;
+    font-size: 1.2rem;
+    line-height: 1.7rem;
+    font-weight: 400;
+    text-align: left;
+
+    strong {
+      font-weight: 500;
+    }
+  }
+
+  &__button {
+    margin: 1em auto;
+    padding: 0.8em 1.3em;
+    display: block;
+    font-size: 1.3rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    text-align: center;
+    color: $color-menu-text;
+    background: $color-menu-background;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    max-width: 300px;
+    text-decoration: none;
+    transition: all 60ms ease-in;
+
+    &:hover,
+    &:focus {
+      color: $color-menu-text;
+      background-color: $color-menu-background-hover;
+    }
+
+    @media #{$bigger-screen} {
+      max-width: 220px;
+    }
+  }
+}
