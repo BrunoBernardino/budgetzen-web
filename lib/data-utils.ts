@@ -26,7 +26,12 @@ import { RxDBAttachmentsPlugin } from 'rxdb/plugins/attachments';
 import { RxDBLocalDocumentsPlugin } from 'rxdb/plugins/local-documents';
 import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
 
-import { sortByName, sortByDate, showNotification } from './utils';
+import {
+  sortByName,
+  sortByDate,
+  showNotification,
+  splitArrayInChunks,
+} from './utils';
 import * as T from './types';
 
 const localDbName = './BudgetZen__data__v0';
@@ -596,8 +601,29 @@ export const importData = async (
       });
     }
 
-    await db.budgets.bulkInsert(budgets);
-    await db.expenses.bulkInsert(expenses);
+    const chunkLength = 200;
+
+    if (budgets.length > chunkLength) {
+      const chunkedBudgets = splitArrayInChunks(budgets, chunkLength);
+      for (const budgetsChunk of chunkedBudgets) {
+        await db.budgets.bulkInsert(budgetsChunk);
+        // Wait a second, to avoid hitting rate limits
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    } else {
+      await db.budgets.bulkInsert(budgets);
+    }
+
+    if (expenses.length > chunkLength) {
+      const chunkedExpenses = splitArrayInChunks(expenses, chunkLength);
+      for (const expensesChunk of chunkedExpenses) {
+        await db.expenses.bulkInsert(expensesChunk);
+        // Wait a second, to avoid hitting rate limits
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    } else {
+      await db.expenses.bulkInsert(expenses);
+    }
 
     return true;
   } catch (error) {
