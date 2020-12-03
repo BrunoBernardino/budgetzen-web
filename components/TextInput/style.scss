@@ -10,7 +10,11 @@ $transition-speed: 140ms;
     text-transform: uppercase;
     font-weight: 500;
     display: block;
-    font-size: 0.9rem;
+    font-size: 1.3rem;
+
+    @media (prefers-color-scheme: dark) {
+      color: $color-link-hover;
+    }
   }
 
   &__input {

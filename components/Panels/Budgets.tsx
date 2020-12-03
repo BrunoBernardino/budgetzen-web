@@ -20,6 +20,8 @@ const Container = styled.section`
   flex-direction: column;
   flex: 1;
   margin: 0 10px;
+  max-height: 80vh;
+  overflow: auto;
 `;
 
 const AddButton = styled(Button)`
