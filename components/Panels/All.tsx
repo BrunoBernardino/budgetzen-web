@@ -46,13 +46,26 @@ const All = () => {
   const [expenses, setExpenses] = useState<T.Expense[]>([]);
   const db = useRef<RxDatabase>(null);
 
-  const reloadData = async ({ isComingFromEmptyState = false } = {}) => {
+  type ReloadData = (options?: {
+    monthToLoad?: string;
+    isComingFromEmptyState?: boolean;
+  }) => Promise<void>;
+  const reloadData: ReloadData = async ({
+    monthToLoad,
+    isComingFromEmptyState = false,
+  } = {}) => {
     setIsLoading(true);
 
-    const fetchedBudgets = await fetchBudgets(db.current, monthInView);
+    const fetchedBudgets = await fetchBudgets(
+      db.current,
+      monthToLoad || monthInView,
+    );
     setBudgets(fetchedBudgets);
 
-    const fetchedExpenses = await fetchExpenses(db.current, monthInView);
+    const fetchedExpenses = await fetchExpenses(
+      db.current,
+      monthToLoad || monthInView,
+    );
     setExpenses(fetchedExpenses);
 
     // If this is for the current or next month and there are no budgets, create budgets based on the previous/current month.
@@ -61,22 +74,24 @@ const All = () => {
       const nextMonth = moment().add(1, 'month').format('YYYY-MM');
       const previousMonth = moment().subtract(1, 'month').format('YYYY-MM');
 
-      if (monthInView === nextMonth) {
+      if (
+        (monthToLoad && monthToLoad === nextMonth) ||
+        (!monthToLoad && monthInView === nextMonth)
+      ) {
         await copyBudgets(db.current, currentMonth, nextMonth);
-        await reloadData({ isComingFromEmptyState: true });
+        await reloadData({ monthToLoad, isComingFromEmptyState: true });
         return;
       }
 
-      if (monthInView === currentMonth) {
+      if (
+        (monthToLoad && monthToLoad === currentMonth) ||
+        (!monthToLoad && monthInView === currentMonth)
+      ) {
         await copyBudgets(db.current, previousMonth, currentMonth);
-        await reloadData({ isComingFromEmptyState: true });
+        await reloadData({ monthToLoad, isComingFromEmptyState: true });
         return;
       }
     }
-
-    showNotification(
-      'Data is continuously synchronizing in the background. Navigate between months to see the latest data.',
-    );
 
     setIsLoading(false);
   };
@@ -89,17 +104,9 @@ const All = () => {
       return;
     }
 
-    setIsLoading(true);
-
     setMonthInView(month);
 
-    const fetchedBudgets = await fetchBudgets(db.current, month);
-    setBudgets(fetchedBudgets);
-
-    const fetchedExpenses = await fetchExpenses(db.current, month);
-    setExpenses(fetchedExpenses);
-
-    setIsLoading(false);
+    await reloadData({ monthToLoad: month });
   };
 
   useAsync(async () => {
@@ -112,6 +119,10 @@ const All = () => {
       db.current = initializedDb;
 
       await reloadData();
+
+      showNotification(
+        'Data is continuously synchronizing in the background. Navigate between months to see the latest data.',
+      );
     }
   }, []);
 
