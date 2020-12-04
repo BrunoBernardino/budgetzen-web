@@ -7,7 +7,12 @@ import { RxDatabase } from 'rxdb';
 import LogoutLink from 'modules/auth/LogoutLink';
 import { Loading } from 'components';
 import { getUserInfo, showNotification } from 'lib/utils';
-import { initializeDb, fetchBudgets, fetchExpenses } from 'lib/data-utils';
+import {
+  initializeDb,
+  fetchBudgets,
+  fetchExpenses,
+  copyBudgets,
+} from 'lib/data-utils';
 import * as T from 'lib/types';
 
 import Navigation from './Navigation';
@@ -41,7 +46,7 @@ const All = () => {
   const [expenses, setExpenses] = useState<T.Expense[]>([]);
   const db = useRef<RxDatabase>(null);
 
-  const reloadData = async () => {
+  const reloadData = async ({ isComingFromEmptyState = false } = {}) => {
     setIsLoading(true);
 
     const fetchedBudgets = await fetchBudgets(db.current, monthInView);
@@ -49,6 +54,25 @@ const All = () => {
 
     const fetchedExpenses = await fetchExpenses(db.current, monthInView);
     setExpenses(fetchedExpenses);
+
+    // If this is for the current or next month and there are no budgets, create budgets based on the previous/current month.
+    if (fetchedBudgets.length === 0 && !isComingFromEmptyState) {
+      const currentMonth = moment().format('YYYY-MM');
+      const nextMonth = moment().add(1, 'month').format('YYYY-MM');
+      const previousMonth = moment().subtract(1, 'month').format('YYYY-MM');
+
+      if (monthInView === nextMonth) {
+        await copyBudgets(db.current, currentMonth, nextMonth);
+        await reloadData({ isComingFromEmptyState: true });
+        return;
+      }
+
+      if (monthInView === currentMonth) {
+        await copyBudgets(db.current, previousMonth, currentMonth);
+        await reloadData({ isComingFromEmptyState: true });
+        return;
+      }
+    }
 
     showNotification(
       'Data is continuously synchronizing in the background. Navigate between months to see the latest data.',
@@ -58,6 +82,13 @@ const All = () => {
   };
 
   const changeMonthInView = async (month: string) => {
+    const nextMonth = moment().add(1, 'month').format('YYYY-MM');
+
+    if (month > nextMonth) {
+      showNotification('Cannot travel further into the future!', 'error');
+      return;
+    }
+
     setIsLoading(true);
 
     setMonthInView(month);

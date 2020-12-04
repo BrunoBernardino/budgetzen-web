@@ -11,12 +11,21 @@ import * as T from 'lib/types';
 
 interface ExpensesProps extends T.PanelProps {}
 
+// user-agent sniffing sucks, but I couldn't figure out why this problem only happens on Safari (macOS and iOS)
+const safariFix =
+  typeof navigator !== 'undefined' &&
+  navigator.userAgent &&
+  navigator.userAgent.includes('Safari')
+    ? 'max-block-size: 100%;'
+    : '';
+
 const Container = styled.section`
   display: flex;
   flex-direction: column;
   flex: 1;
   max-height: 80vh;
   overflow: auto;
+  ${safariFix}
 `;
 
 const FiltersContainer = styled.section`

@@ -637,3 +637,22 @@ export const importData = async (
 
   return false;
 };
+
+export const copyBudgets = async (
+  db: RxDatabase,
+  originalMonth: string,
+  destinationMonth: string,
+) => {
+  const originalBudgets = await fetchBudgets(db, originalMonth);
+  const destinationBudgets = originalBudgets.map((budget) => {
+    const newBudget: T.Budget = { ...budget };
+    newBudget.id = `${Date.now().toString()}:${Math.random()}`;
+    newBudget.month = destinationMonth;
+    delete newBudget._rev;
+    return newBudget;
+  });
+
+  if (destinationBudgets.length > 0) {
+    await db.budgets.bulkInsert(destinationBudgets);
+  }
+};
