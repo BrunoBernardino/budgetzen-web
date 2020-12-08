@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BrunoBernardino/budgetzen-app.git"
+    "url": "git+https://github.com/BrunoBernardino/budgetzen-web.git"
   },
   "engines": {
     "node": "12.x"

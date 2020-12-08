@@ -1,6 +1,6 @@
-# Budget Zen - App
+# Budget Zen - Web App
 
-[![](https://github.com/BrunoBernardino/budgetzen-app/workflows/Run%20Tests/badge.svg)](https://github.com/BrunoBernardino/budgetzen-app/actions?workflow=Run+Tests)
+[![](https://github.com/BrunoBernardino/budgetzen-web/workflows/Run%20Tests/badge.svg)](https://github.com/BrunoBernardino/budgetzen-web/actions?workflow=Run+Tests)
 
 This is the web app for the [Budget Zen app](https://budgetzen.net), built with Next.js and deployed with Vercel.
 
@@ -20,7 +20,7 @@ make deploy  # deploys to app.budgetzen.net (requires `vercel` to be installed g
 
 ## TODOs
 
-- [ ] Improve initial screen
+- [ ] Allow using app without a Sync Token
 - [ ] Improve UI/UX in general
 - [ ] Improve dark/light mode
 - [ ] Improve mobile view (collapse panels and show tab bar to navigate between them?)
