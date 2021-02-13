@@ -36,4 +36,4 @@ pretty:
 
 .PHONY: deploy
 deploy:
-	vercel --prod
+	serverless

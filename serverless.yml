@@ -1,0 +1,10 @@
+service:
+  name: budgetzen-web
+
+myNextAppplication:
+  component: "@sls-next/serverless-component@1.18.0"
+  inputs:
+    domain: ["app", "budgetzen.net"]
+    build:
+      env:
+        NODE_PATH: "/"

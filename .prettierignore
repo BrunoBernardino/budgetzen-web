@@ -1,4 +1,5 @@
 node_modules
 .next
 package-lock.json
-.vercel
+.serverless
+.serverless_nextjs

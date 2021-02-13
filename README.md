@@ -2,7 +2,7 @@
 
 [![](https://github.com/BrunoBernardino/budgetzen-web/workflows/Run%20Tests/badge.svg)](https://github.com/BrunoBernardino/budgetzen-web/actions?workflow=Run+Tests)
 
-This is the web app for the [Budget Zen app](https://budgetzen.net), built with Next.js and deployed with Vercel.
+This is the web app for the [Budget Zen app](https://budgetzen.net), built with Next.js and deployed to AWS with Vercel.
 
 It runs completely in the browser, using `localStorage` and `IndexedDB`.
 
@@ -15,7 +15,7 @@ make install  # installs dependencies
 make start  # starts the app
 make pretty  # prettifies the code
 make test  # runs linting and tests
-make deploy  # deploys to app.budgetzen.net (requires `vercel` to be installed globally)
+make deploy  # deploys to app.budgetzen.net (requires `serverless` to be installed globally)
 ```
 
 ## TODOs
