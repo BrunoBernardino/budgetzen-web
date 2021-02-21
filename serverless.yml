@@ -5,6 +5,8 @@ myNextAppplication:
   component: "@sls-next/serverless-component@1.18.0"
   inputs:
     domain: ["app", "budgetzen.net"]
+    # bucketName: budgetzen-web
+    # bucketRegion: us-east-1
     build:
       env:
         NODE_PATH: "/"
