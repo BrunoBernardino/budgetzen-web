@@ -33,7 +33,7 @@ const Segment = styled.button<SegmentProps>`
     selected ? colors().primaryButtonBackground : 'transparent'};
   padding: 10px;
   border-radius: 5px;
-  min-width: 50%;
+  min-width: 33%;
   color: ${({ selected }) =>
     selected ? colors().primaryButtonText : 'inherit'};
   font-size: ${fontSizes.button}px;

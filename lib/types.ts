@@ -4,7 +4,7 @@ export interface PlainObject {
   [key: string]: any;
 }
 
-export type Currency = 'USD' | 'EUR';
+export type Currency = 'USD' | 'EUR' | 'GBP';
 
 export interface AuthToken {
   syncToken: string;

@@ -110,6 +110,11 @@ export const budgetSchema: RxJsonSchema<T.Budget> = {
   required: ['name', 'month', 'value'],
 };
 
+const _hasFinishedFirstSync = {
+  budgets: false,
+  expenses: false,
+};
+
 export const initializeDb = async (syncToken: string) => {
   if (!syncToken) {
     return null;
@@ -143,6 +148,7 @@ export const initializeDb = async (syncToken: string) => {
 
   budgetsSync.complete$.subscribe((completed) => {
     console.log('budgetsSync.complete$', completed);
+    _hasFinishedFirstSync.budgets = true;
   });
 
   budgetsSync.change$.subscribe((docData) => {
@@ -167,6 +173,7 @@ export const initializeDb = async (syncToken: string) => {
 
   expensesSync.complete$.subscribe((completed) => {
     console.log('expensesSync.complete$', completed);
+    _hasFinishedFirstSync.expenses = true;
   });
 
   expensesSync.change$.subscribe((docData) => {
@@ -643,6 +650,10 @@ export const copyBudgets = async (
   originalMonth: string,
   destinationMonth: string,
 ) => {
+  // Don't copy anything until we're done with the first sync
+  if (!_hasFinishedFirstSync.expenses || !_hasFinishedFirstSync.budgets) {
+    return;
+  }
   const originalBudgets = await fetchBudgets(db, originalMonth);
   const destinationBudgets = originalBudgets.map((budget) => {
     const newBudget: T.Budget = { ...budget };

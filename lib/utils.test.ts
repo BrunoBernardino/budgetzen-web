@@ -9,6 +9,9 @@ describe('lib/utils', () => {
       { currency: 'EUR', number: 900.999, expected: '€901' },
       { currency: 'EUR', number: 900.991, expected: '€900.99' },
       { currency: 'USD', number: 50.11, expected: '$50.11' },
+      { currency: 'GBP', number: 900.999, expected: '£901' },
+      { currency: 'GBP', number: 900.991, expected: '£900.99' },
+      { currency: 'GBP', number: 50.11, expected: '£50.11' },
     ];
 
     for (const test of tests) {

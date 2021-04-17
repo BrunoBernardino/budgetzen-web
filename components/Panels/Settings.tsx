@@ -75,8 +75,8 @@ const HelpButton = styled(Button)`
   align-self: center;
 `;
 
-const currencyLabels = ['$', '€'];
-const currencyValues: T.Currency[] = ['USD', 'EUR'];
+const currencyLabels = ['$', '€', '£'];
+const currencyValues: T.Currency[] = ['USD', 'EUR', 'GBP'];
 
 const Settings = ({
   currentCurrency,
@@ -113,6 +113,10 @@ const Settings = ({
     }
   };
 
+  const selectedCurrencyIndex = currencyValues.findIndex(
+    (_currency) => currency === _currency,
+  );
+
   return (
     <>
       <SettingsButton
@@ -130,7 +134,9 @@ const Settings = ({
           <Label>Currency</Label>
           <StyledSegmentedControl
             values={currencyLabels}
-            selectedIndex={currency === 'USD' ? 0 : 1}
+            selectedIndex={
+              selectedCurrencyIndex === -1 ? 0 : selectedCurrencyIndex
+            }
             onChange={(selectedSegmentIndex: number) => {
               setCurrency(currencyValues[selectedSegmentIndex]);
               saveCurrency(currencyValues[selectedSegmentIndex]);
