@@ -1,0 +1,16 @@
+{
+  "name": "Budget Zen",
+  "short_name": "Budget Zen",
+  "icons": [
+    {
+      "src": "/images/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#222222",
+  "background_color": "#efefef",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
