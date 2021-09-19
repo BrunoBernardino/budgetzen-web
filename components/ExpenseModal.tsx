@@ -168,14 +168,21 @@ const ExpenseModal = (props: ExpenseModalProps) => {
   };
 
   const onKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      // @ts-ignore: Convert comma to dot
+      if (event.key === ',' && event.target.type === 'number') {
+        event.preventDefault();
+        event.stopPropagation();
+        setCost(`${cost}.`);
+      }
+
       if (event.key === 'Enter') {
         event.preventDefault();
         event.stopPropagation();
         addExpense();
       }
     },
-    [],
+    [cost, description, budget, date],
   );
 
   return (
