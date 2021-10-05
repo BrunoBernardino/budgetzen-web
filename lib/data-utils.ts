@@ -536,6 +536,15 @@ export const deleteAllData = async (db: RxDatabase, syncToken: string) => {
   await remoteDb.erase();
 };
 
+export const deleteLocalData = async (db: RxDatabase) => {
+  await db.events.remove();
+
+  // NOTE: The erase below doesn't work locally, so we need the line above
+  const localDb = new PouchDB(localDbName);
+  // @ts-ignore erase comes from pouchdb-erase
+  await localDb.erase();
+};
+
 type ExportAllData = (
   db: RxDatabase,
 ) => Promise<{

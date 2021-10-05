@@ -160,7 +160,7 @@ const All = () => {
         syncToken={syncToken}
         db={db.current}
       />
-      <LogoutLink />
+      <LogoutLink db={db.current} />
     </Wrapper>
   );
 };

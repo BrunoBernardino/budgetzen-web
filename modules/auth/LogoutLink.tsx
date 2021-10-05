@@ -1,10 +1,16 @@
 import { useCallback, useState } from 'react';
 import Swal from 'sweetalert2';
 import styled from 'styled-components';
+import { RxDatabase } from 'rxdb';
 
 import Loading from 'components/Loading';
 import Button from 'components/Button';
 import { doLogout } from 'lib/utils';
+import { deleteLocalData } from 'lib/data-utils';
+
+interface LogoutLinkProps {
+  db: RxDatabase;
+}
 
 const Container = styled.div`
   top: 8px;
@@ -12,10 +18,12 @@ const Container = styled.div`
   position: absolute;
 `;
 
-const LoginButton = () => {
+const LogoutLink = ({ db }: LogoutLinkProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
     setIsSubmitting(true);
+
+    await deleteLocalData(db);
 
     doLogout();
 
@@ -34,4 +42,4 @@ const LoginButton = () => {
   );
 };
 
-export default LoginButton;
+export default LogoutLink;
