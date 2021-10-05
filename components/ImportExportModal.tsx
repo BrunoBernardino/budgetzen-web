@@ -136,7 +136,7 @@ const ImportExportModal = (props: ImportExportModalProps) => {
       }
     };
 
-    reader.readAsDataURL(importFileDialogResult.value);
+    reader.readAsText(importFileDialogResult.value);
   };
 
   const onRequestExport = async () => {
