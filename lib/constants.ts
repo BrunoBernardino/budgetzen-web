@@ -28,7 +28,7 @@ export const colors = (theme: Theme = 'light') => {
     theme = 'dark';
   }
 
-  if (userInfo.theme === 'dark') {
+  if (userInfo && userInfo.theme === 'dark') {
     theme = 'dark';
   }
 
