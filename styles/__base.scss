@@ -12,6 +12,10 @@ body {
     background: #101010;
     color: #f3f3f3;
   }
+  &.theme-dark {
+    background: #101010;
+    color: #f3f3f3;
+  }
 }
 
 a {
@@ -22,6 +26,9 @@ a {
   @media (prefers-color-scheme: dark) {
     color: $color-link-hover;
   }
+  @at-root .theme-dark #{&} {
+    color: $color-link-hover;
+  }
 
   &:hover,
   &:focus {
@@ -29,6 +36,9 @@ a {
     color: $color-link-hover;
 
     @media (prefers-color-scheme: dark) {
+      color: $color-menu-background-hover;
+    }
+    @at-root .theme-dark #{&} {
       color: $color-menu-background-hover;
     }
   }
@@ -50,6 +60,9 @@ pre {
   padding: 1em;
 
   @media (prefers-color-scheme: dark) {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  @at-root .theme-dark #{&} {
     background-color: rgba(0, 0, 0, 0.8);
   }
 }
@@ -114,6 +127,9 @@ button {
   max-width: 100%;
 
   @media (prefers-color-scheme: dark) {
+    background-color: $color-text;
+  }
+  @at-root .theme-dark #{&} {
     background-color: $color-text;
   }
 }

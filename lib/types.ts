@@ -6,9 +6,12 @@ export interface PlainObject {
 
 export type Currency = 'USD' | 'EUR' | 'GBP';
 
+export type Theme = 'dark' | 'light';
+
 export interface AuthToken {
   syncToken: string;
   currency: Currency;
+  theme?: Theme;
 }
 
 export interface Expense {

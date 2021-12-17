@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 
 import { sessionNamespace } from 'lib/constants';
-import { AuthToken, Currency } from 'lib/types';
+import { AuthToken, Currency, Theme } from 'lib/types';
 
 export const formatNumber = (currency: Currency = 'USD', number: number) =>
   new Intl.NumberFormat('en-US', {
@@ -85,10 +85,15 @@ export const showNotification = (
   });
 };
 
-export const doLogin = (syncToken: string, currency: Currency = 'USD') => {
+export const doLogin = (
+  syncToken: string,
+  currency: Currency = 'USD',
+  theme: Theme = 'light',
+) => {
   const authToken: AuthToken = {
     syncToken,
     currency,
+    theme,
   };
 
   try {
@@ -140,6 +145,7 @@ export const getUserInfo: GetUserInfo = () => {
   return {
     syncToken: null,
     currency: 'USD',
+    theme: 'light',
   };
 };
 

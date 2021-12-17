@@ -28,7 +28,7 @@ const Footer = () => {
           <div className="Footer__faq-item">
             <h4>Where's the code for this web app?</h4>
             <p>
-              <a href="https://github.com/BrunoBernardino/budgetzen-app">
+              <a href="https://github.com/BrunoBernardino/budgetzen-web">
                 It's in GitHub
               </a>
               .

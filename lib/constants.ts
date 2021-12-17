@@ -1,3 +1,5 @@
+import { getUserInfo } from 'lib/utils';
+
 export const defaultTitle = 'Budget Zen — Simple and Easy Budget Management';
 export const defaultDescription = 'Simple and easy budget management.';
 export const defaultKeywords =
@@ -8,13 +10,26 @@ export const sessionNamespace = 'BudgetZen_appSession';
 type Theme = 'dark' | 'light';
 
 export const colors = (theme: Theme = 'light') => {
-  if (
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function'
-  ) {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  const userInfo = getUserInfo();
+
+  if (typeof window !== 'undefined') {
+    if (
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    ) {
       theme = 'dark';
     }
+  }
+
+  if (
+    typeof document !== 'undefined' &&
+    document.getElementsByTagName('body')[0].classList.contains('theme-dark')
+  ) {
+    theme = 'dark';
+  }
+
+  if (userInfo.theme === 'dark') {
+    theme = 'dark';
   }
 
   return {

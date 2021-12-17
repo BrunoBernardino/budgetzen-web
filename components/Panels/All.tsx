@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
 import { useAsync } from 'react-use';
@@ -42,6 +42,7 @@ const All = () => {
   const [monthInView, setMonthInView] = useState(moment().format('YYYY-MM'));
   const [currency, setCurrency] = useState<T.Currency>('USD');
   const [syncToken, setSyncToken] = useState('');
+  const [theme, setTheme] = useState<T.Theme>('light');
   const [budgets, setBudgets] = useState<T.Budget[]>([]);
   const [expenses, setExpenses] = useState<T.Expense[]>([]);
   const db = useRef<RxDatabase>(null);
@@ -113,6 +114,7 @@ const All = () => {
     if (typeof window !== 'undefined') {
       const userInfo = getUserInfo();
       setCurrency(userInfo.currency);
+      setTheme(userInfo.theme || 'light');
       setSyncToken(userInfo.syncToken);
 
       const initializedDb = await initializeDb(userInfo.syncToken);
@@ -125,6 +127,13 @@ const All = () => {
       );
     }
   }, []);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.getElementsByTagName('html')[0].classList.add('theme-dark');
+      document.getElementsByTagName('body')[0].classList.add('theme-dark');
+    }
+  }, [theme]);
 
   return (
     <Wrapper className="wrapper">
@@ -159,6 +168,8 @@ const All = () => {
         updateCurrency={setCurrency}
         syncToken={syncToken}
         db={db.current}
+        currentTheme={theme}
+        updateTheme={setTheme}
       />
       <LogoutLink db={db.current} />
     </Wrapper>

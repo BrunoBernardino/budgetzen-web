@@ -16,6 +16,8 @@ import appPackage from '../../package.json';
 interface SettingsProps {
   currentCurrency: T.Currency;
   updateCurrency: (currency: T.Currency) => void;
+  currentTheme: T.Theme;
+  updateTheme: (theme: T.Theme) => void;
   syncToken: string;
   db: RxDatabase;
 }
@@ -78,9 +80,14 @@ const HelpButton = styled(Button)`
 const currencyLabels = ['$', '€', '£'];
 const currencyValues: T.Currency[] = ['USD', 'EUR', 'GBP'];
 
+const themeLabels = ['Light', 'Dark'];
+const themeValues: T.Theme[] = ['light', 'dark'];
+
 const Settings = ({
   currentCurrency,
   updateCurrency,
+  currentTheme,
+  updateTheme,
   syncToken,
   db,
 }: SettingsProps) => {
@@ -88,10 +95,15 @@ const Settings = ({
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isImportExportModalOpen, setIsImportExportModalOpen] = useState(false);
   const [currency, setCurrency] = useState(currentCurrency);
+  const [theme, setTheme] = useState(currentTheme);
 
   useEffect(() => {
     setCurrency(currentCurrency);
   }, [currentCurrency]);
+
+  useEffect(() => {
+    setTheme(currentTheme);
+  }, [currentTheme]);
 
   const saveCurrency = async (newCurrency: T.Currency) => {
     if (isSubmitting) {
@@ -101,7 +113,7 @@ const Settings = ({
 
     setIsSubmitting(true);
 
-    const success = await doLogin(syncToken, newCurrency);
+    const success = doLogin(syncToken, newCurrency, currentTheme);
 
     if (success) {
       updateCurrency(newCurrency);
@@ -113,8 +125,32 @@ const Settings = ({
     }
   };
 
+  const saveTheme = async (newTheme: T.Theme) => {
+    if (isSubmitting) {
+      // Ignore sequential taps
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const success = doLogin(syncToken, currentCurrency, newTheme);
+
+    if (success) {
+      updateTheme(newTheme);
+      return;
+    }
+
+    if (success) {
+      showNotification('Settings saved successfully.');
+    }
+  };
+
   const selectedCurrencyIndex = currencyValues.findIndex(
     (_currency) => currency === _currency,
+  );
+
+  const selectedThemeIndex = themeValues.findIndex(
+    (_theme) => theme === _theme,
   );
 
   return (
@@ -140,6 +176,15 @@ const Settings = ({
             onChange={(selectedSegmentIndex: number) => {
               setCurrency(currencyValues[selectedSegmentIndex]);
               saveCurrency(currencyValues[selectedSegmentIndex]);
+            }}
+          />
+          <Label>Theme</Label>
+          <StyledSegmentedControl
+            values={themeLabels}
+            selectedIndex={selectedThemeIndex === -1 ? 0 : selectedThemeIndex}
+            onChange={(selectedSegmentIndex: number) => {
+              setTheme(themeValues[selectedSegmentIndex]);
+              saveTheme(themeValues[selectedSegmentIndex]);
             }}
           />
           <BottomContainer>

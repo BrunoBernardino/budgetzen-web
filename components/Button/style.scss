@@ -70,6 +70,9 @@ button.Button {
     @media (prefers-color-scheme: dark) {
       background-color: $color-text-gray;
     }
+    @at-root .theme-dark #{&} {
+      background-color: $color-text-gray;
+    }
 
     &:focus,
     &:hover {

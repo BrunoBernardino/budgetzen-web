@@ -2,7 +2,7 @@ service:
   name: budgetzen-web
 
 myNextAppplication:
-  component: "@sls-next/serverless-component@1.18.0"
+  component: "@sls-next/serverless-component@3.6.0"
   inputs:
     domain: ["app", "budgetzen.net"]
     # bucketName: budgetzen-web
