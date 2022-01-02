@@ -1,4 +1,4 @@
-import './style.scss';
+import styles from './styles.module.scss';
 
 interface LoadingProps {
   isShowing?: boolean;
@@ -6,7 +6,11 @@ interface LoadingProps {
 
 const Loading = ({ isShowing = false }: LoadingProps) => {
   return (
-    <div className={`Loading ${isShowing ? 'Loading--show' : ''}`}>
+    <div
+      className={`${styles.Loading} ${
+        isShowing ? styles['Loading--show'] : ''
+      }`}
+    >
       <svg
         version="1.1"
         id="loader-1"

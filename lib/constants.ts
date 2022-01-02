@@ -5,7 +5,7 @@ export const defaultDescription = 'Simple and easy budget management.';
 export const defaultKeywords =
   'budget, zen, simple, easy, app, web, ios, macos';
 
-export const sessionNamespace = 'BudgetZen_appSession';
+export const sessionNamespace = 'BudgetZen_v2_appSession';
 
 type Theme = 'dark' | 'light';
 
@@ -23,6 +23,7 @@ export const colors = (theme: Theme = 'light') => {
 
   if (
     typeof document !== 'undefined' &&
+    typeof document.getElementsByTagName === 'function' &&
     document.getElementsByTagName('body')[0].classList.contains('theme-dark')
   ) {
     theme = 'dark';

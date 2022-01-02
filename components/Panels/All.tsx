@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
 import { useAsync } from 'react-use';
-import { RxDatabase } from 'rxdb';
+import * as Etebase from 'etebase';
 
 import LogoutLink from 'modules/auth/LogoutLink';
 import { Loading } from 'components';
@@ -26,7 +26,12 @@ const Wrapper = styled.main`
   flex: 1;
   justify-content: center;
   align-items: flex-start;
-  flex-direction: row;
+  flex-direction: column-reverse;
+  max-width: 100vw;
+
+  @media only screen and (min-width: 800px) {
+    flex-direction: row;
+  }
 `;
 
 const LeftSide = styled.section`
@@ -41,11 +46,11 @@ const All = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [monthInView, setMonthInView] = useState(moment().format('YYYY-MM'));
   const [currency, setCurrency] = useState<T.Currency>('USD');
-  const [syncToken, setSyncToken] = useState('');
+  const [session, setSession] = useState('');
   const [theme, setTheme] = useState<T.Theme>('light');
   const [budgets, setBudgets] = useState<T.Budget[]>([]);
   const [expenses, setExpenses] = useState<T.Expense[]>([]);
-  const db = useRef<RxDatabase>(null);
+  const etebase = useRef<Etebase.Account>(null);
 
   type ReloadData = (options?: {
     monthToLoad?: string;
@@ -58,13 +63,13 @@ const All = () => {
     setIsLoading(true);
 
     const fetchedBudgets = await fetchBudgets(
-      db.current,
+      etebase.current,
       monthToLoad || monthInView,
     );
     setBudgets(fetchedBudgets);
 
     const fetchedExpenses = await fetchExpenses(
-      db.current,
+      etebase.current,
       monthToLoad || monthInView,
     );
     setExpenses(fetchedExpenses);
@@ -79,7 +84,7 @@ const All = () => {
         (monthToLoad && monthToLoad === nextMonth) ||
         (!monthToLoad && monthInView === nextMonth)
       ) {
-        await copyBudgets(db.current, currentMonth, nextMonth);
+        await copyBudgets(etebase.current, currentMonth, nextMonth);
         await reloadData({ monthToLoad, isComingFromEmptyState: true });
         return;
       }
@@ -88,7 +93,7 @@ const All = () => {
         (monthToLoad && monthToLoad === currentMonth) ||
         (!monthToLoad && monthInView === currentMonth)
       ) {
-        await copyBudgets(db.current, previousMonth, currentMonth);
+        await copyBudgets(etebase.current, previousMonth, currentMonth);
         await reloadData({ monthToLoad, isComingFromEmptyState: true });
         return;
       }
@@ -115,10 +120,10 @@ const All = () => {
       const userInfo = getUserInfo();
       setCurrency(userInfo.currency);
       setTheme(userInfo.theme || 'light');
-      setSyncToken(userInfo.syncToken);
+      setSession(userInfo.session);
 
-      const initializedDb = await initializeDb(userInfo.syncToken);
-      db.current = initializedDb;
+      const initializedDb = await initializeDb(userInfo.session);
+      etebase.current = initializedDb;
 
       await reloadData();
 
@@ -150,7 +155,7 @@ const All = () => {
             budgets={budgets}
             expenses={expenses}
             reloadData={reloadData}
-            db={db.current}
+            etebase={etebase.current}
           />
           <Budgets
             monthInView={monthInView}
@@ -158,20 +163,24 @@ const All = () => {
             budgets={budgets}
             expenses={expenses}
             reloadData={reloadData}
-            db={db.current}
+            etebase={etebase.current}
           />
         </Wrapper>
       </LeftSide>
-      <AddExpense budgets={budgets} reloadData={reloadData} db={db.current} />
+      <AddExpense
+        budgets={budgets}
+        reloadData={reloadData}
+        etebase={etebase.current}
+      />
       <Settings
         currentCurrency={currency}
         updateCurrency={setCurrency}
-        syncToken={syncToken}
-        db={db.current}
+        session={session}
+        etebase={etebase.current}
         currentTheme={theme}
         updateTheme={setTheme}
       />
-      <LogoutLink db={db.current} />
+      <LogoutLink />
     </Wrapper>
   );
 };

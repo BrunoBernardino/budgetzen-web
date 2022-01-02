@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { RxDatabase } from 'rxdb';
+import * as Etebase from 'etebase';
 
 import Button from 'components/Button';
 import { colors, fontSizes } from 'lib/constants';
@@ -11,7 +11,7 @@ import * as T from 'lib/types';
 interface AddExpenseProps {
   budgets: T.Budget[];
   reloadData: () => Promise<void>;
-  db: RxDatabase;
+  etebase: Etebase.Account;
 }
 
 const Container = styled.section`
@@ -20,10 +20,14 @@ const Container = styled.section`
   flex: 1;
   background-color: ${colors().background};
   padding: 0 16px;
-  max-width: 280px;
+  width: 90vw;
   border-radius: 5px;
   margin-top: -10px;
   margin-right: -2px;
+
+  @media only screen and (min-width: 800px) {
+    max-width: 280px;
+  }
 `;
 
 const Logo = styled.img`
@@ -85,11 +89,7 @@ const Select = styled.select`
   }
 `;
 
-const AddButton = styled(Button)`
-  margin: 20px 0;
-`;
-
-const AddExpense = ({ budgets, reloadData, db }: AddExpenseProps) => {
+const AddExpense = ({ budgets, reloadData, etebase }: AddExpenseProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [description, setDescription] = useState('');
   const [cost, setCost] = useState('');
@@ -112,7 +112,7 @@ const AddExpense = ({ budgets, reloadData, db }: AddExpenseProps) => {
       date,
     };
 
-    const success = await saveExpense(db, parsedExpense);
+    const success = await saveExpense(etebase, parsedExpense);
 
     setIsSubmitting(false);
 
@@ -208,13 +208,14 @@ const AddExpense = ({ budgets, reloadData, db }: AddExpenseProps) => {
         type="date"
         onKeyDown={onKeyDown}
       />
-      <AddButton
+      <Button
         isDisabled={isSubmitting}
         onClick={() => addExpense()}
         type="primary"
+        style={{ margin: '20px 0' }}
       >
         {isSubmitting ? 'Adding...' : 'Add Expense'}
-      </AddButton>
+      </Button>
     </Container>
   );
 };

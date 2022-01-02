@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
-import { RxDatabase } from 'rxdb';
+import * as Etebase from 'etebase';
 
 import SegmentedControl from 'components/SegmentedControl';
 import Button from 'components/Button';
@@ -18,8 +18,8 @@ interface SettingsProps {
   updateCurrency: (currency: T.Currency) => void;
   currentTheme: T.Theme;
   updateTheme: (theme: T.Theme) => void;
-  syncToken: string;
-  db: RxDatabase;
+  session: string;
+  etebase: Etebase.Account;
 }
 
 // @ts-ignore manually added
@@ -67,16 +67,6 @@ const Version = styled.p`
   margin-top: 30px;
 `;
 
-const ImportExportButton = styled(Button)`
-  margin: 5px auto 10px;
-  align-self: center;
-`;
-
-const HelpButton = styled(Button)`
-  margin: 0 auto 10px;
-  align-self: center;
-`;
-
 const currencyLabels = ['$', '€', '£'];
 const currencyValues: T.Currency[] = ['USD', 'EUR', 'GBP'];
 
@@ -88,8 +78,8 @@ const Settings = ({
   updateCurrency,
   currentTheme,
   updateTheme,
-  syncToken,
-  db,
+  session,
+  etebase,
 }: SettingsProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -113,7 +103,7 @@ const Settings = ({
 
     setIsSubmitting(true);
 
-    const success = doLogin(syncToken, newCurrency, currentTheme);
+    const success = doLogin(session, newCurrency, currentTheme);
 
     if (success) {
       updateCurrency(newCurrency);
@@ -133,7 +123,7 @@ const Settings = ({
 
     setIsSubmitting(true);
 
-    const success = doLogin(syncToken, currentCurrency, newTheme);
+    const success = doLogin(session, currentCurrency, newTheme);
 
     if (success) {
       updateTheme(newTheme);
@@ -191,23 +181,31 @@ const Settings = ({
             <Version>
               v{appVersion}-{appBuild}
             </Version>
-            <ImportExportButton
+            <Button
               onClick={() => setIsImportExportModalOpen(true)}
               type="secondary"
+              style={{
+                margin: '5px auto 10px',
+                alignSelf: 'center',
+              }}
             >
               Import or Export Data
-            </ImportExportButton>
-            <HelpButton
+            </Button>
+            <Button
               element="a"
               href="mailto:help@budgetzen.net"
               type="primary"
+              style={{
+                margin: '0 auto 10px',
+                alignSelf: 'center',
+              }}
             >
               Get Help
-            </HelpButton>
+            </Button>
           </BottomContainer>
           <ImportExportModal
-            db={db}
-            syncToken={syncToken}
+            etebase={etebase}
+            session={session}
             isOpen={isImportExportModalOpen}
             onClose={() => setIsImportExportModalOpen(false)}
           />

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
 import Swal from 'sweetalert2';
-import { RxDatabase } from 'rxdb';
+import * as Etebase from 'etebase';
 
 import Button from 'components/Button';
 import { showNotification } from 'lib/utils';
@@ -18,7 +18,7 @@ interface BudgetModalProps {
   month: string;
   value: number;
   reloadData: () => Promise<void>;
-  db: RxDatabase;
+  etebase: Etebase.Account;
 }
 
 const Container = styled.section`
@@ -59,17 +59,13 @@ const Input = styled.input`
   }
 `;
 
-const StyledButton = styled(Button)`
-  margin: 20px 0;
-`;
-
 const BudgetModal = (props: BudgetModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState(props.name);
   const [month, setMonth] = useState(`${props.month}-01`);
   const [value, setValue] = useState(props.value.toString());
 
-  const { id, isOpen, reloadData, db } = props;
+  const { id, isOpen, reloadData, etebase } = props;
 
   const onClose = useCallback(() => {
     const { onClose: closeModal } = props;
@@ -91,10 +87,10 @@ const BudgetModal = (props: BudgetModalProps) => {
       id: id || 'newBudget',
       value: Number.parseFloat(value.replace(',', '.')),
       name,
-      month: month ? month.substr(0, 7) : '',
+      month: month ? month.substring(0, 7) : '',
     };
 
-    const success = await saveBudget(db, parsedBudget);
+    const success = await saveBudget(etebase, parsedBudget);
 
     setIsSubmitting(false);
 
@@ -115,8 +111,7 @@ const BudgetModal = (props: BudgetModalProps) => {
     const confirmationResult = await Swal.fire({
       icon: 'warning',
       title: 'Are you sure?',
-      text:
-        'Are you sure you want to delete this budget?\n\nThis action is irreversible.',
+      text: 'Are you sure you want to delete this budget?\n\nThis action is irreversible.',
       showDenyButton: true,
       showCancelButton: true,
       confirmButtonText: 'Yes!',
@@ -129,7 +124,7 @@ const BudgetModal = (props: BudgetModalProps) => {
 
     setIsSubmitting(true);
 
-    const success = await deleteBudget(db, id);
+    const success = await deleteBudget(etebase, id);
 
     setIsSubmitting(false);
 
@@ -185,14 +180,22 @@ const BudgetModal = (props: BudgetModalProps) => {
           onKeyDown={onKeyDown}
         />
 
-        <StyledButton onClick={() => addBudget()} type="primary">
+        <Button
+          onClick={() => addBudget()}
+          type="primary"
+          style={{ margin: '20px 0' }}
+        >
           {id ? 'Save Budget' : 'Add Budget'}
-        </StyledButton>
+        </Button>
 
         {Boolean(id) && (
-          <StyledButton onClick={() => removeBudget()} type="delete">
+          <Button
+            onClick={() => removeBudget()}
+            type="delete"
+            style={{ margin: '20px 0' }}
+          >
             Delete Budget
-          </StyledButton>
+          </Button>
         )}
       </Container>
     </Rodal>

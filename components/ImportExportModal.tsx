@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
 import Swal from 'sweetalert2';
-import { RxDatabase } from 'rxdb';
+import * as Etebase from 'etebase';
 
 import Button from 'components/Button';
 import { showNotification } from 'lib/utils';
@@ -16,8 +16,8 @@ type ImportedFileData = {
 };
 
 interface ImportExportModalProps {
-  db: RxDatabase;
-  syncToken: string;
+  etebase: Etebase.Account;
+  session: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -46,15 +46,10 @@ const Note = styled.span`
   margin-top: 30px;
 `;
 
-const StyledButton = styled(Button)`
-  margin-top: 20px;
-  align-self: center;
-`;
-
 const ImportExportModal = (props: ImportExportModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { isOpen, onClose, db, syncToken } = props;
+  const { isOpen, onClose, etebase, session } = props;
 
   const onRequestImport = async () => {
     if (isSubmitting) {
@@ -105,8 +100,7 @@ const ImportExportModal = (props: ImportExportModalProps) => {
       const mergeOrReplaceDialogResult = await Swal.fire({
         icon: 'question',
         title: 'Merge or Replace?',
-        text:
-          'Do you want to merge this with your existing data, or replace it?',
+        text: 'Do you want to merge this with your existing data, or replace it?',
         showCancelButton: true,
         showDenyButton: true,
         confirmButtonText: 'Merge',
@@ -121,8 +115,8 @@ const ImportExportModal = (props: ImportExportModalProps) => {
         setIsSubmitting(true);
 
         const success = await importData(
-          db,
-          syncToken,
+          etebase,
+          session,
           mergeOrReplaceDialogResult.isDenied,
           budgets,
           expenses,
@@ -149,10 +143,10 @@ const ImportExportModal = (props: ImportExportModalProps) => {
 
     const fileName = `data-export-${new Date()
       .toISOString()
-      .substr(0, 19)
+      .substring(0, 19)
       .replace(/:/g, '-')}.json`;
 
-    const exportData = await exportAllData(db);
+    const exportData = await exportAllData(etebase);
 
     const exportContents = JSON.stringify(exportData, null, 2);
 
@@ -176,23 +170,34 @@ const ImportExportModal = (props: ImportExportModalProps) => {
     <Rodal visible={isOpen} onClose={onClose} animation="slideDown">
       <Container>
         <Label>Import</Label>
-        <Note>Import a JSON file exported from Budget Zen before.</Note>
+        <Note>
+          Import a JSON file exported from Budget Zen (v1 or v2) before.
+        </Note>
 
-        <StyledButton
+        <Button
           element="a"
           href="https://budgetzen.net/import-export-file-format"
           type="secondary"
+          style={{ margin: '20px 0', alignSelf: 'center' }}
         >
           Learn more
-        </StyledButton>
+        </Button>
 
-        <StyledButton onClick={() => onRequestImport()} type="secondary">
+        <Button
+          onClick={() => onRequestImport()}
+          type="secondary"
+          style={{ margin: '20px 0', alignSelf: 'center' }}
+        >
           Import Data
-        </StyledButton>
+        </Button>
 
-        <StyledButton onClick={() => onRequestExport()} type="primary">
+        <Button
+          onClick={() => onRequestExport()}
+          type="primary"
+          style={{ margin: '20px 0', alignSelf: 'center' }}
+        >
           Export Data
-        </StyledButton>
+        </Button>
       </Container>
     </Rodal>
   );

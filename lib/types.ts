@@ -1,4 +1,4 @@
-import { RxDatabase } from 'rxdb';
+import * as Etebase from 'etebase';
 
 export interface PlainObject {
   [key: string]: any;
@@ -9,26 +9,30 @@ export type Currency = 'USD' | 'EUR' | 'GBP';
 export type Theme = 'dark' | 'light';
 
 export interface AuthToken {
-  syncToken: string;
+  session: string;
   currency: Currency;
   theme?: Theme;
 }
 
-export interface Expense {
-  id: string;
+export interface ExpenseContent {
   cost: number;
   description: string;
   budget: string;
   date: string;
-  _rev?: string;
 }
 
-export interface Budget {
+export interface Expense extends ExpenseContent {
   id: string;
+}
+
+export interface BudgetContent {
   name: string;
   month: string;
   value: number;
-  _rev?: string;
+}
+
+export interface Budget extends BudgetContent {
+  id: string;
 }
 
 export interface PanelProps {
@@ -37,16 +41,5 @@ export interface PanelProps {
   budgets: Budget[];
   expenses: Expense[];
   reloadData: () => Promise<void>;
-  db: RxDatabase;
-}
-
-// API
-export interface ApiLoginRequest {
-  syncToken: string;
-  currency?: Currency;
-}
-export interface ApiLoginResponse {
-  sessionCookieValue?: string;
-  code?: number;
-  message?: string;
+  etebase: Etebase.Account;
 }

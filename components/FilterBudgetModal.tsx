@@ -45,13 +45,8 @@ const BudgetName = styled.span`
 `;
 
 const FilterBudgetModal = (props: FilterBudgetModalProps) => {
-  const {
-    isOpen,
-    onClose,
-    budgets,
-    onFilterBudgetToggle,
-    filterBudgets,
-  } = props;
+  const { isOpen, onClose, budgets, onFilterBudgetToggle, filterBudgets } =
+    props;
   return (
     <Rodal visible={isOpen} onClose={onClose} animation="slideDown">
       <Container>

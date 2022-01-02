@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import { sessionNamespace } from 'lib/constants';
 import { AuthToken, Currency, Theme } from 'lib/types';
 
-export const formatNumber = (currency: Currency = 'USD', number: number) =>
+export const formatNumber = (currency: Currency, number: number) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency || 'USD',
@@ -86,12 +86,12 @@ export const showNotification = (
 };
 
 export const doLogin = (
-  syncToken: string,
+  session: string,
   currency: Currency = 'USD',
   theme: Theme = 'light',
 ) => {
   const authToken: AuthToken = {
-    syncToken,
+    session,
     currency,
     theme,
   };
@@ -143,7 +143,7 @@ export const getUserInfo: GetUserInfo = () => {
   }
 
   return {
-    syncToken: null,
+    session: null,
     currency: 'USD',
     theme: 'light',
   };
@@ -152,7 +152,7 @@ export const getUserInfo: GetUserInfo = () => {
 export const isLoggedIn = () => {
   try {
     const userInfo = getUserInfo();
-    return Boolean(userInfo.syncToken);
+    return Boolean(userInfo.session);
   } catch (error) {
     // Do nothing
   }
