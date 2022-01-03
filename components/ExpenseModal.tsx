@@ -213,7 +213,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
           value={budget || 'Misc'}
         >
           {budgets.map((budgetOption: T.Budget) => (
-            <option key={budgetOption.name} value={budgetOption.name}>
+            <option key={budgetOption.id} value={budgetOption.name}>
               {budgetOption.name}
             </option>
           ))}

@@ -63,6 +63,29 @@ export const splitArrayInChunks = (array: any[], chunkLength: number) => {
   return chunks;
 };
 
+export const uniqBy = (
+  array: any[],
+  predicate: string | ((item: any) => any),
+) => {
+  const filter =
+    typeof predicate === 'function'
+      ? predicate
+      : (object: any) => object[predicate];
+
+  return [
+    ...array
+      .reduce((map, item) => {
+        const key = item === null || item === undefined ? item : filter(item);
+
+        // eslint-disable-next-line
+        map.has(key) || map.set(key, item);
+
+        return map;
+      }, new Map())
+      .values(),
+  ];
+};
+
 export const showNotification = (
   message: string,
   type: 'success' | 'error' = 'success',

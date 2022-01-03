@@ -20,6 +20,7 @@ interface ImportExportModalProps {
   session: string;
   isOpen: boolean;
   onClose: () => void;
+  setIsLoading: (isLoading: boolean) => void;
 }
 
 const Container = styled.section`
@@ -49,7 +50,7 @@ const Note = styled.span`
 const ImportExportModal = (props: ImportExportModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { isOpen, onClose, etebase, session } = props;
+  const { isOpen, onClose, etebase, session, setIsLoading } = props;
 
   const onRequestImport = async () => {
     if (isSubmitting) {
@@ -113,6 +114,7 @@ const ImportExportModal = (props: ImportExportModalProps) => {
         mergeOrReplaceDialogResult.isDenied
       ) {
         setIsSubmitting(true);
+        setIsLoading(true);
 
         const success = await importData(
           etebase,
@@ -123,6 +125,7 @@ const ImportExportModal = (props: ImportExportModalProps) => {
         );
 
         setIsSubmitting(false);
+        setIsLoading(false);
 
         if (success) {
           onClose();

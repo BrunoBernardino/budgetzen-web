@@ -179,6 +179,8 @@ const All = () => {
         etebase={etebase.current}
         currentTheme={theme}
         updateTheme={setTheme}
+        setIsLoading={setIsLoading}
+        reloadData={reloadData}
       />
       <LogoutLink />
     </Wrapper>

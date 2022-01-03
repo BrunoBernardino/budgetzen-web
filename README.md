@@ -21,7 +21,10 @@ make deploy  # deploys to v2.budgetzen.net (requires `serverless` to be installe
 ## TODOs
 
 - [ ] Implement billing in signup
-- [ ] Implement fetching in chunks + incrementally, via stoken?
-- [ ] Implement encrypted session?
+
+## TODOs for later
+
+- [ ] Implement encrypted session (always ask for a pin)?
 - [ ] Improve UI/UX in general
 - [ ] Improve dark/light mode
+- [ ] Implement [Signed Pages](https://github.com/tasn/webext-signed-pages)?

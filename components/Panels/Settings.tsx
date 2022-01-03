@@ -20,6 +20,8 @@ interface SettingsProps {
   updateTheme: (theme: T.Theme) => void;
   session: string;
   etebase: Etebase.Account;
+  setIsLoading: (isLoading: boolean) => void;
+  reloadData: () => Promise<void>;
 }
 
 // @ts-ignore manually added
@@ -80,6 +82,8 @@ const Settings = ({
   updateTheme,
   session,
   etebase,
+  setIsLoading,
+  reloadData,
 }: SettingsProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -207,7 +211,11 @@ const Settings = ({
             etebase={etebase}
             session={session}
             isOpen={isImportExportModalOpen}
-            onClose={() => setIsImportExportModalOpen(false)}
+            onClose={async () => {
+              setIsImportExportModalOpen(false);
+              await reloadData();
+            }}
+            setIsLoading={setIsLoading}
           />
         </Container>
       </Rodal>
