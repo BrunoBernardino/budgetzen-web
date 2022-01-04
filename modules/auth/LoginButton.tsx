@@ -6,7 +6,7 @@ import Button from 'components/Button';
 import TextInput from 'components/TextInput';
 import Paragraph from 'components/Paragraph';
 import { validateLogin, createAccount } from 'lib/data-utils';
-import { showNotification } from 'lib/utils';
+import { showNotification, updatePreferences } from 'lib/utils';
 
 const LoginButton = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,6 +27,8 @@ const LoginButton = () => {
         "That looks alright. Let's get on with it!",
         'success',
       );
+
+      updatePreferences();
 
       window.location.reload();
     } else {

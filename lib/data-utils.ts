@@ -86,9 +86,6 @@ const loadItemsAsync = async () => {
   await userbase.openDatabase({
     databaseName: 'budgets',
     changeHandler: async (items) => {
-      // TODO: Remove this
-      console.log('======== data-utils.loadItemsAsync.budgets');
-      console.log(items.length);
       const budgets = items
         .map(getBudgetFromItem)
         .filter((budget) => Boolean(budget));
@@ -102,9 +99,6 @@ const loadItemsAsync = async () => {
   await userbase.openDatabase({
     databaseName: 'expenses',
     changeHandler: (items) => {
-      // TODO: Remove this
-      console.log('======== data-utils.loadItemsAsync.expenses');
-      console.log(items.length);
       const expenses = items
         .map(getExpenseFromItem)
         .filter((expense) => Boolean(expense));

@@ -155,11 +155,16 @@ export const doLogout = async () => {
 
 type GetUserInfo = () => AuthToken;
 export const getUserInfo: GetUserInfo = () => {
+  const defaultAuthToken: AuthToken = {
+    currency: 'USD',
+    theme: 'light',
+  };
+
   try {
     const userInfo: AuthToken = JSON.parse(
       localStorage.getItem(`${sessionNamespace}:userInfo`),
     );
-    return userInfo;
+    return userInfo || defaultAuthToken;
   } catch (error) {
     Swal.fire({
       title: 'Uh-oh',
@@ -167,10 +172,7 @@ export const getUserInfo: GetUserInfo = () => {
     });
   }
 
-  return {
-    currency: 'USD',
-    theme: 'light',
-  };
+  return defaultAuthToken;
 };
 
 export const isLoggedIn = async () => {
