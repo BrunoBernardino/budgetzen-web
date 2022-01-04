@@ -18,13 +18,14 @@ const Container = styled.section`
   flex: 1;
   background-color: ${colors().background};
   padding: 0 16px;
-  width: 90vw;
+  width: 86vw;
   border-radius: 5px;
-  margin-top: -10px;
-  margin-right: -2px;
+  margin: 10px 0 30px;
 
   @media only screen and (min-width: 800px) {
     max-width: 280px;
+    margin-top: 5px;
+    margin-bottom: 10px;
   }
 `;
 
