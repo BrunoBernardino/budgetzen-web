@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
 import Swal from 'sweetalert2';
-import * as Etebase from 'etebase';
 
 import Button from 'components/Button';
 import { showNotification } from 'lib/utils';
@@ -20,7 +19,6 @@ interface ExpenseModalProps {
   date: string;
   budgets: T.Budget[];
   reloadData: () => Promise<void>;
-  etebase: Etebase.Account;
 }
 
 const Container = styled.section`
@@ -89,7 +87,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
   const [budget, setBudget] = useState(props.budget);
   const [date, setDate] = useState(props.date);
 
-  const { id, isOpen, budgets, reloadData, etebase } = props;
+  const { id, isOpen, budgets, reloadData } = props;
 
   const onClose = useCallback(() => {
     const { onClose: closeModal } = props;
@@ -116,7 +114,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
       date,
     };
 
-    const success = await saveExpense(etebase, parsedExpense);
+    const success = await saveExpense(parsedExpense);
 
     setIsSubmitting(false);
 
@@ -150,7 +148,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
 
     setIsSubmitting(true);
 
-    const success = await deleteExpense(etebase, id);
+    const success = await deleteExpense(id);
 
     setIsSubmitting(false);
 

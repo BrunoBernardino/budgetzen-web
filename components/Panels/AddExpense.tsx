@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-import * as Etebase from 'etebase';
 
 import Button from 'components/Button';
 import { colors, fontSizes } from 'lib/constants';
@@ -11,7 +10,6 @@ import * as T from 'lib/types';
 interface AddExpenseProps {
   budgets: T.Budget[];
   reloadData: () => Promise<void>;
-  etebase: Etebase.Account;
 }
 
 const Container = styled.section`
@@ -89,7 +87,7 @@ const Select = styled.select`
   }
 `;
 
-const AddExpense = ({ budgets, reloadData, etebase }: AddExpenseProps) => {
+const AddExpense = ({ budgets, reloadData }: AddExpenseProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [description, setDescription] = useState('');
   const [cost, setCost] = useState('');
@@ -112,7 +110,7 @@ const AddExpense = ({ budgets, reloadData, etebase }: AddExpenseProps) => {
       date,
     };
 
-    const success = await saveExpense(etebase, parsedExpense);
+    const success = await saveExpense(parsedExpense);
 
     setIsSubmitting(false);
 

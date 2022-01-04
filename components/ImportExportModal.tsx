@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
 import Swal from 'sweetalert2';
-import * as Etebase from 'etebase';
 
 import Button from 'components/Button';
 import { showNotification } from 'lib/utils';
@@ -16,8 +15,6 @@ type ImportedFileData = {
 };
 
 interface ImportExportModalProps {
-  etebase: Etebase.Account;
-  session: string;
   isOpen: boolean;
   onClose: () => void;
   setIsLoading: (isLoading: boolean) => void;
@@ -50,7 +47,7 @@ const Note = styled.span`
 const ImportExportModal = (props: ImportExportModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { isOpen, onClose, etebase, session, setIsLoading } = props;
+  const { isOpen, onClose, setIsLoading } = props;
 
   const onRequestImport = async () => {
     if (isSubmitting) {
@@ -117,8 +114,6 @@ const ImportExportModal = (props: ImportExportModalProps) => {
         setIsLoading(true);
 
         const success = await importData(
-          etebase,
-          session,
           mergeOrReplaceDialogResult.isDenied,
           budgets,
           expenses,
@@ -149,7 +144,7 @@ const ImportExportModal = (props: ImportExportModalProps) => {
       .substring(0, 19)
       .replace(/:/g, '-')}.json`;
 
-    const exportData = await exportAllData(etebase);
+    const exportData = await exportAllData();
 
     const exportContents = JSON.stringify(exportData, null, 2);
 

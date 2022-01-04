@@ -4,7 +4,7 @@
 
 This is the web app for the [Budget Zen app](https://budgetzen.net), built with Next.js and deployed to AWS with Serverless.
 
-It's v2, meaning it is [end-to-end encrypted via etebase](https://etebase.com), and requires an email + [token](https://budgetzen.net/get-sync-token) to work.
+It's v2, meaning it is [end-to-end encrypted via userbase](https://userbase.com), and requires an email + password to work.
 
 It also means it's not compatible with Budget Zen v1, which you can still get locally from [this commit](https://github.com/BrunoBernardino/budgetzen-web/tree/397d625469b7dfd8d1968c847b32e607ee7c8ee9).
 
@@ -20,11 +20,7 @@ make deploy  # deploys to v2.budgetzen.net (requires `serverless` to be installe
 
 ## TODOs
 
-- [ ] Implement billing in signup
-
-## TODOs for later
-
-- [ ] Implement encrypted session (always ask for a pin)?
+- [ ] Implement billing: https://userbase.com/docs/sdk/purchase-subscription/
+- [ ] Implement changing/forgetting password: https://userbase.com/docs/sdk/forgot-password/ && https://userbase.com/docs/sdk/update-user/
 - [ ] Improve UI/UX in general
 - [ ] Improve dark/light mode
-- [ ] Implement [Signed Pages](https://github.com/tasn/webext-signed-pages)?

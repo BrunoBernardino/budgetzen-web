@@ -1,37 +1,20 @@
-import * as Etebase from 'etebase';
+import userbase from 'userbase-js';
 import Swal from 'sweetalert2';
 import moment from 'moment';
 
 import {
   sortByName,
   sortByDate,
+  splitArrayInChunks,
   showNotification,
-  doLogin,
-  uniqBy,
 } from './utils';
 import * as T from './types';
 
-const ETEBASE_SERVER_URL = process.env.NEXT_PUBLIC_ETEBASE_SERVER_URL;
+const USERBASE_APP_ID = process.env.NEXT_PUBLIC_USERBASE_APP_ID;
 
-const collectionTypes = {
-  budget: 'budgetzen.budget',
-  expense: 'budgetzen.expense',
-};
-
-const collectionUids = {
-  budgets: '',
-  expenses: '',
-};
-
-// While this defeats the purpose of e2ee a little bit, the app is just too slow without it.
 const cachedData: { budgets: T.Budget[]; expenses: T.Expense[] } = {
   budgets: [],
   expenses: [],
-};
-
-const hasStartedLoading = {
-  budgets: false,
-  expenses: false,
 };
 
 const hasFinishedLoading = {
@@ -39,15 +22,16 @@ const hasFinishedLoading = {
   expenses: false,
 };
 
-export const validateLogin = async (email: string, syncToken: string) => {
+const sessionLengthInHours = 90 * 24;
+
+export const validateLogin = async (email: string, password: string) => {
   try {
-    const etebase = await Etebase.Account.login(
-      email,
-      syncToken,
-      ETEBASE_SERVER_URL,
-    );
-    const savedSession = await etebase.save();
-    doLogin(savedSession);
+    await userbase.signIn({
+      username: email,
+      password,
+      sessionLength: sessionLengthInHours,
+      rememberMe: 'local',
+    });
     return { success: true };
   } catch (error) {
     console.log(error);
@@ -55,182 +39,104 @@ export const validateLogin = async (email: string, syncToken: string) => {
   }
 };
 
-export const createAccount = async (email: string, syncToken: string) => {
+export const createAccount = async (email: string, password: string) => {
   try {
-    const etebase = await Etebase.Account.signup(
-      {
-        username: Etebase.toBase64(Etebase.randomBytes(24)),
-        email,
-      },
-      syncToken,
-      ETEBASE_SERVER_URL,
-    );
-    const savedSession = await etebase.save();
-    doLogin(savedSession);
-    return true;
+    await userbase.signUp({
+      username: email,
+      password,
+      sessionLength: sessionLengthInHours,
+      rememberMe: 'local',
+      email,
+    });
+    return { success: true };
   } catch (error) {
     console.log(error);
-    return false;
+    return { success: false, error };
   }
 };
 
-export const initializeDb = async (session: string) => {
-  if (!session) {
-    return null;
-  }
-
-  const etebase = await Etebase.Account.restore(session);
-
-  const collectionManager = etebase.getCollectionManager();
+const getBudgetFromItem = (item: userbase.Item) => {
   try {
-    const collections = await collectionManager.list([
-      collectionTypes.budget,
-      collectionTypes.expense,
-    ]);
-
-    if (collections.data.length === 0) {
-      const budgetsCollection = await collectionManager.create(
-        collectionTypes.budget,
-        {
-          name: 'Budgets',
-          description: 'BudgetZen Budgets',
-          color: '#7fa780ff',
-        },
-        '', // Empty content
-      );
-      const expensesCollection = await collectionManager.create(
-        collectionTypes.expense,
-        {
-          name: 'Expenses',
-          description: 'BudgetZen Expenses',
-          color: '#84848aff',
-        },
-        '', // Empty content
-      );
-
-      await collectionManager.transaction(budgetsCollection);
-      await collectionManager.transaction(expensesCollection);
-
-      collectionUids.budgets = budgetsCollection.uid;
-      collectionUids.expenses = expensesCollection.uid;
-    } else {
-      for (const collection of collections.data) {
-        const collectionType = collection.getCollectionType();
-        if (collectionType === collectionTypes.budget) {
-          collectionUids.budgets = collection.uid;
-        } else if (collectionType === collectionTypes.expense) {
-          collectionUids.expenses = collection.uid;
-        }
-      }
-    }
-  } catch (error) {
-    console.log(error);
-    showNotification(error, 'error');
-    return null;
-  }
-
-  return etebase;
-};
-
-const getBudgetFromItem = async (item: Etebase.Item) => {
-  try {
-    const data: T.BudgetContent = JSON.parse(
-      await item.getContent(Etebase.OutputFormat.String),
-    );
-
     return {
-      id: item.uid,
-      name: data.name,
-      month: data.month,
-      value: data.value,
+      id: item.itemId,
+      name: item.item.name,
+      month: item.item.month,
+      value: item.item.value,
     } as T.Budget;
   } catch (error) {
     return null;
   }
 };
 
-const getExpenseFromItem = async (item: Etebase.Item) => {
+const getExpenseFromItem = (item: userbase.Item) => {
   try {
-    const data: T.ExpenseContent = JSON.parse(
-      await item.getContent(Etebase.OutputFormat.String),
-    );
-
     return {
-      id: item.uid,
-      cost: data.cost,
-      description: data.description,
-      budget: data.budget,
-      date: data.date,
+      id: item.itemId,
+      cost: item.item.cost,
+      description: item.item.description,
+      budget: item.item.budget,
+      date: item.item.date,
     } as T.Expense;
   } catch (error) {
     return null;
   }
 };
 
-const loadItemsAsync = async (
-  type: 'budgets' | 'expenses',
-  itemManager: Etebase.ItemManager,
-  stoken?: string,
-) => {
-  if (hasFinishedLoading[type] || (hasStartedLoading[type] && !stoken)) {
-    return cachedData[type];
-  }
+const loadItemsAsync = async () => {
+  await userbase.openDatabase({
+    databaseName: 'budgets',
+    changeHandler: async (items) => {
+      // TODO: Remove this
+      console.log('======== data-utils.loadItemsAsync.budgets');
+      console.log(items.length);
+      const budgets = items
+        .map(getBudgetFromItem)
+        .filter((budget) => Boolean(budget));
 
-  const items = await itemManager.list({ limit: 500, stoken });
-
-  // TODO: Remove this
-  console.log('======== data-utils.loadItemsAsync -- items');
-  console.log(items);
-
-  if (type === 'budgets') {
-    hasStartedLoading.budgets = true;
-
-    const budgets = (
-      await Promise.all(items.data.map(getBudgetFromItem))
-    ).filter((budget) => Boolean(budget));
-
-    if (!items.done) {
-      // eslint-disable-next-line
-      loadItemsAsync(type, itemManager, items.stoken);
-    } else {
       hasFinishedLoading.budgets = true;
-    }
 
-    cachedData.budgets = uniqBy([...cachedData.budgets, ...budgets], 'id');
+      cachedData.budgets = budgets;
+    },
+  });
 
-    return cachedData.budgets;
-  }
+  await userbase.openDatabase({
+    databaseName: 'expenses',
+    changeHandler: (items) => {
+      // TODO: Remove this
+      console.log('======== data-utils.loadItemsAsync.expenses');
+      console.log(items.length);
+      const expenses = items
+        .map(getExpenseFromItem)
+        .filter((expense) => Boolean(expense));
 
-  hasStartedLoading.expenses = true;
+      hasFinishedLoading.expenses = true;
 
-  const expenses = (
-    await Promise.all(items.data.map(getExpenseFromItem))
-  ).filter((expense) => Boolean(expense));
-
-  if (!items.done) {
-    // eslint-disable-next-line
-    loadItemsAsync(type, itemManager, items.stoken);
-  } else {
-    hasFinishedLoading.expenses = true;
-  }
-
-  cachedData.expenses = uniqBy([...cachedData.expenses, ...expenses], 'id');
-
-  return cachedData.expenses;
+      cachedData.expenses = expenses;
+    },
+  });
 };
 
-export const fetchBudgets = async (
-  etebase: Etebase.Account,
-  month?: string,
-) => {
+export const initializeDb = async () => {
   try {
-    const collectionManager = etebase.getCollectionManager();
-    const collection = await collectionManager.fetch(collectionUids.budgets);
-    const itemManager = collectionManager.getItemManager(collection);
+    await userbase.init({ appId: USERBASE_APP_ID });
 
-    const budgets: T.Budget[] = (
-      (await loadItemsAsync('budgets', itemManager)) as T.Budget[]
-    )
+    await loadItemsAsync();
+  } catch (error) {
+    console.log(error);
+    showNotification(error, 'error');
+  }
+};
+
+export const fetchBudgets = async (month?: string) => {
+  try {
+    // Very ugly, but... works.
+    while (!hasFinishedLoading.budgets) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+    }
+
+    const budgets = cachedData.budgets
       .filter((budget) => {
         if (!month) {
           return true;
@@ -257,18 +163,16 @@ export const fetchBudgets = async (
   return [];
 };
 
-export const fetchExpenses = async (
-  etebase: Etebase.Account,
-  month?: string,
-) => {
+export const fetchExpenses = async (month?: string) => {
   try {
-    const collectionManager = etebase.getCollectionManager();
-    const collection = await collectionManager.fetch(collectionUids.expenses);
-    const itemManager = collectionManager.getItemManager(collection);
+    // Very ugly, but... works.
+    while (!hasFinishedLoading.expenses) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+    }
 
-    const expenses = (
-      (await loadItemsAsync('expenses', itemManager)) as T.Expense[]
-    )
+    const expenses = cachedData.expenses
       .filter((expense) => {
         if (!month) {
           return true;
@@ -296,10 +200,7 @@ export const fetchExpenses = async (
   return [];
 };
 
-export const saveBudget = async (
-  etebase: Etebase.Account,
-  budget: T.Budget,
-) => {
+export const saveBudget = async (budget: T.Budget) => {
   try {
     if (budget.name === 'Total') {
       showNotification('Cannot create budget named "Total".', 'error');
@@ -321,7 +222,7 @@ export const saveBudget = async (
     }
 
     // Check if the name is unique for the given month
-    const existingBudgetsInMonth = await fetchBudgets(etebase, budget.month);
+    const existingBudgetsInMonth = await fetchBudgets(budget.month);
     const duplicateBudget = existingBudgetsInMonth.find(
       (existingBudget) =>
         existingBudget.name === budget.name && existingBudget.id !== budget.id,
@@ -335,86 +236,78 @@ export const saveBudget = async (
       return false;
     }
 
-    const collectionManager = etebase.getCollectionManager();
-    const collection = await collectionManager.fetch(collectionUids.budgets);
-    const itemManager = collectionManager.getItemManager(collection);
-
     if (budget.id === 'newBudget') {
-      const item = await itemManager.create(
-        {
-          type: 'budget',
-          mtime: new Date().getTime(),
-        },
-        JSON.stringify({
+      budget.id = `${Date.now().toString()}:${Math.random()}`;
+
+      await userbase.insertItem({
+        databaseName: 'budgets',
+        item: {
           name: budget.name,
           value: budget.value,
           month: budget.month,
-        } as T.BudgetContent),
-      );
-      budget.id = item.uid;
-
-      await itemManager.batch([item]);
-
-      cachedData.budgets.push({
-        id: budget.id,
-        name: budget.name,
-        value: budget.value,
-        month: budget.month,
+        } as T.BudgetContent,
+        itemId: budget.id,
       });
     } else {
-      const existingBudgetItem = await itemManager.fetch(budget.id);
-      const existingBudget = await getBudgetFromItem(existingBudgetItem);
+      const existingBudget = cachedData.budgets.find(
+        (_budget) => _budget.id === budget.id,
+      );
       const oldName = existingBudget.name;
       const newName = budget.name;
 
-      await existingBudgetItem.setContent(
-        JSON.stringify({
+      await userbase.updateItem({
+        databaseName: 'budgets',
+        item: {
           name: budget.name,
           value: budget.value,
           month: existingBudget.month, // Don't allow changing a budget's month
-        } as T.BudgetContent),
-      );
-      await itemManager.batch([existingBudgetItem]);
+        } as T.BudgetContent,
+        itemId: budget.id,
+      });
 
-      const cachedBudgetItemIndex = cachedData.budgets.findIndex(
+      const cachedBudgetIndex = cachedData.budgets.findIndex(
         (_budget) => _budget.id === budget.id,
       );
-      if (cachedBudgetItemIndex !== -1) {
-        cachedData.budgets[cachedBudgetItemIndex].name = budget.name;
-        cachedData.budgets[cachedBudgetItemIndex].value = budget.value;
+      if (cachedBudgetIndex !== -1) {
+        cachedData.budgets[cachedBudgetIndex].name = budget.name;
+        cachedData.budgets[cachedBudgetIndex].value = budget.value;
       }
 
       // Update all expenses with the previous budget name to the new one, if it changed
       if (oldName !== newName) {
         const matchingExpenses = (
-          await fetchExpenses(etebase, existingBudget.month)
+          await fetchExpenses(existingBudget.month)
         ).filter((expense) => expense.budget === oldName);
-        const expensesCollection = await collectionManager.fetch(
-          collectionUids.expenses,
-        );
-        const expensesItemManager =
-          collectionManager.getItemManager(expensesCollection);
-        const expenseItemsToUpdate = [];
-        for (const expense of matchingExpenses) {
-          const expenseItem = await expensesItemManager.fetch(expense.id);
-          await expenseItem.setContent(
-            JSON.stringify({
-              cost: expense.cost,
-              description: expense.description,
-              budget: newName,
-              date: expense.date,
-            } as T.ExpenseContent),
-          );
-          expenseItemsToUpdate.push(expenseItem);
 
-          const cachedItemIndex = cachedData.expenses.findIndex(
+        for (const expense of matchingExpenses) {
+          const cachedExpenseIndex = cachedData.expenses.findIndex(
             (_expense) => _expense.id === expense.id,
           );
-          if (cachedItemIndex !== -1) {
-            cachedData.expenses[cachedItemIndex].budget = newName;
+          if (cachedExpenseIndex !== -1) {
+            cachedData.expenses[cachedExpenseIndex].budget = newName;
           }
         }
-        await expensesItemManager.batch(expenseItemsToUpdate);
+
+        const updateChunks: T.Expense[][] = splitArrayInChunks(
+          matchingExpenses,
+          10,
+        );
+
+        for (const machingExpensesChunk of updateChunks) {
+          await userbase.putTransaction({
+            databaseName: 'expenses',
+            operations: machingExpensesChunk.map((expense) => ({
+              command: 'Update',
+              item: {
+                cost: expense.cost,
+                description: expense.description,
+                budget: newName,
+                date: expense.date,
+              } as T.ExpenseContent,
+              itemId: expense.id,
+            })),
+          });
+        }
       }
     }
 
@@ -431,28 +324,22 @@ export const saveBudget = async (
   return false;
 };
 
-export const deleteBudget = async (
-  etebase: Etebase.Account,
-  budgetId: string,
-) => {
+export const deleteBudget = async (budgetId: string) => {
   try {
-    const collectionManager = etebase.getCollectionManager();
-    const collection = await collectionManager.fetch(collectionUids.budgets);
-    const itemManager = collectionManager.getItemManager(collection);
-    const item = await itemManager.fetch(budgetId);
-
-    const existingBudget = await getBudgetFromItem(item);
+    const existingBudget = cachedData.budgets.find(
+      (budget) => budget.id === budgetId,
+    );
 
     // Check if the budget has no expenses, if so, don't delete
-    const matchingExpenses = (
-      await fetchExpenses(etebase, existingBudget.month)
-    ).filter((expense) => expense.budget === existingBudget.name);
+    const matchingExpenses = (await fetchExpenses(existingBudget.month)).filter(
+      (expense) => expense.budget === existingBudget.name,
+    );
 
     if (matchingExpenses.length > 0) {
       // Check if there are duplicate budgets (can happen on slow sync)
-      const matchingBudgets = (
-        await fetchBudgets(etebase, existingBudget.month)
-      ).filter((budget) => budget.name === existingBudget.name);
+      const matchingBudgets = (await fetchBudgets(existingBudget.month)).filter(
+        (budget) => budget.name === existingBudget.name,
+      );
 
       if (matchingBudgets.length === 1) {
         showNotification(
@@ -463,8 +350,10 @@ export const deleteBudget = async (
       }
     }
 
-    item.delete();
-    await itemManager.batch([item]);
+    await userbase.deleteItem({
+      databaseName: 'budgets',
+      itemId: budgetId,
+    });
 
     const cachedItemIndex = cachedData.budgets.findIndex(
       (budget) => budget.id === budgetId,
@@ -486,10 +375,7 @@ export const deleteBudget = async (
   return false;
 };
 
-export const saveExpense = async (
-  etebase: Etebase.Account,
-  expense: T.Expense,
-) => {
+export const saveExpense = async (expense: T.Expense) => {
   try {
     if (!expense.cost || typeof expense.cost !== 'number') {
       showNotification('Cost missing or invalid', 'error');
@@ -510,7 +396,7 @@ export const saveExpense = async (
       (!expense.budget || expense.budget === 'Misc') &&
       expense.id === 'newExpense'
     ) {
-      const matchingExpense = (await fetchExpenses(etebase)).find(
+      const matchingExpense = (await fetchExpenses()).find(
         (_expense) => _expense.description === expense.description,
       );
 
@@ -525,77 +411,47 @@ export const saveExpense = async (
 
     // Check if the budget exists for the expense in that given month, otherwise create one
     const existingBudget = (
-      await fetchBudgets(etebase, expense.date.substring(0, 7))
+      await fetchBudgets(expense.date.substring(0, 7))
     ).find((budget) => budget.name === expense.budget);
 
     if (!existingBudget) {
-      const collectionManager = etebase.getCollectionManager();
-      const collection = await collectionManager.fetch(collectionUids.budgets);
-      const itemManager = collectionManager.getItemManager(collection);
+      const newBudgetId = `${Date.now().toString()}:${Math.random()}`;
 
-      const item = await itemManager.create(
-        {
-          type: 'budget',
-          mtime: new Date().getTime(),
-        },
-        JSON.stringify({
+      await userbase.insertItem({
+        databaseName: 'budgets',
+        item: {
           name: expense.budget,
           month: expense.date.substring(0, 7),
           value: 100,
-        } as T.BudgetContent),
-      );
-
-      await itemManager.batch([item]);
-
-      cachedData.budgets.push({
-        id: item.uid,
-        name: expense.budget,
-        value: 100,
-        month: expense.date.substring(0, 7),
+        } as T.BudgetContent,
+        itemId: newBudgetId,
       });
     }
 
-    const collectionManager = etebase.getCollectionManager();
-    const collection = await collectionManager.fetch(collectionUids.expenses);
-    const itemManager = collectionManager.getItemManager(collection);
-
     if (expense.id === 'newExpense') {
-      const item = await itemManager.create(
-        {
-          type: 'expense',
-          mtime: new Date().getTime(),
-        },
-        JSON.stringify({
+      expense.id = `${Date.now().toString()}:${Math.random()}`;
+
+      await userbase.insertItem({
+        databaseName: 'expenses',
+        item: {
           cost: expense.cost,
           budget: expense.budget,
           description: expense.description,
           date: expense.date,
-        } as T.ExpenseContent),
-      );
-
-      await itemManager.batch([item]);
-
-      expense.id = item.uid;
-
-      cachedData.expenses.push({
-        id: expense.id,
-        cost: expense.cost,
-        budget: expense.budget,
-        description: expense.description,
-        date: expense.date,
+        } as T.ExpenseContent,
+        itemId: expense.id,
       });
     } else {
-      const existingExpenseItem = await itemManager.fetch(expense.id);
-
-      await existingExpenseItem.setContent(
-        JSON.stringify({
+      await userbase.updateItem({
+        databaseName: 'expenses',
+        item: {
           cost: expense.cost,
           description: expense.description,
           budget: expense.budget,
           date: expense.date,
-        } as T.ExpenseContent),
-      );
-      await itemManager.batch([existingExpenseItem]);
+        } as T.ExpenseContent,
+        itemId: expense.id,
+      });
 
       const cachedItemIndex = cachedData.expenses.findIndex(
         (_expense) => _expense.id === expense.id,
@@ -621,18 +477,12 @@ export const saveExpense = async (
   return false;
 };
 
-export const deleteExpense = async (
-  etebase: Etebase.Account,
-  expenseId: string,
-) => {
+export const deleteExpense = async (expenseId: string) => {
   try {
-    const collectionManager = etebase.getCollectionManager();
-    const collection = await collectionManager.fetch(collectionUids.expenses);
-    const itemManager = collectionManager.getItemManager(collection);
-    const item = await itemManager.fetch(expenseId);
-
-    item.delete();
-    await itemManager.batch([item]);
+    await userbase.deleteItem({
+      databaseName: 'expenses',
+      itemId: expenseId,
+    });
 
     const cachedItemIndex = cachedData.expenses.findIndex(
       (expense) => expense.id === expenseId,
@@ -654,68 +504,63 @@ export const deleteExpense = async (
   return false;
 };
 
-export const deleteAllData = async (etebase: Etebase.Account) => {
-  const collectionManager = etebase.getCollectionManager();
-  const budgetsCollection = await collectionManager.fetch(
-    collectionUids.budgets,
-  );
-  const budgetsItemManager =
-    collectionManager.getItemManager(budgetsCollection);
+export const deleteAllData = async () => {
+  const budgets = await fetchBudgets();
+  const expenses = await fetchExpenses();
 
-  const budgets = await fetchBudgets(etebase);
-  const budgetItems: Etebase.Item[] = [];
-  for (const budget of budgets) {
-    const item = await budgetsItemManager.fetch(budget.id);
-    item.delete();
-    budgetItems.push(item);
+  const deleteBudgetChunks: T.Budget[][] = splitArrayInChunks(budgets, 10);
+  const deleteExpenseChunks: T.Expense[][] = splitArrayInChunks(expenses, 10);
+
+  for (const budgetsToDelete of deleteBudgetChunks) {
+    await userbase.putTransaction({
+      databaseName: 'budgets',
+      operations: budgetsToDelete.map((budget) => ({
+        command: 'Delete',
+        itemId: budget.id,
+      })),
+    });
+
+    // Wait a second, to avoid hitting rate limits
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
   }
-  await budgetsItemManager.batch(budgetItems);
 
-  const expensesCollection = await collectionManager.fetch(
-    collectionUids.expenses,
-  );
-  const expensesItemManager =
-    collectionManager.getItemManager(expensesCollection);
+  for (const expensesToDelete of deleteExpenseChunks) {
+    await userbase.putTransaction({
+      databaseName: 'expenses',
+      operations: expensesToDelete.map((expense) => ({
+        command: 'Delete',
+        itemId: expense.id,
+      })),
+    });
 
-  const expenses = await fetchExpenses(etebase);
-  const expenseItems: Etebase.Item[] = [];
-  for (const expense of expenses) {
-    const item = await expensesItemManager.fetch(expense.id);
-    item.delete();
-    expenseItems.push(item);
+    // Wait a second, to avoid hitting rate limits
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
   }
-  await expensesItemManager.batch(expenseItems);
-
-  budgetsCollection.delete();
-  await collectionManager.upload(budgetsCollection);
-
-  expensesCollection.delete();
-  await collectionManager.upload(expensesCollection);
 
   cachedData.budgets.length = 0;
   cachedData.expenses.length = 0;
-  hasStartedLoading.budgets = false;
-  hasStartedLoading.expenses = false;
   hasFinishedLoading.budgets = false;
   hasFinishedLoading.expenses = false;
 };
 
-type ExportAllData = (etebase: Etebase.Account) => Promise<{
+type ExportAllData = () => Promise<{
   budgets?: T.Budget[];
   expenses?: T.Expense[];
 }>;
 
-export const exportAllData: ExportAllData = async (
-  etebase: Etebase.Account,
-) => {
+export const exportAllData: ExportAllData = async () => {
   // Don't import anything until we're done with the first full load
   if (!hasFinishedLoading.budgets || !hasFinishedLoading.expenses) {
     return {};
   }
 
   try {
-    const budgets = (await fetchBudgets(etebase)).sort(sortByName);
-    const expenses = (await fetchExpenses(etebase)).sort(sortByDate);
+    const budgets = (await fetchBudgets()).sort(sortByName);
+    const expenses = (await fetchExpenses()).sort(sortByDate);
 
     return { budgets, expenses };
   } catch (error) {
@@ -731,8 +576,6 @@ export const exportAllData: ExportAllData = async (
 };
 
 export const importData = async (
-  etebase: Etebase.Account,
-  session: string,
   replaceData: boolean,
   budgets: T.Budget[],
   expenses: T.Expense[],
@@ -744,77 +587,97 @@ export const importData = async (
 
   try {
     if (replaceData) {
-      await deleteAllData(etebase);
+      await deleteAllData();
 
-      await initializeDb(session);
+      await initializeDb();
+
+      // Very ugly, but... works.
+      while (!hasFinishedLoading.budgets || !hasFinishedLoading.expenses) {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 100);
+        });
+      }
     }
 
-    const collectionManager = etebase.getCollectionManager();
-    const budgetsCollection = await collectionManager.fetch(
-      collectionUids.budgets,
-    );
-    const budgetsItemManager =
-      collectionManager.getItemManager(budgetsCollection);
-    const budgetItems: Etebase.Item[] = [];
+    const finalBudgetsToAdd: T.Budget[] = [];
 
     for (const budget of budgets) {
-      const item = await budgetsItemManager.create(
-        {
-          type: 'budget',
-          mtime: new Date().getTime(),
-        },
-        JSON.stringify({
-          name: budget.name,
-          value: budget.value,
-          month: budget.month,
-        } as T.BudgetContent),
-      );
-
-      budgetItems.push(item);
-
-      cachedData.budgets.push({
-        id: item.uid,
+      const newBudgetId = `${Date.now().toString()}:${Math.random()}`;
+      const newBudget: T.Budget = {
+        id: newBudgetId,
         name: budget.name,
         value: budget.value,
         month: budget.month,
+      };
+
+      finalBudgetsToAdd.push(newBudget);
+    }
+
+    const addBudgetChunks: T.Budget[][] = splitArrayInChunks(
+      finalBudgetsToAdd,
+      10,
+    );
+
+    for (const budgetsToAdd of addBudgetChunks) {
+      await userbase.putTransaction({
+        databaseName: 'budgets',
+        operations: budgetsToAdd.map((budget) => ({
+          command: 'Insert',
+          item: {
+            name: budget.name,
+            value: budget.value,
+            month: budget.month,
+          } as T.BudgetContent,
+          itemId: budget.id,
+        })),
+      });
+
+      // Wait a second, to avoid hitting rate limits
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
       });
     }
 
-    await budgetsItemManager.batch(budgetItems);
-
-    const expensesCollection = await collectionManager.fetch(
-      collectionUids.expenses,
-    );
-    const expensesItemManager =
-      collectionManager.getItemManager(expensesCollection);
-    const expenseItems: Etebase.Item[] = [];
+    const finalExpensesToAdd: T.Expense[] = [];
 
     for (const expense of expenses) {
-      const item = await expensesItemManager.create(
-        {
-          type: 'expense',
-          mtime: new Date().getTime(),
-        },
-        JSON.stringify({
-          cost: expense.cost,
-          budget: expense.budget,
-          description: expense.description,
-          date: expense.date,
-        } as T.ExpenseContent),
-      );
-
-      expenseItems.push(item);
-
-      cachedData.expenses.push({
-        id: item.uid,
+      const newExpenseId = `${Date.now().toString()}:${Math.random()}`;
+      const newExpense: T.Expense = {
+        id: newExpenseId,
         cost: expense.cost,
         budget: expense.budget,
         description: expense.description,
         date: expense.date,
-      });
+      };
+
+      finalExpensesToAdd.push(newExpense);
     }
 
-    await expensesItemManager.batch(expenseItems);
+    const addExpenseChunks: T.Expense[][] = splitArrayInChunks(
+      finalExpensesToAdd,
+      10,
+    );
+
+    for (const expensesToAdd of addExpenseChunks) {
+      await userbase.putTransaction({
+        databaseName: 'expenses',
+        operations: expensesToAdd.map((expense) => ({
+          command: 'Insert',
+          item: {
+            cost: expense.cost,
+            budget: expense.budget,
+            description: expense.description,
+            date: expense.date,
+          } as T.ExpenseContent,
+          itemId: expense.id,
+        })),
+      });
+
+      // Wait a second, to avoid hitting rate limits
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
+      });
+    }
 
     return true;
   } catch (error) {
@@ -830,7 +693,6 @@ export const importData = async (
 };
 
 export const copyBudgets = async (
-  etebase: Etebase.Account,
   originalMonth: string,
   destinationMonth: string,
 ) => {
@@ -839,7 +701,7 @@ export const copyBudgets = async (
     return;
   }
 
-  const originalBudgets = await fetchBudgets(etebase, originalMonth);
+  const originalBudgets = await fetchBudgets(originalMonth);
   const destinationBudgets = originalBudgets.map((budget) => {
     const newBudget: T.Budget = { ...budget };
     newBudget.id = `${Date.now().toString()}:${Math.random()}`;
@@ -848,35 +710,38 @@ export const copyBudgets = async (
   });
   if (destinationBudgets.length > 0) {
     try {
-      const collectionManager = etebase.getCollectionManager();
-      const collection = await collectionManager.fetch(collectionUids.budgets);
-      const itemManager = collectionManager.getItemManager(collection);
-      const items: Etebase.Item[] = [];
+      const finalBudgetsToAdd: T.Budget[] = [];
 
       for (const budget of destinationBudgets) {
-        const item = await itemManager.create(
-          {
-            type: 'budget',
-            mtime: new Date().getTime(),
-          },
-          JSON.stringify({
-            name: budget.name,
-            value: budget.value,
-            month: budget.month,
-          } as T.BudgetContent),
-        );
-
-        items.push(item);
-
-        cachedData.budgets.push({
-          id: item.uid,
+        const newBudget: T.Budget = {
+          id: budget.id,
           name: budget.name,
           value: budget.value,
           month: budget.month,
-        });
+        };
+
+        finalBudgetsToAdd.push(newBudget);
       }
 
-      await itemManager.batch(items);
+      const addBudgetChunks: T.Budget[][] = splitArrayInChunks(
+        finalBudgetsToAdd,
+        10,
+      );
+
+      for (const budgetsToAdd of addBudgetChunks) {
+        await userbase.putTransaction({
+          databaseName: 'budgets',
+          operations: budgetsToAdd.map((budget) => ({
+            command: 'Insert',
+            item: {
+              name: budget.name,
+              value: budget.value,
+              month: budget.month,
+            } as T.BudgetContent,
+            itemId: budget.id,
+          })),
+        });
+      }
     } catch (error) {
       Swal.fire({
         title: 'Uh-oh',

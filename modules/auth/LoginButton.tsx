@@ -4,21 +4,22 @@ import Swal from 'sweetalert2';
 import Loading from 'components/Loading';
 import Button from 'components/Button';
 import TextInput from 'components/TextInput';
+import Paragraph from 'components/Paragraph';
 import { validateLogin, createAccount } from 'lib/data-utils';
 import { showNotification } from 'lib/utils';
 
 const LoginButton = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
-  const [syncToken, setSyncToken] = useState('');
+  const [password, setPassword] = useState('');
   const handleLogin = useCallback(async () => {
-    if (!email || !syncToken) {
+    if (!email || !password) {
       return;
     }
 
     setIsSubmitting(true);
 
-    const { success, error } = await validateLogin(email, syncToken);
+    const { success, error } = await validateLogin(email, password);
 
     if (success) {
       Swal.fire(
@@ -30,21 +31,38 @@ const LoginButton = () => {
       window.location.reload();
     } else {
       if (error) {
-        const errorMessage = error.toString();
-        if (errorMessage.includes('User not found')) {
-          showNotification(
-            'User does not exist. Will create an account and login.',
-            'error',
-          );
-          await createAccount(email, syncToken);
-        } else {
-          showNotification(error, 'error');
-        }
+        showNotification(error, 'error');
       }
 
       setIsSubmitting(false);
     }
-  }, [isSubmitting, email, syncToken]);
+  }, [isSubmitting, email, password]);
+
+  const handleSignup = useCallback(async () => {
+    if (!email || !password) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const { success, error } = await createAccount(email, password);
+
+    if (success) {
+      Swal.fire(
+        'Alright!',
+        "That looks alright. Let's get on with it!",
+        'success',
+      );
+
+      window.location.reload();
+    } else {
+      if (error) {
+        showNotification(error, 'error');
+      }
+
+      setIsSubmitting(false);
+    }
+  }, [isSubmitting, email, password]);
 
   return (
     <>
@@ -65,11 +83,11 @@ const LoginButton = () => {
       />
       <TextInput
         type="password"
-        label="Sync Token"
-        name="syncToken"
-        value={syncToken}
+        label="Password / Encryption Key"
+        name="password"
+        value={password}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-          setSyncToken(event.target.value)
+          setPassword(event.target.value)
         }
         onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
           if (event.key === 'Enter') {
@@ -80,9 +98,19 @@ const LoginButton = () => {
       <Button
         onClick={handleLogin}
         width="large"
+        type="primary"
         style={{ margin: '20px auto' }}
       >
         Login
+      </Button>
+      <Paragraph style={{ textAlign: 'center' }}>or</Paragraph>
+      <Button
+        onClick={handleSignup}
+        width="large"
+        type="secondary"
+        style={{ margin: '20px auto' }}
+      >
+        Signup
       </Button>
     </>
   );

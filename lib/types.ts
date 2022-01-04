@@ -1,5 +1,3 @@
-import * as Etebase from 'etebase';
-
 export interface PlainObject {
   [key: string]: any;
 }
@@ -9,7 +7,6 @@ export type Currency = 'USD' | 'EUR' | 'GBP';
 export type Theme = 'dark' | 'light';
 
 export interface AuthToken {
-  session: string;
   currency: Currency;
   theme?: Theme;
 }
@@ -41,5 +38,4 @@ export interface PanelProps {
   budgets: Budget[];
   expenses: Expense[];
   reloadData: () => Promise<void>;
-  etebase: Etebase.Account;
 }

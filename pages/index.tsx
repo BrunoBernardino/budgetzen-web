@@ -14,9 +14,12 @@ const IndexPage = () => {
   const [hasValidSession, setHasValidSession] = useState(false);
 
   useEffect(() => {
-    const isUserLoggedIn = isLoggedIn();
+    const checkSession = async () => {
+      const isUserLoggedIn = await isLoggedIn();
+      setHasValidSession(isUserLoggedIn);
+    };
 
-    setHasValidSession(isUserLoggedIn);
+    checkSession();
   }, []);
 
   return (

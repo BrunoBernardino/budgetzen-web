@@ -1,7 +1,10 @@
+import userbase from 'userbase-js';
 import Swal from 'sweetalert2';
 
 import { sessionNamespace } from 'lib/constants';
 import { AuthToken, Currency, Theme } from 'lib/types';
+
+const USERBASE_APP_ID = process.env.NEXT_PUBLIC_USERBASE_APP_ID;
 
 export const formatNumber = (currency: Currency, number: number) =>
   new Intl.NumberFormat('en-US', {
@@ -108,13 +111,11 @@ export const showNotification = (
   });
 };
 
-export const doLogin = (
-  session: string,
+export const updatePreferences = (
   currency: Currency = 'USD',
   theme: Theme = 'light',
 ) => {
   const authToken: AuthToken = {
-    session,
     currency,
     theme,
   };
@@ -136,9 +137,10 @@ export const doLogin = (
   return false;
 };
 
-export const doLogout = () => {
+export const doLogout = async () => {
   try {
     localStorage.removeItem(`${sessionNamespace}:userInfo`);
+    await userbase.signOut();
     return true;
   } catch (error) {
     Swal.fire(
@@ -166,16 +168,17 @@ export const getUserInfo: GetUserInfo = () => {
   }
 
   return {
-    session: null,
     currency: 'USD',
     theme: 'light',
   };
 };
 
-export const isLoggedIn = () => {
+export const isLoggedIn = async () => {
   try {
-    const userInfo = getUserInfo();
-    return Boolean(userInfo.session);
+    const session = await userbase.init({ appId: USERBASE_APP_ID });
+    if (session.user) {
+      return true;
+    }
   } catch (error) {
     // Do nothing
   }

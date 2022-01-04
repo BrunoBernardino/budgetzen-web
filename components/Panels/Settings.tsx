@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
-import * as Etebase from 'etebase';
 
 import SegmentedControl from 'components/SegmentedControl';
 import Button from 'components/Button';
 import IconButton from 'components/IconButton';
 import ImportExportModal from 'components/ImportExportModal';
 import { colors, fontSizes } from 'lib/constants';
-import { doLogin, showNotification } from 'lib/utils';
+import { updatePreferences, showNotification } from 'lib/utils';
 import * as T from 'lib/types';
 
 import appPackage from '../../package.json';
@@ -18,8 +17,6 @@ interface SettingsProps {
   updateCurrency: (currency: T.Currency) => void;
   currentTheme: T.Theme;
   updateTheme: (theme: T.Theme) => void;
-  session: string;
-  etebase: Etebase.Account;
   setIsLoading: (isLoading: boolean) => void;
   reloadData: () => Promise<void>;
 }
@@ -80,8 +77,6 @@ const Settings = ({
   updateCurrency,
   currentTheme,
   updateTheme,
-  session,
-  etebase,
   setIsLoading,
   reloadData,
 }: SettingsProps) => {
@@ -107,7 +102,7 @@ const Settings = ({
 
     setIsSubmitting(true);
 
-    const success = doLogin(session, newCurrency, currentTheme);
+    const success = updatePreferences(newCurrency, currentTheme);
 
     if (success) {
       updateCurrency(newCurrency);
@@ -127,7 +122,7 @@ const Settings = ({
 
     setIsSubmitting(true);
 
-    const success = doLogin(session, currentCurrency, newTheme);
+    const success = updatePreferences(currentCurrency, newTheme);
 
     if (success) {
       updateTheme(newTheme);
@@ -208,8 +203,6 @@ const Settings = ({
             </Button>
           </BottomContainer>
           <ImportExportModal
-            etebase={etebase}
-            session={session}
             isOpen={isImportExportModalOpen}
             onClose={async () => {
               setIsImportExportModalOpen(false);

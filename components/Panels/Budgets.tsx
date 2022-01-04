@@ -68,7 +68,6 @@ const Budgets = ({
   budgets,
   expenses,
   reloadData,
-  etebase,
 }: BudgetsProps) => {
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [chosenBudget, setChosenBudget] = useState({
@@ -148,7 +147,6 @@ const Budgets = ({
         isOpen={isBudgetModalOpen}
         onClose={() => closeBudgetModal()}
         reloadData={reloadData}
-        etebase={etebase}
         {...chosenBudget}
       />
     </Container>

@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
 import { useAsync } from 'react-use';
-import * as Etebase from 'etebase';
 
 import LogoutLink from 'modules/auth/LogoutLink';
 import { Loading } from 'components';
@@ -46,11 +45,9 @@ const All = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [monthInView, setMonthInView] = useState(moment().format('YYYY-MM'));
   const [currency, setCurrency] = useState<T.Currency>('USD');
-  const [session, setSession] = useState('');
   const [theme, setTheme] = useState<T.Theme>('light');
   const [budgets, setBudgets] = useState<T.Budget[]>([]);
   const [expenses, setExpenses] = useState<T.Expense[]>([]);
-  const etebase = useRef<Etebase.Account>(null);
 
   type ReloadData = (options?: {
     monthToLoad?: string;
@@ -62,16 +59,10 @@ const All = () => {
   } = {}) => {
     setIsLoading(true);
 
-    const fetchedBudgets = await fetchBudgets(
-      etebase.current,
-      monthToLoad || monthInView,
-    );
+    const fetchedBudgets = await fetchBudgets(monthToLoad || monthInView);
     setBudgets(fetchedBudgets);
 
-    const fetchedExpenses = await fetchExpenses(
-      etebase.current,
-      monthToLoad || monthInView,
-    );
+    const fetchedExpenses = await fetchExpenses(monthToLoad || monthInView);
     setExpenses(fetchedExpenses);
 
     // If this is for the current or next month and there are no budgets, create budgets based on the previous/current month.
@@ -84,7 +75,7 @@ const All = () => {
         (monthToLoad && monthToLoad === nextMonth) ||
         (!monthToLoad && monthInView === nextMonth)
       ) {
-        await copyBudgets(etebase.current, currentMonth, nextMonth);
+        await copyBudgets(currentMonth, nextMonth);
         await reloadData({ monthToLoad, isComingFromEmptyState: true });
         return;
       }
@@ -93,7 +84,7 @@ const All = () => {
         (monthToLoad && monthToLoad === currentMonth) ||
         (!monthToLoad && monthInView === currentMonth)
       ) {
-        await copyBudgets(etebase.current, previousMonth, currentMonth);
+        await copyBudgets(previousMonth, currentMonth);
         await reloadData({ monthToLoad, isComingFromEmptyState: true });
         return;
       }
@@ -120,16 +111,10 @@ const All = () => {
       const userInfo = getUserInfo();
       setCurrency(userInfo.currency);
       setTheme(userInfo.theme || 'light');
-      setSession(userInfo.session);
 
-      const initializedDb = await initializeDb(userInfo.session);
-      etebase.current = initializedDb;
+      await initializeDb();
 
       await reloadData();
-
-      showNotification(
-        'Data is continuously synchronizing in the background. Navigate between months to see the latest data.',
-      );
     }
   }, []);
 
@@ -155,7 +140,6 @@ const All = () => {
             budgets={budgets}
             expenses={expenses}
             reloadData={reloadData}
-            etebase={etebase.current}
           />
           <Budgets
             monthInView={monthInView}
@@ -163,20 +147,13 @@ const All = () => {
             budgets={budgets}
             expenses={expenses}
             reloadData={reloadData}
-            etebase={etebase.current}
           />
         </Wrapper>
       </LeftSide>
-      <AddExpense
-        budgets={budgets}
-        reloadData={reloadData}
-        etebase={etebase.current}
-      />
+      <AddExpense budgets={budgets} reloadData={reloadData} />
       <Settings
         currentCurrency={currency}
         updateCurrency={setCurrency}
-        session={session}
-        etebase={etebase.current}
         currentTheme={theme}
         updateTheme={setTheme}
         setIsLoading={setIsLoading}

@@ -104,7 +104,6 @@ const Expenses = ({
   budgets,
   currency,
   reloadData,
-  etebase,
 }: ExpensesProps) => {
   const [filterExpenseDescription, setFilterExpenseDescription] = useState('');
   const [filterBudgets, setFilterBudgets] = useState<Set<string>>(new Set());
@@ -181,7 +180,6 @@ const Expenses = ({
         onClose={() => closeExpenseModal()}
         budgets={budgets}
         reloadData={reloadData}
-        etebase={etebase}
         {...chosenExpense}
       />
       <FilterBudgetModal
