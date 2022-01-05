@@ -2,11 +2,11 @@
 
 [![](https://github.com/BrunoBernardino/budgetzen-web/workflows/Run%20Tests/badge.svg)](https://github.com/BrunoBernardino/budgetzen-web/actions?workflow=Run+Tests)
 
-This is the web app for the [Budget Zen app](https://budgetzen.net), built with Next.js and deployed to AWS with Vercel.
+This is the web app for the [Budget Zen app](https://budgetzen.net), built with Next.js and deployed to AWS with Serverless.
 
-It runs completely in the browser, using `localStorage` and `IndexedDB`.
+This is v2, which is [end-to-end encrypted via userbase](https://userbase.com), and works via web on any device (it's a PWA - Progressive Web App).
 
-It's not thoroughly tested just yet, so it's available but not announced.
+It's not compatible with Budget Zen v1 (not end-to-end encrypted), which you can still get locally from [this commit](https://github.com/BrunoBernardino/budgetzen-web/tree/397d625469b7dfd8d1968c847b32e607ee7c8ee9) and built in [here](https://v1.budgetzen.net). You can still export and import the data as the JSON format is the same (unencrypted).
 
 ## Development
 
@@ -20,7 +20,5 @@ make deploy  # deploys to app.budgetzen.net (requires `serverless` to be install
 
 ## TODOs
 
-- [ ] Allow using app without a Sync Token
 - [ ] Improve UI/UX in general
 - [ ] Improve dark/light mode
-- [ ] Improve mobile view (collapse panels and show tab bar to navigate between them?)

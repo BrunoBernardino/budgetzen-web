@@ -4,7 +4,7 @@ const eslint = {
     'airbnb',
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier/@typescript-eslint',
+    'prettier',
   ],
   rules: {
     semi: 2,
@@ -69,6 +69,9 @@ const eslint = {
     'function-paren-newline': 'off',
     'no-confusing-arrow': 'off',
     'react/jsx-curly-newline': 'off',
+    'react/function-component-definition': 'off',
+    'react/jsx-no-useless-fragment': 'off',
+    'no-nested-ternary': 'off',
   },
   parserOptions: {
     ecmaFeatures: {

@@ -1,4 +1,4 @@
-@import '__variables';
+@import 'styles/__variables';
 
 .common {
   padding: 20px 10px;
@@ -11,7 +11,7 @@
     text-align: left;
 
     strong {
-      font-weight: 500;
+      font-weight: bold;
     }
   }
 
@@ -42,4 +42,13 @@
       max-width: 220px;
     }
   }
+}
+
+// Fix for SCSS modules not working for at-root components
+.theme-dark footer {
+  background-color: #161616;
+}
+
+.theme-dark label {
+  color: $color-link-hover;
 }

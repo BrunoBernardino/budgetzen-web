@@ -1,12 +1,11 @@
 service:
-  name: budgetzen-web
+  name: budgetzen-web-v2
+
+useDotEnv: true
 
 myNextAppplication:
-  component: "@sls-next/serverless-component@3.6.0"
+  component: '@sls-next/serverless-component@3.6.0'
   inputs:
-    domain: ["app", "budgetzen.net"]
-    # bucketName: budgetzen-web
-    # bucketRegion: us-east-1
-    build:
-      env:
-        NODE_PATH: "/"
+    domain: ['app', 'budgetzen.net']
+    bucketName: budgetzen-web-v2
+    bucketRegion: us-east-1

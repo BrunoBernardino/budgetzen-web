@@ -1,11 +1,12 @@
 import { getUserInfo } from 'lib/utils';
 
-export const defaultTitle = 'Budget Zen — Simple and Easy Budget Management';
-export const defaultDescription = 'Simple and easy budget management.';
+export const defaultTitle =
+  'Budget Zen — Simple and Encrypted Budget Management';
+export const defaultDescription = 'Simple and encryped budget management.';
 export const defaultKeywords =
-  'budget, zen, simple, easy, app, web, ios, macos';
+  'budget, zen, encrypted, e2ee, end-to-end, simple, app, web, android, linux, ios, macos';
 
-export const sessionNamespace = 'BudgetZen_appSession';
+export const sessionNamespace = 'BudgetZen_v2_appSession';
 
 type Theme = 'dark' | 'light';
 
@@ -23,6 +24,7 @@ export const colors = (theme: Theme = 'light') => {
 
   if (
     typeof document !== 'undefined' &&
+    typeof document.getElementsByTagName === 'function' &&
     document.getElementsByTagName('body')[0].classList.contains('theme-dark')
   ) {
     theme = 'dark';

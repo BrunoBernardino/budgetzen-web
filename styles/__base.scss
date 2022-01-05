@@ -1,5 +1,5 @@
-@import '__reset';
-@import '__variables';
+@import 'styles/__reset';
+@import 'styles/__variables';
 
 html,
 body {
@@ -71,7 +71,11 @@ pre {
   margin: 1rem auto;
   display: block;
   max-width: $max-width;
-  min-width: $min-width;
+  min-width: 80vw;
+
+  @media #{$bigger-screen} {
+    min-width: $min-width;
+  }
 }
 
 button {

@@ -1,4 +1,4 @@
-@import '__variables';
+@import 'styles/__variables';
 
 .Header {
   display: block;
@@ -6,7 +6,7 @@
 
   &__logo {
     display: block;
-    margin: 3.5em 1em 0;
+    margin: 0 1em;
 
     img {
       width: 220px;

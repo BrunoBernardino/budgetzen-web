@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
 import Swal from 'sweetalert2';
-import { RxDatabase } from 'rxdb';
 
 import Button from 'components/Button';
 import { showNotification } from 'lib/utils';
@@ -20,7 +19,6 @@ interface ExpenseModalProps {
   date: string;
   budgets: T.Budget[];
   reloadData: () => Promise<void>;
-  db: RxDatabase;
 }
 
 const Container = styled.section`
@@ -82,10 +80,6 @@ const Select = styled.select`
   }
 `;
 
-const StyledButton = styled(Button)`
-  margin: 20px 0;
-`;
-
 const ExpenseModal = (props: ExpenseModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [description, setDescription] = useState(props.description);
@@ -93,7 +87,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
   const [budget, setBudget] = useState(props.budget);
   const [date, setDate] = useState(props.date);
 
-  const { id, isOpen, budgets, reloadData, db } = props;
+  const { id, isOpen, budgets, reloadData } = props;
 
   const onClose = useCallback(() => {
     const { onClose: closeModal } = props;
@@ -120,7 +114,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
       date,
     };
 
-    const success = await saveExpense(db, parsedExpense);
+    const success = await saveExpense(parsedExpense);
 
     setIsSubmitting(false);
 
@@ -141,8 +135,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
     const confirmationResult = await Swal.fire({
       icon: 'warning',
       title: 'Are you sure?',
-      text:
-        'Are you sure you want to delete this expense?\n\nThis action is irreversible.',
+      text: 'Are you sure you want to delete this expense?\n\nThis action is irreversible.',
       showDenyButton: true,
       showCancelButton: true,
       confirmButtonText: 'Yes!',
@@ -155,7 +148,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
 
     setIsSubmitting(true);
 
-    const success = await deleteExpense(db, id);
+    const success = await deleteExpense(id);
 
     setIsSubmitting(false);
 
@@ -218,7 +211,7 @@ const ExpenseModal = (props: ExpenseModalProps) => {
           value={budget || 'Misc'}
         >
           {budgets.map((budgetOption: T.Budget) => (
-            <option key={budgetOption.name} value={budgetOption.name}>
+            <option key={budgetOption.id} value={budgetOption.name}>
               {budgetOption.name}
             </option>
           ))}
@@ -234,14 +227,22 @@ const ExpenseModal = (props: ExpenseModalProps) => {
           onKeyDown={onKeyDown}
         />
 
-        <StyledButton onClick={() => addExpense()} type="primary">
+        <Button
+          onClick={() => addExpense()}
+          type="primary"
+          style={{ margin: '20px 0' }}
+        >
           {id ? 'Save Expense' : 'Add Expense'}
-        </StyledButton>
+        </Button>
 
         {Boolean(id) && (
-          <StyledButton onClick={() => removeExpense()} type="delete">
+          <Button
+            onClick={() => removeExpense()}
+            type="delete"
+            style={{ margin: '20px 0' }}
+          >
             Delete Expense
-          </StyledButton>
+          </Button>
         )}
       </Container>
     </Rodal>

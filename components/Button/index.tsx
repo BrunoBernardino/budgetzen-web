@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 
-import './style.scss';
+import styles from './styles.module.scss';
 
 interface ButtonProps {
   element?: 'button' | 'a';
@@ -11,24 +11,19 @@ interface ButtonProps {
   onClick?: any;
   className?: string;
   width?: '' | 'large' | 'tiny';
+  style?: any;
 }
 
 const Button: React.FC<ButtonProps> = forwardRef(
   (props: ButtonProps, ref: any) => {
-    const {
-      element,
-      className,
-      type,
-      isDisabled,
-      width,
-      ...remainingProps
-    } = props;
+    const { element, className, type, isDisabled, width, ...remainingProps } =
+      props;
 
     if (element === 'button') {
       const StyledButton = styled.button.attrs({
-        className: `${className || ''} Button Button--${type} ${
-          width ? `Button--${width}` : ''
-        }`,
+        className: `${styles[className] || ''} ${styles.Button} ${
+          styles[`Button--${type}`]
+        } ${width ? styles[`Button--${width}`] : ''}`,
       })``;
       return (
         <StyledButton
@@ -41,9 +36,9 @@ const Button: React.FC<ButtonProps> = forwardRef(
     }
 
     const StyledAnchor = styled.a.attrs({
-      className: `${className || ''} Button Button--${type} ${
-        width ? `Button--${width}` : ''
-      }`,
+      className: `${styles[className] || ''} ${styles.Button} ${
+        styles[`Button--${type}`]
+      } ${width ? styles[`Button--${width}`] : ''}`,
     })``;
 
     return <StyledAnchor ref={ref} {...remainingProps} />;

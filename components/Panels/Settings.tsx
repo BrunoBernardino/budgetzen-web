@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
-import { RxDatabase } from 'rxdb';
+import Link from 'next/link';
 
 import SegmentedControl from 'components/SegmentedControl';
 import Button from 'components/Button';
 import IconButton from 'components/IconButton';
 import ImportExportModal from 'components/ImportExportModal';
+import Paragraph from 'components/Paragraph';
 import { colors, fontSizes } from 'lib/constants';
-import { doLogin, showNotification } from 'lib/utils';
+import { updatePreferences, showNotification } from 'lib/utils';
 import * as T from 'lib/types';
 
 import appPackage from '../../package.json';
@@ -18,8 +19,8 @@ interface SettingsProps {
   updateCurrency: (currency: T.Currency) => void;
   currentTheme: T.Theme;
   updateTheme: (theme: T.Theme) => void;
-  syncToken: string;
-  db: RxDatabase;
+  setIsLoading: (isLoading: boolean) => void;
+  reloadData: () => Promise<void>;
 }
 
 // @ts-ignore manually added
@@ -67,16 +68,6 @@ const Version = styled.p`
   margin-top: 30px;
 `;
 
-const ImportExportButton = styled(Button)`
-  margin: 5px auto 10px;
-  align-self: center;
-`;
-
-const HelpButton = styled(Button)`
-  margin: 0 auto 10px;
-  align-self: center;
-`;
-
 const currencyLabels = ['$', '€', '£'];
 const currencyValues: T.Currency[] = ['USD', 'EUR', 'GBP'];
 
@@ -88,8 +79,8 @@ const Settings = ({
   updateCurrency,
   currentTheme,
   updateTheme,
-  syncToken,
-  db,
+  setIsLoading,
+  reloadData,
 }: SettingsProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -113,7 +104,7 @@ const Settings = ({
 
     setIsSubmitting(true);
 
-    const success = doLogin(syncToken, newCurrency, currentTheme);
+    const success = updatePreferences(newCurrency, currentTheme);
 
     if (success) {
       updateCurrency(newCurrency);
@@ -133,7 +124,7 @@ const Settings = ({
 
     setIsSubmitting(true);
 
-    const success = doLogin(syncToken, currentCurrency, newTheme);
+    const success = updatePreferences(currentCurrency, newTheme);
 
     if (success) {
       updateTheme(newTheme);
@@ -187,29 +178,49 @@ const Settings = ({
               saveTheme(themeValues[selectedSegmentIndex]);
             }}
           />
+          <Paragraph isCentered style={{ marginTop: '2rem' }}>
+            <Link href="/email-password">
+              <a>Change your email or password</a>
+            </Link>
+          </Paragraph>
+          <Paragraph isCentered>
+            <Link href="/billing">
+              <a>Manage billing</a>
+            </Link>
+          </Paragraph>
           <BottomContainer>
             <Version>
               v{appVersion}-{appBuild}
             </Version>
-            <ImportExportButton
+            <Button
               onClick={() => setIsImportExportModalOpen(true)}
               type="secondary"
+              style={{
+                margin: '5px auto 10px',
+                alignSelf: 'center',
+              }}
             >
               Import or Export Data
-            </ImportExportButton>
-            <HelpButton
+            </Button>
+            <Button
               element="a"
               href="mailto:help@budgetzen.net"
               type="primary"
+              style={{
+                margin: '0 auto 10px',
+                alignSelf: 'center',
+              }}
             >
               Get Help
-            </HelpButton>
+            </Button>
           </BottomContainer>
           <ImportExportModal
-            db={db}
-            syncToken={syncToken}
             isOpen={isImportExportModalOpen}
-            onClose={() => setIsImportExportModalOpen(false)}
+            onClose={async () => {
+              setIsImportExportModalOpen(false);
+              await reloadData();
+            }}
+            setIsLoading={setIsLoading}
           />
         </Container>
       </Rodal>

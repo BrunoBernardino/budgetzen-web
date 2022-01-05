@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from 'react';
 
 import { Main } from 'components/Layout';
-import Login from 'components/Panels/Login';
-import AllPanels from 'components/Panels/All';
+import EmailPassword from 'components/Panels/EmailPassword';
 import Loading from 'components/Loading';
-import { isLoggedIn } from 'lib/utils';
+import { getUserSession } from 'lib/utils';
 import {
   defaultTitle,
   defaultDescription,
   defaultKeywords,
 } from 'lib/constants';
 
-const IndexPage = () => {
+const EmailPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasValidSession, setHasValidSession] = useState(false);
+  const [currentEmail, setCurrentEmail] = useState('');
 
   useEffect(() => {
     const checkSession = async () => {
-      const isUserLoggedIn = await isLoggedIn();
-      setHasValidSession(isUserLoggedIn);
+      const userSession = await getUserSession();
+      if (userSession) {
+        setHasValidSession(true);
+        setCurrentEmail(userSession.email);
+      }
+
       setIsLoading(false);
     };
 
@@ -32,12 +36,15 @@ const IndexPage = () => {
       keywords={defaultKeywords}
       hasValidSession={hasValidSession}
     >
-      <div className="index common">
-        {!hasValidSession ? <Login /> : <AllPanels />}
+      <div className="email-password common">
+        <EmailPassword
+          hasValidSession={hasValidSession}
+          currentEmail={currentEmail}
+        />
       </div>
       <Loading isShowing={isLoading} />
     </Main>
   );
 };
 
-export default IndexPage;
+export default EmailPasswordPage;

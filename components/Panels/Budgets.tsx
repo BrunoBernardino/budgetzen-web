@@ -27,14 +27,16 @@ const Container = styled.section`
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin: 0 10px;
+  margin: 20px 10px;
   max-height: 80vh;
   overflow: auto;
   ${safariFix}
-`;
+  width: 90vw;
 
-const AddButton = styled(Button)`
-  margin: 20px 10px;
+  @media only screen and (min-width: 800px) {
+    width: auto;
+    margin: 0 10px;
+  }
 `;
 
 const NoBudgetsFoundText = styled.p`
@@ -67,7 +69,6 @@ const Budgets = ({
   budgets,
   expenses,
   reloadData,
-  db,
 }: BudgetsProps) => {
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [chosenBudget, setChosenBudget] = useState({
@@ -135,15 +136,18 @@ const Budgets = ({
         />
       ))}
       {budgetsToShow.length === 0 && <NoBudgetsFound />}
-      <AddButton onClick={() => openBudgetModal()} type="primary">
+      <Button
+        onClick={() => openBudgetModal()}
+        type="primary"
+        style={{ margin: '20px 10px' }}
+      >
         Add Budget
-      </AddButton>
+      </Button>
       <BudgetModal
         key={chosenBudget.id}
         isOpen={isBudgetModalOpen}
         onClose={() => closeBudgetModal()}
         reloadData={reloadData}
-        db={db}
         {...chosenBudget}
       />
     </Container>

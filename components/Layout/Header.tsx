@@ -1,11 +1,11 @@
 import Link from 'next/link';
 
-import './Header.scss';
+import styles from './Header.module.scss';
 
 const Header = () => {
   return (
-    <header className="Header">
-      <h1 className="Header__logo">
+    <header className={styles.Header}>
+      <h1 className={styles.Header__logo}>
         <Link href="/">
           <a>
             <img

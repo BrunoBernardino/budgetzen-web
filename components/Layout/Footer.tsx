@@ -1,31 +1,56 @@
-import './Footer.scss';
+import Link from 'next/link';
 
-const Footer = () => {
+import styles from './Footer.module.scss';
+
+const Footer = ({ hasValidSession }: { hasValidSession: boolean }) => {
   return (
-    <footer className="Footer">
-      <section className="Footer__faq">
+    <footer className={styles.Footer}>
+      <section className={styles.Footer__faq}>
         <h3>Frequently asked questions</h3>
 
-        <div className="Footer__faq-items">
-          <div className="Footer__faq-item">
+        <div className={styles['Footer__faq-items']}>
+          <div className={styles['Footer__faq-item']}>
             <h4>What is Budget Zen?</h4>
             <p>
-              Simple and easy budget management.{' '}
+              Simple and encrypted budget management.{' '}
               <a href="https://budgetzen.net">Read more here</a>.
             </p>
           </div>
 
-          <div className="Footer__faq-item">
-            <h4>How can I get a Sync Token?</h4>
-            <p>
-              <a href="https://budgetzen.net/get-sync-token">
-                See instructions here
-              </a>
-              .
-            </p>
-          </div>
+          {hasValidSession ? (
+            <>
+              <div className={styles['Footer__faq-item']}>
+                <h4>How can I manage my subscription?</h4>
+                <p>
+                  <Link href="/billing">
+                    <a>In your billing section</a>
+                  </Link>
+                  .
+                </p>
+              </div>
+              <div className={styles['Footer__faq-item']}>
+                <h4>How can I change my email or password / ecryption key?</h4>
+                <p>
+                  <Link href="/email-password">
+                    <a>Right here</a>
+                  </Link>
+                  .
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className={styles['Footer__faq-item']}>
+              <h4>How can I subscribe?</h4>
+              <p>
+                <Link href="/pricing">
+                  <a>In the pricing section</a>
+                </Link>
+                .
+              </p>
+            </div>
+          )}
 
-          <div className="Footer__faq-item">
+          <div className={styles['Footer__faq-item']}>
             <h4>Where's the code for this web app?</h4>
             <p>
               <a href="https://github.com/BrunoBernardino/budgetzen-web">
@@ -36,8 +61,8 @@ const Footer = () => {
           </div>
         </div>
       </section>
-      <h3 className="Footer__links">
-        <a href="https://privacy.onbrn.com">Privacy Policy</a> |{' '}
+      <h3 className={styles.Footer__links}>
+        <a href="https://budgetzen.net/privacy">Privacy Policy</a> |{' '}
         <a href="mailto:me@brunobernardino.com">Get Help</a> | by{' '}
         <a href="https://brunobernardino.com">Bruno Bernardino</a>
       </h3>

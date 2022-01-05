@@ -9,6 +9,7 @@ interface MainLayoutProps {
   title?: string;
   description?: string;
   keywords?: string;
+  hasValidSession?: boolean;
 }
 
 const MainLayout = ({
@@ -16,6 +17,7 @@ const MainLayout = ({
   title,
   description,
   keywords,
+  hasValidSession,
 }: MainLayoutProps) => {
   const metaTags = [
     { property: 'og:title', content: title },
@@ -42,7 +44,7 @@ const MainLayout = ({
       </Head>
       {SEOOverride}
       <div className="wrapper">{children}</div>
-      <Footer />
+      <Footer hasValidSession={Boolean(hasValidSession)} />
     </>
   );
 };

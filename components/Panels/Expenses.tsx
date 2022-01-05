@@ -23,9 +23,16 @@ const Container = styled.section`
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin: 20px 10px;
   max-height: 80vh;
   overflow: auto;
   ${safariFix}
+  width: 90vw;
+
+  @media only screen and (min-width: 800px) {
+    width: auto;
+    margin: 0;
+  }
 `;
 
 const FiltersContainer = styled.section`
@@ -99,14 +106,12 @@ const Expenses = ({
   budgets,
   currency,
   reloadData,
-  db,
 }: ExpensesProps) => {
   const [filterExpenseDescription, setFilterExpenseDescription] = useState('');
   const [filterBudgets, setFilterBudgets] = useState<Set<string>>(new Set());
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
-  const [isFilterBudgetsModalOpen, setIsFilterBudgetsModalOpen] = useState(
-    false,
-  );
+  const [isFilterBudgetsModalOpen, setIsFilterBudgetsModalOpen] =
+    useState(false);
   const [chosenExpense, setChosenExpense] = useState({ ...defaultExpense });
 
   const openExpenseModal = (expense: T.Expense) => {
@@ -177,7 +182,6 @@ const Expenses = ({
         onClose={() => closeExpenseModal()}
         budgets={budgets}
         reloadData={reloadData}
-        db={db}
         {...chosenExpense}
       />
       <FilterBudgetModal

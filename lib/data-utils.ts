@@ -1,217 +1,153 @@
-import {
-  addRxPlugin,
-  createRxDatabase,
-  PouchDB,
-  RxJsonSchema,
-  RxDocument,
-  RxDatabase,
-} from 'rxdb';
+import userbase from 'userbase-js';
 import Swal from 'sweetalert2';
 import moment from 'moment';
-
-// NOTE: These below are only required for production. Vercel is cleaning them up
-// import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode';
-import { RxDBValidatePlugin } from 'rxdb/plugins/validate';
-import { RxDBKeyCompressionPlugin } from 'rxdb/plugins/key-compression';
-import { RxDBMigrationPlugin } from 'rxdb/plugins/migration';
-import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election';
-import { RxDBEncryptionPlugin } from 'rxdb/plugins/encryption';
-import { RxDBUpdatePlugin } from 'rxdb/plugins/update';
-import { RxDBWatchForChangesPlugin } from 'rxdb/plugins/watch-for-changes';
-import { RxDBReplicationPlugin } from 'rxdb/plugins/replication';
-import { RxDBAdapterCheckPlugin } from 'rxdb/plugins/adapter-check';
-import { RxDBJsonDumpPlugin } from 'rxdb/plugins/json-dump';
-import { RxDBInMemoryPlugin } from 'rxdb/plugins/in-memory';
-import { RxDBAttachmentsPlugin } from 'rxdb/plugins/attachments';
-import { RxDBLocalDocumentsPlugin } from 'rxdb/plugins/local-documents';
-import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
 
 import {
   sortByName,
   sortByDate,
-  showNotification,
   splitArrayInChunks,
+  showNotification,
 } from './utils';
 import * as T from './types';
 
-const localDbName = './BudgetZen__data__v0';
+const USERBASE_APP_ID = process.env.NEXT_PUBLIC_USERBASE_APP_ID;
 
-// NOTE: These below are only required for production. Vercel is cleaning them up
-// addRxPlugin(RxDBDevModePlugin);
-addRxPlugin(RxDBValidatePlugin);
-addRxPlugin(RxDBKeyCompressionPlugin);
-addRxPlugin(RxDBMigrationPlugin);
-addRxPlugin(RxDBLeaderElectionPlugin);
-addRxPlugin(RxDBEncryptionPlugin);
-addRxPlugin(RxDBUpdatePlugin);
-addRxPlugin(RxDBWatchForChangesPlugin);
-addRxPlugin(RxDBReplicationPlugin);
-addRxPlugin(RxDBAdapterCheckPlugin);
-addRxPlugin(RxDBJsonDumpPlugin);
-addRxPlugin(RxDBInMemoryPlugin);
-addRxPlugin(RxDBAttachmentsPlugin);
-addRxPlugin(RxDBLocalDocumentsPlugin);
-addRxPlugin(RxDBQueryBuilderPlugin);
-
-addRxPlugin(require('pouchdb-adapter-idb'));
-addRxPlugin(require('pouchdb-adapter-http'));
-PouchDB.plugin(require('pouchdb-erase'));
-
-export type ExpenseDocument = RxDocument<T.Expense>;
-export const expenseSchema: RxJsonSchema<T.Expense> = {
-  title: 'expense schema',
-  description: 'describes an expense',
-  version: 0,
-  keyCompression: true,
-  type: 'object',
-  properties: {
-    id: {
-      type: 'string',
-      primary: true,
-    },
-    cost: {
-      type: 'number',
-    },
-    description: {
-      type: 'string',
-    },
-    budget: {
-      type: 'string',
-    },
-    date: {
-      type: 'string',
-    },
-  },
-  required: ['cost', 'description', 'budget', 'date'],
+const cachedData: { budgets: T.Budget[]; expenses: T.Expense[] } = {
+  budgets: [],
+  expenses: [],
 };
 
-export type BudgetDocument = RxDocument<T.Budget>;
-export const budgetSchema: RxJsonSchema<T.Budget> = {
-  title: 'budget schema',
-  description: 'describes a budget',
-  version: 0,
-  keyCompression: true,
-  type: 'object',
-  properties: {
-    id: {
-      type: 'string',
-      primary: true,
-    },
-    name: {
-      type: 'string',
-    },
-    month: {
-      type: 'string',
-    },
-    value: {
-      type: 'number',
-    },
-  },
-  required: ['name', 'month', 'value'],
-};
-
-const _hasFinishedFirstSync = {
+const hasFinishedLoading = {
   budgets: false,
   expenses: false,
 };
 
-export const initializeDb = async (syncToken: string) => {
-  if (!syncToken) {
-    return null;
+const sessionLengthInHours = 90 * 24;
+
+export const validateLogin = async (email: string, password: string) => {
+  try {
+    await userbase.signIn({
+      username: email,
+      password,
+      sessionLength: sessionLengthInHours,
+      rememberMe: 'local',
+    });
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { success: false, error };
   }
-
-  const db = await createRxDatabase({
-    name: localDbName,
-    adapter: 'idb',
-  });
-
-  await db.addCollections({
-    expenses: {
-      schema: expenseSchema,
-    },
-    budgets: {
-      schema: budgetSchema,
-    },
-  });
-
-  const syncOptions = {
-    remote: syncToken,
-    options: {
-      live: true,
-      retry: true,
-    },
-  };
-
-  const budgetsSync = db.budgets.sync(syncOptions);
-
-  const expensesSync = db.expenses.sync(syncOptions);
-
-  budgetsSync.complete$.subscribe((completed) => {
-    console.log('budgetsSync.complete$', completed);
-    _hasFinishedFirstSync.budgets = true;
-  });
-
-  budgetsSync.change$.subscribe((docData) => {
-    console.log('budgetsSync.change$', docData);
-  });
-
-  // budgetsSync.docs$.subscribe((docs) => {
-  //   console.log('budgetsSync.docs$', docs);
-  // });
-
-  // budgetsSync.active$.subscribe((active) => {
-  //   console.log('budgetsSync.active$', active);
-  // });
-
-  budgetsSync.error$.subscribe((error) => {
-    console.log('budgetsSync.error$', error);
-  });
-
-  budgetsSync.denied$.subscribe((error) => {
-    console.log('budgetsSync.denied$', error);
-  });
-
-  expensesSync.complete$.subscribe((completed) => {
-    console.log('expensesSync.complete$', completed);
-    _hasFinishedFirstSync.expenses = true;
-  });
-
-  expensesSync.change$.subscribe((docData) => {
-    console.log('expensesSync.change$', docData);
-  });
-
-  // expensesSync.docs$.subscribe((docs) => {
-  //   console.log('expensesSync.docs$', docs);
-  // });
-
-  // expensesSync.active$.subscribe((active) => {
-  //   console.log('expensesSync.active$', active);
-  // });
-
-  expensesSync.error$.subscribe((error) => {
-    console.log('expensesSync.error$', error);
-  });
-
-  expensesSync.denied$.subscribe((error) => {
-    console.log('expensesSync.denied$', error);
-  });
-
-  return db;
 };
 
-export const fetchBudgets = async (db: RxDatabase, month: string) => {
+export const createAccount = async (email: string, password: string) => {
   try {
-    const budgets: BudgetDocument[] = await db.budgets
-      .find()
-      .where('month')
-      .eq(month)
-      .exec();
+    await userbase.signUp({
+      username: email,
+      password,
+      sessionLength: sessionLengthInHours,
+      rememberMe: 'local',
+      email,
+    });
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { success: false, error };
+  }
+};
 
-    const sortedBudgets = budgets
-      .map((budget) => budget.toJSON())
+const getBudgetFromItem = (item: userbase.Item) => {
+  try {
+    return {
+      id: item.itemId,
+      name: item.item.name,
+      month: item.item.month,
+      value: item.item.value,
+    } as T.Budget;
+  } catch (error) {
+    return null;
+  }
+};
+
+const getExpenseFromItem = (item: userbase.Item) => {
+  try {
+    return {
+      id: item.itemId,
+      cost: item.item.cost,
+      description: item.item.description,
+      budget: item.item.budget,
+      date: item.item.date,
+    } as T.Expense;
+  } catch (error) {
+    return null;
+  }
+};
+
+const loadItemsAsync = async () => {
+  await userbase.openDatabase({
+    databaseName: 'budgets',
+    changeHandler: async (items) => {
+      const budgets = items
+        .map(getBudgetFromItem)
+        .filter((budget) => Boolean(budget));
+
+      hasFinishedLoading.budgets = true;
+
+      cachedData.budgets = budgets;
+    },
+  });
+
+  await userbase.openDatabase({
+    databaseName: 'expenses',
+    changeHandler: (items) => {
+      const expenses = items
+        .map(getExpenseFromItem)
+        .filter((expense) => Boolean(expense));
+
+      hasFinishedLoading.expenses = true;
+
+      cachedData.expenses = expenses;
+    },
+  });
+};
+
+export const initializeDb = async () => {
+  try {
+    await userbase.init({
+      appId: USERBASE_APP_ID,
+      sessionLength: sessionLengthInHours,
+    });
+
+    await loadItemsAsync();
+  } catch (error) {
+    console.log(error);
+    showNotification(error, 'error');
+  }
+};
+
+export const fetchBudgets = async (month?: string) => {
+  try {
+    // Very ugly, but... works.
+    while (!hasFinishedLoading.budgets) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+    }
+
+    const budgets = cachedData.budgets
+      .filter((budget) => {
+        if (!month) {
+          return true;
+        }
+
+        if (budget.month === month) {
+          return true;
+        }
+
+        return false;
+      })
       .sort(sortByName);
 
-    return sortedBudgets;
+    return budgets;
   } catch (error) {
     Swal.fire({
       title: 'Uh-oh',
@@ -224,7 +160,44 @@ export const fetchBudgets = async (db: RxDatabase, month: string) => {
   return [];
 };
 
-export const saveBudget = async (db: RxDatabase, budget: T.Budget) => {
+export const fetchExpenses = async (month?: string) => {
+  try {
+    // Very ugly, but... works.
+    while (!hasFinishedLoading.expenses) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+    }
+
+    const expenses = cachedData.expenses
+      .filter((expense) => {
+        if (!month) {
+          return true;
+        }
+
+        if (expense.date >= `${month}-01` && expense.date <= `${month}-31`) {
+          return true;
+        }
+
+        return false;
+      })
+      .sort(sortByDate)
+      .reverse();
+
+    return expenses;
+  } catch (error) {
+    Swal.fire({
+      title: 'Uh-oh',
+      text: 'Something went wrong fetching expenses.',
+    });
+
+    console.error(error);
+  }
+
+  return [];
+};
+
+export const saveBudget = async (budget: T.Budget) => {
   try {
     if (budget.name === 'Total') {
       showNotification('Cannot create budget named "Total".', 'error');
@@ -246,15 +219,11 @@ export const saveBudget = async (db: RxDatabase, budget: T.Budget) => {
     }
 
     // Check if the name is unique for the given month
-    const duplicateBudget: BudgetDocument = await db.budgets
-      .findOne()
-      .where('month')
-      .eq(budget.month)
-      .where('name')
-      .eq(budget.name)
-      .where('id')
-      .ne(budget.id)
-      .exec();
+    const existingBudgetsInMonth = await fetchBudgets(budget.month);
+    const duplicateBudget = existingBudgetsInMonth.find(
+      (existingBudget) =>
+        existingBudget.name === budget.name && existingBudget.id !== budget.id,
+    );
 
     if (duplicateBudget) {
       showNotification(
@@ -266,45 +235,74 @@ export const saveBudget = async (db: RxDatabase, budget: T.Budget) => {
 
     if (budget.id === 'newBudget') {
       budget.id = `${Date.now().toString()}:${Math.random()}`;
-      await db.budgets.insert({
-        id: budget.id,
-        name: budget.name,
-        value: budget.value,
-        month: budget.month,
+
+      await userbase.insertItem({
+        databaseName: 'budgets',
+        item: {
+          name: budget.name,
+          value: budget.value,
+          month: budget.month,
+        } as T.BudgetContent,
+        itemId: budget.id,
       });
     } else {
-      const existingBudget: BudgetDocument = await db.budgets
-        .findOne()
-        .where('id')
-        .eq(budget.id)
-        .exec();
-
+      const existingBudget = cachedData.budgets.find(
+        (_budget) => _budget.id === budget.id,
+      );
       const oldName = existingBudget.name;
       const newName = budget.name;
 
-      await existingBudget.update({
-        $set: {
+      await userbase.updateItem({
+        databaseName: 'budgets',
+        item: {
           name: budget.name,
           value: budget.value,
-        },
+          month: existingBudget.month, // Don't allow changing a budget's month
+        } as T.BudgetContent,
+        itemId: budget.id,
       });
+
+      const cachedBudgetIndex = cachedData.budgets.findIndex(
+        (_budget) => _budget.id === budget.id,
+      );
+      if (cachedBudgetIndex !== -1) {
+        cachedData.budgets[cachedBudgetIndex].name = budget.name;
+        cachedData.budgets[cachedBudgetIndex].value = budget.value;
+      }
 
       // Update all expenses with the previous budget name to the new one, if it changed
       if (oldName !== newName) {
-        const matchingExpenses: ExpenseDocument[] = await db.expenses
-          .find()
-          .where('date')
-          .gte(`${existingBudget.month}-01`)
-          .lte(`${existingBudget.month}-31`)
-          .where('budget')
-          .eq(oldName)
-          .exec();
+        const matchingExpenses = (
+          await fetchExpenses(existingBudget.month)
+        ).filter((expense) => expense.budget === oldName);
 
         for (const expense of matchingExpenses) {
-          await expense.update({
-            $set: {
-              budget: newName,
-            },
+          const cachedExpenseIndex = cachedData.expenses.findIndex(
+            (_expense) => _expense.id === expense.id,
+          );
+          if (cachedExpenseIndex !== -1) {
+            cachedData.expenses[cachedExpenseIndex].budget = newName;
+          }
+        }
+
+        const updateChunks: T.Expense[][] = splitArrayInChunks(
+          matchingExpenses,
+          10,
+        );
+
+        for (const machingExpensesChunk of updateChunks) {
+          await userbase.putTransaction({
+            databaseName: 'expenses',
+            operations: machingExpensesChunk.map((expense) => ({
+              command: 'Update',
+              item: {
+                cost: expense.cost,
+                description: expense.description,
+                budget: newName,
+                date: expense.date,
+              } as T.ExpenseContent,
+              itemId: expense.id,
+            })),
           });
         }
       }
@@ -323,33 +321,22 @@ export const saveBudget = async (db: RxDatabase, budget: T.Budget) => {
   return false;
 };
 
-export const deleteBudget = async (db: RxDatabase, budgetId: string) => {
+export const deleteBudget = async (budgetId: string) => {
   try {
-    const existingBudget: BudgetDocument = await db.budgets
-      .findOne()
-      .where('id')
-      .eq(budgetId)
-      .exec();
+    const existingBudget = cachedData.budgets.find(
+      (budget) => budget.id === budgetId,
+    );
 
     // Check if the budget has no expenses, if so, don't delete
-    const matchingExpenses: ExpenseDocument[] = await db.expenses
-      .find()
-      .where('date')
-      .gte(`${existingBudget.month}-01`)
-      .lte(`${existingBudget.month}-31`)
-      .where('budget')
-      .eq(existingBudget.name)
-      .exec();
+    const matchingExpenses = (await fetchExpenses(existingBudget.month)).filter(
+      (expense) => expense.budget === existingBudget.name,
+    );
 
     if (matchingExpenses.length > 0) {
       // Check if there are duplicate budgets (can happen on slow sync)
-      const matchingBudgets: BudgetDocument[] = await db.budgets
-        .find()
-        .where('month')
-        .eq(existingBudget.month)
-        .where('name')
-        .eq(existingBudget.name)
-        .exec();
+      const matchingBudgets = (await fetchBudgets(existingBudget.month)).filter(
+        (budget) => budget.name === existingBudget.name,
+      );
 
       if (matchingBudgets.length === 1) {
         showNotification(
@@ -360,7 +347,17 @@ export const deleteBudget = async (db: RxDatabase, budgetId: string) => {
       }
     }
 
-    await existingBudget.remove();
+    await userbase.deleteItem({
+      databaseName: 'budgets',
+      itemId: budgetId,
+    });
+
+    const cachedItemIndex = cachedData.budgets.findIndex(
+      (budget) => budget.id === budgetId,
+    );
+    if (cachedItemIndex !== -1) {
+      cachedData.budgets.splice(cachedItemIndex, 1);
+    }
 
     return true;
   } catch (error) {
@@ -375,34 +372,7 @@ export const deleteBudget = async (db: RxDatabase, budgetId: string) => {
   return false;
 };
 
-export const fetchExpenses = async (db: RxDatabase, month: string) => {
-  try {
-    const expenses: ExpenseDocument[] = await db.expenses
-      .find()
-      .where('date')
-      .gte(`${month}-01`)
-      .lte(`${month}-31`)
-      .exec();
-
-    const sortedExpenses = expenses
-      .map((expense) => expense.toJSON())
-      .sort(sortByDate)
-      .reverse();
-
-    return sortedExpenses;
-  } catch (error) {
-    Swal.fire({
-      title: 'Uh-oh',
-      text: 'Something went wrong fetching expenses.',
-    });
-
-    console.error(error);
-  }
-
-  return [];
-};
-
-export const saveExpense = async (db: RxDatabase, expense: T.Expense) => {
+export const saveExpense = async (expense: T.Expense) => {
   try {
     if (!expense.cost || typeof expense.cost !== 'number') {
       showNotification('Cost missing or invalid', 'error');
@@ -423,14 +393,9 @@ export const saveExpense = async (db: RxDatabase, expense: T.Expense) => {
       (!expense.budget || expense.budget === 'Misc') &&
       expense.id === 'newExpense'
     ) {
-      const matchingExpenseDoc: ExpenseDocument = await db.expenses
-        .findOne()
-        .where('description')
-        .eq(expense.description)
-        .exec();
-
-      const matchingExpense = (matchingExpenseDoc &&
-        matchingExpenseDoc.toJSON()) || { budget: '' };
+      const matchingExpense = (await fetchExpenses()).find(
+        (_expense) => _expense.description === expense.description,
+      );
 
       if (matchingExpense.budget) {
         expense.budget = matchingExpense.budget;
@@ -442,48 +407,58 @@ export const saveExpense = async (db: RxDatabase, expense: T.Expense) => {
     }
 
     // Check if the budget exists for the expense in that given month, otherwise create one
-    const existingBudget: BudgetDocument = await db.budgets
-      .findOne()
-      .where('month')
-      .eq(expense.date.substr(0, 7))
-      .where('name')
-      .eq(expense.budget)
-      .exec();
+    const existingBudget = (
+      await fetchBudgets(expense.date.substring(0, 7))
+    ).find((budget) => budget.name === expense.budget);
 
     if (!existingBudget) {
-      const newBudget: T.Budget = {
-        id: `${Date.now().toString()}:${Math.random()}`,
-        name: expense.budget,
-        month: expense.date.substr(0, 7),
-        value: 100,
-      };
+      const newBudgetId = `${Date.now().toString()}:${Math.random()}`;
 
-      await db.budgets.insert(newBudget);
+      await userbase.insertItem({
+        databaseName: 'budgets',
+        item: {
+          name: expense.budget,
+          month: expense.date.substring(0, 7),
+          value: 100,
+        } as T.BudgetContent,
+        itemId: newBudgetId,
+      });
     }
 
     if (expense.id === 'newExpense') {
       expense.id = `${Date.now().toString()}:${Math.random()}`;
-      await db.expenses.insert({
-        id: expense.id,
-        cost: expense.cost,
-        budget: expense.budget,
-        description: expense.description,
-        date: expense.date,
+
+      await userbase.insertItem({
+        databaseName: 'expenses',
+        item: {
+          cost: expense.cost,
+          budget: expense.budget,
+          description: expense.description,
+          date: expense.date,
+        } as T.ExpenseContent,
+        itemId: expense.id,
       });
     } else {
-      const existingExpense: ExpenseDocument = await db.expenses
-        .findOne()
-        .where('id')
-        .eq(expense.id)
-        .exec();
-      await existingExpense.update({
-        $set: {
+      await userbase.updateItem({
+        databaseName: 'expenses',
+        item: {
           cost: expense.cost,
           description: expense.description,
           budget: expense.budget,
           date: expense.date,
-        },
+        } as T.ExpenseContent,
+        itemId: expense.id,
       });
+
+      const cachedItemIndex = cachedData.expenses.findIndex(
+        (_expense) => _expense.id === expense.id,
+      );
+      if (cachedItemIndex !== -1) {
+        cachedData.expenses[cachedItemIndex].cost = expense.cost;
+        cachedData.expenses[cachedItemIndex].description = expense.description;
+        cachedData.expenses[cachedItemIndex].budget = expense.budget;
+        cachedData.expenses[cachedItemIndex].date = expense.date;
+      }
     }
 
     return true;
@@ -499,15 +474,19 @@ export const saveExpense = async (db: RxDatabase, expense: T.Expense) => {
   return false;
 };
 
-export const deleteExpense = async (db: RxDatabase, expenseId: string) => {
+export const deleteExpense = async (expenseId: string) => {
   try {
-    const existingExpense: ExpenseDocument = await db.expenses
-      .findOne()
-      .where('id')
-      .eq(expenseId)
-      .exec();
+    await userbase.deleteItem({
+      databaseName: 'expenses',
+      itemId: expenseId,
+    });
 
-    await existingExpense.remove();
+    const cachedItemIndex = cachedData.expenses.findIndex(
+      (expense) => expense.id === expenseId,
+    );
+    if (cachedItemIndex !== -1) {
+      cachedData.expenses.splice(cachedItemIndex, 1);
+    }
 
     return true;
   } catch (error) {
@@ -522,67 +501,65 @@ export const deleteExpense = async (db: RxDatabase, expenseId: string) => {
   return false;
 };
 
-export const deleteAllData = async (db: RxDatabase, syncToken: string) => {
-  await db.budgets.remove();
-  await db.expenses.remove();
+export const deleteAllData = async () => {
+  const budgets = await fetchBudgets();
+  const expenses = await fetchExpenses();
 
-  // NOTE: The erase below doesn't work locally, so we need the two lines above
-  const localDb = new PouchDB(localDbName);
-  // @ts-ignore erase comes from pouchdb-erase
-  await localDb.erase();
+  const deleteBudgetChunks: T.Budget[][] = splitArrayInChunks(budgets, 10);
+  const deleteExpenseChunks: T.Expense[][] = splitArrayInChunks(expenses, 10);
 
-  const remoteDb = new PouchDB(syncToken);
-  // @ts-ignore erase comes from pouchdb-erase
-  await remoteDb.erase();
+  for (const budgetsToDelete of deleteBudgetChunks) {
+    await userbase.putTransaction({
+      databaseName: 'budgets',
+      operations: budgetsToDelete.map((budget) => ({
+        command: 'Delete',
+        itemId: budget.id,
+      })),
+    });
+
+    // Wait a second, to avoid hitting rate limits
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
+  }
+
+  for (const expensesToDelete of deleteExpenseChunks) {
+    await userbase.putTransaction({
+      databaseName: 'expenses',
+      operations: expensesToDelete.map((expense) => ({
+        command: 'Delete',
+        itemId: expense.id,
+      })),
+    });
+
+    // Wait a second, to avoid hitting rate limits
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
+  }
+
+  cachedData.budgets.length = 0;
+  cachedData.expenses.length = 0;
+  hasFinishedLoading.budgets = false;
+  hasFinishedLoading.expenses = false;
 };
 
-export const deleteLocalData = async (db: RxDatabase) => {
-  await db.events.remove();
-
-  // NOTE: The erase below doesn't work locally, so we need the line above
-  const localDb = new PouchDB(localDbName);
-  // @ts-ignore erase comes from pouchdb-erase
-  await localDb.erase();
-};
-
-type ExportAllData = (
-  db: RxDatabase,
-) => Promise<{
+type ExportAllData = () => Promise<{
   budgets?: T.Budget[];
   expenses?: T.Expense[];
 }>;
 
-export const exportAllData: ExportAllData = async (db) => {
-  try {
-    // NOTE: The queries look weird because .dump() and simple .find() were returning indexes and other stuff
-    const budgets: BudgetDocument[] = await db.budgets
-      .find()
-      .where('month')
-      .gte('2000-01')
-      .lte('2100-12')
-      .exec();
-    const sortedBudgets = budgets
-      .map((budget) => {
-        const rawBudget = budget.toJSON();
-        delete rawBudget._rev;
-        return rawBudget;
-      })
-      .sort(sortByName);
-    const expenses: ExpenseDocument[] = await db.expenses
-      .find()
-      .where('date')
-      .gte('2000-01-01')
-      .lte('2100-12-31')
-      .exec();
-    const sortedExpenses = expenses
-      .map((expense) => {
-        const rawExpense = expense.toJSON();
-        delete rawExpense._rev;
-        return rawExpense;
-      })
-      .sort(sortByDate);
+export const exportAllData: ExportAllData = async () => {
+  // Don't import anything until we're done with the first full load
+  if (!hasFinishedLoading.budgets || !hasFinishedLoading.expenses) {
+    return {};
+  }
 
-    return { budgets: sortedBudgets, expenses: sortedExpenses };
+  try {
+    const budgets = (await fetchBudgets()).sort(sortByName);
+    const expenses = (await fetchExpenses()).sort(sortByDate);
+
+    return { budgets, expenses };
   } catch (error) {
     Swal.fire({
       title: 'Uh-oh',
@@ -596,49 +573,107 @@ export const exportAllData: ExportAllData = async (db) => {
 };
 
 export const importData = async (
-  db: RxDatabase,
-  syncToken: string,
   replaceData: boolean,
   budgets: T.Budget[],
   expenses: T.Expense[],
 ) => {
+  // Don't import anything until we're done with the first full load
+  if (!hasFinishedLoading.budgets || !hasFinishedLoading.expenses) {
+    return false;
+  }
+
   try {
     if (replaceData) {
-      await deleteAllData(db, syncToken);
+      await deleteAllData();
 
-      // Recreate collections
-      await db.addCollections({
-        expenses: {
-          schema: expenseSchema,
-        },
-        budgets: {
-          schema: budgetSchema,
-        },
+      await initializeDb();
+
+      // Very ugly, but... works.
+      while (!hasFinishedLoading.budgets || !hasFinishedLoading.expenses) {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 100);
+        });
+      }
+    }
+
+    const finalBudgetsToAdd: T.Budget[] = [];
+
+    for (const budget of budgets) {
+      const newBudgetId = `${Date.now().toString()}:${Math.random()}`;
+      const newBudget: T.Budget = {
+        id: newBudgetId,
+        name: budget.name,
+        value: budget.value,
+        month: budget.month,
+      };
+
+      finalBudgetsToAdd.push(newBudget);
+    }
+
+    const addBudgetChunks: T.Budget[][] = splitArrayInChunks(
+      finalBudgetsToAdd,
+      10,
+    );
+
+    for (const budgetsToAdd of addBudgetChunks) {
+      await userbase.putTransaction({
+        databaseName: 'budgets',
+        operations: budgetsToAdd.map((budget) => ({
+          command: 'Insert',
+          item: {
+            name: budget.name,
+            value: budget.value,
+            month: budget.month,
+          } as T.BudgetContent,
+          itemId: budget.id,
+        })),
+      });
+
+      // Wait a second, to avoid hitting rate limits
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
       });
     }
 
-    const chunkLength = 200;
+    const finalExpensesToAdd: T.Expense[] = [];
 
-    if (budgets.length > chunkLength) {
-      const chunkedBudgets = splitArrayInChunks(budgets, chunkLength);
-      for (const budgetsChunk of chunkedBudgets) {
-        await db.budgets.bulkInsert(budgetsChunk);
-        // Wait a second, to avoid hitting rate limits
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    } else {
-      await db.budgets.bulkInsert(budgets);
+    for (const expense of expenses) {
+      const newExpenseId = `${Date.now().toString()}:${Math.random()}`;
+      const newExpense: T.Expense = {
+        id: newExpenseId,
+        cost: expense.cost,
+        budget: expense.budget,
+        description: expense.description,
+        date: expense.date,
+      };
+
+      finalExpensesToAdd.push(newExpense);
     }
 
-    if (expenses.length > chunkLength) {
-      const chunkedExpenses = splitArrayInChunks(expenses, chunkLength);
-      for (const expensesChunk of chunkedExpenses) {
-        await db.expenses.bulkInsert(expensesChunk);
-        // Wait a second, to avoid hitting rate limits
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    } else {
-      await db.expenses.bulkInsert(expenses);
+    const addExpenseChunks: T.Expense[][] = splitArrayInChunks(
+      finalExpensesToAdd,
+      10,
+    );
+
+    for (const expensesToAdd of addExpenseChunks) {
+      await userbase.putTransaction({
+        databaseName: 'expenses',
+        operations: expensesToAdd.map((expense) => ({
+          command: 'Insert',
+          item: {
+            cost: expense.cost,
+            budget: expense.budget,
+            description: expense.description,
+            date: expense.date,
+          } as T.ExpenseContent,
+          itemId: expense.id,
+        })),
+      });
+
+      // Wait a second, to avoid hitting rate limits
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
+      });
     }
 
     return true;
@@ -655,24 +690,62 @@ export const importData = async (
 };
 
 export const copyBudgets = async (
-  db: RxDatabase,
   originalMonth: string,
   destinationMonth: string,
 ) => {
-  // Don't copy anything until we're done with the first sync
-  if (!_hasFinishedFirstSync.expenses || !_hasFinishedFirstSync.budgets) {
+  // Don't copy anything until we're done with the first full load
+  if (!hasFinishedLoading.budgets || !hasFinishedLoading.expenses) {
     return;
   }
-  const originalBudgets = await fetchBudgets(db, originalMonth);
+
+  const originalBudgets = await fetchBudgets(originalMonth);
   const destinationBudgets = originalBudgets.map((budget) => {
     const newBudget: T.Budget = { ...budget };
     newBudget.id = `${Date.now().toString()}:${Math.random()}`;
     newBudget.month = destinationMonth;
-    delete newBudget._rev;
     return newBudget;
   });
-
   if (destinationBudgets.length > 0) {
-    await db.budgets.bulkInsert(destinationBudgets);
+    try {
+      const finalBudgetsToAdd: T.Budget[] = [];
+
+      for (const budget of destinationBudgets) {
+        const newBudget: T.Budget = {
+          id: budget.id,
+          name: budget.name,
+          value: budget.value,
+          month: budget.month,
+        };
+
+        finalBudgetsToAdd.push(newBudget);
+      }
+
+      const addBudgetChunks: T.Budget[][] = splitArrayInChunks(
+        finalBudgetsToAdd,
+        10,
+      );
+
+      for (const budgetsToAdd of addBudgetChunks) {
+        await userbase.putTransaction({
+          databaseName: 'budgets',
+          operations: budgetsToAdd.map((budget) => ({
+            command: 'Insert',
+            item: {
+              name: budget.name,
+              value: budget.value,
+              month: budget.month,
+            } as T.BudgetContent,
+            itemId: budget.id,
+          })),
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: 'Uh-oh',
+        text: 'Something went wrong copying budgets.',
+      });
+
+      console.error(error);
+    }
   }
 };

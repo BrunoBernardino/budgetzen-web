@@ -45,19 +45,14 @@ const BudgetName = styled.span`
 `;
 
 const FilterBudgetModal = (props: FilterBudgetModalProps) => {
-  const {
-    isOpen,
-    onClose,
-    budgets,
-    onFilterBudgetToggle,
-    filterBudgets,
-  } = props;
+  const { isOpen, onClose, budgets, onFilterBudgetToggle, filterBudgets } =
+    props;
   return (
     <Rodal visible={isOpen} onClose={onClose} animation="slideDown">
       <Container>
         <IntroText>Choose which budgets to filter by:</IntroText>
         {budgets.map((budget, index) => (
-          <Budget key={budget.name} isOdd={index % 2 !== 0}>
+          <Budget key={budget.id} isOdd={index % 2 !== 0}>
             <BudgetName>{budget.name}</BudgetName>
             <Switch
               on={filterBudgets.has(budget.name)}
