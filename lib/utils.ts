@@ -187,3 +187,14 @@ export const isLoggedIn = async () => {
 
   return false;
 };
+
+export const getUserSession = async () => {
+  try {
+    const session = await userbase.init({ appId: USERBASE_APP_ID });
+    return session.user;
+  } catch (error) {
+    // Do nothing
+  }
+
+  return null;
+};

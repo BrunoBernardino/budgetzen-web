@@ -9,7 +9,7 @@ const securityHeaders = [
   {
     key: 'Content-Security-Policy',
     value:
-      "default-src 'self' https://*.userbase.com wss://*.userbase.com data: blob:; child-src 'self' data: blob:; img-src 'self' https://*.usefathom.com data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.usefathom.com",
+      "default-src 'self' https://*.userbase.com wss://*.userbase.com https://*.stripe.com data: blob:; child-src 'self' data: blob: https://*.stripe.com; img-src 'self' https://*.usefathom.com data: blob: https://*.stripe.com; style-src 'self' 'unsafe-inline' https://*.stripe.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.usefathom.com https://*.stripe.com",
   },
   {
     key: 'Strict-Transport-Security',

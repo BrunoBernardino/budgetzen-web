@@ -71,6 +71,7 @@ const eslint = {
     'react/jsx-curly-newline': 'off',
     'react/function-component-definition': 'off',
     'react/jsx-no-useless-fragment': 'off',
+    'no-nested-ternary': 'off',
   },
   parserOptions: {
     ecmaFeatures: {

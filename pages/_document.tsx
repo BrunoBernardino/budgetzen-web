@@ -57,6 +57,7 @@ export default class MyDocument extends Document {
             data-site="SMOFTKDK"
             defer
           />
+          <script src="https://js.stripe.com/v3/" defer />
         </body>
       </Html>
     );

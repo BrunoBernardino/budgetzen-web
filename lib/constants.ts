@@ -1,9 +1,10 @@
 import { getUserInfo } from 'lib/utils';
 
-export const defaultTitle = 'Budget Zen — Simple and Easy Budget Management';
-export const defaultDescription = 'Simple and easy budget management.';
+export const defaultTitle =
+  'Budget Zen — Simple and Encrypted Budget Management';
+export const defaultDescription = 'Simple and encryped budget management.';
 export const defaultKeywords =
-  'budget, zen, simple, easy, app, web, ios, macos';
+  'budget, zen, encrypted, e2ee, end-to-end, simple, app, web, android, linux, ios, macos';
 
 export const sessionNamespace = 'BudgetZen_v2_appSession';
 

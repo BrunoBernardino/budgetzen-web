@@ -20,19 +20,29 @@ const Login = () => {
   return (
     <>
       <Header />
-      <Title>Simple Budget Management</Title>
+      <Title>Simple + Encrypted Budget Management</Title>
       <Hero>
         <HeroText>
-          <Paragraph>Budget Zen is a simple budget management app.</Paragraph>
+          <Paragraph>
+            Budget Zen is a simple and <strong>encrypted</strong> budget
+            management app. You can{' '}
+            <a href="https://budgetzen.net">learn more about it here</a>, as
+            this is the app.
+          </Paragraph>
           <Paragraph>
             Currently it's available on every device via web browser, and you
             can browse its source code.
           </Paragraph>
+          <Paragraph>
+            You have a <strong>30-day free trial</strong> (no credit card
+            required), and at the end, you can pay <strong>€18 / year</strong>,
+            or <strong>€2 / month</strong>, no limits.
+          </Paragraph>
           <LoginButton />
           <Paragraph>
-            Note that logging in can take up to 30 seconds. This is because the
-            encryption logic is intentionally slow, in order to generate a safer
-            assymetric encryption key.
+            Note that logging in will take up a few seconds. This is
+            intentional, in order to generate a safer assymetric encryption key.
+            After logging in, the app should be blazing fast in any device.
           </Paragraph>
         </HeroText>
       </Hero>
