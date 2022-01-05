@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Rodal from 'rodal';
+import Link from 'next/link';
 
 import SegmentedControl from 'components/SegmentedControl';
 import Button from 'components/Button';
 import IconButton from 'components/IconButton';
 import ImportExportModal from 'components/ImportExportModal';
+import Paragraph from 'components/Paragraph';
 import { colors, fontSizes } from 'lib/constants';
 import { updatePreferences, showNotification } from 'lib/utils';
 import * as T from 'lib/types';
@@ -176,6 +178,16 @@ const Settings = ({
               saveTheme(themeValues[selectedSegmentIndex]);
             }}
           />
+          <Paragraph isCentered style={{ marginTop: '2rem' }}>
+            <Link href="/email-password">
+              <a>Change your email or password</a>
+            </Link>
+          </Paragraph>
+          <Paragraph isCentered>
+            <Link href="/billing">
+              <a>Manage billing</a>
+            </Link>
+          </Paragraph>
           <BottomContainer>
             <Version>
               v{appVersion}-{appBuild}

@@ -18,15 +18,26 @@ const Footer = ({ hasValidSession }: { hasValidSession: boolean }) => {
           </div>
 
           {hasValidSession ? (
-            <div className={styles['Footer__faq-item']}>
-              <h4>How can I manage my subscription?</h4>
-              <p>
-                <Link href="/billing">
-                  <a>In your billing section</a>
-                </Link>
-                .
-              </p>
-            </div>
+            <>
+              <div className={styles['Footer__faq-item']}>
+                <h4>How can I manage my subscription?</h4>
+                <p>
+                  <Link href="/billing">
+                    <a>In your billing section</a>
+                  </Link>
+                  .
+                </p>
+              </div>
+              <div className={styles['Footer__faq-item']}>
+                <h4>How can I change my email or password / ecryption key?</h4>
+                <p>
+                  <Link href="/email-password">
+                    <a>Right here</a>
+                  </Link>
+                  .
+                </p>
+              </div>
+            </>
           ) : (
             <div className={styles['Footer__faq-item']}>
               <h4>How can I subscribe?</h4>

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import moment from 'moment';
 
 import { Main } from 'components/Layout';
-import Pricing from 'components/Panels/Pricing';
+import EmailPassword from 'components/Panels/EmailPassword';
 import Loading from 'components/Loading';
 import { getUserSession } from 'lib/utils';
 import {
@@ -11,25 +10,17 @@ import {
   defaultKeywords,
 } from 'lib/constants';
 
-const PricingPage = () => {
+const EmailPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasValidSession, setHasValidSession] = useState(false);
-  const [hasValidSubscription, setHasValidSubscription] = useState(false);
-  const [trialDaysLeft, setTrialDaysLeft] = useState(30);
+  const [currentEmail, setCurrentEmail] = useState('');
 
   useEffect(() => {
     const checkSession = async () => {
       const userSession = await getUserSession();
       if (userSession) {
         setHasValidSession(true);
-        setHasValidSubscription(userSession.subscriptionStatus === 'active');
-        if (userSession.subscriptionStatus !== 'trialing') {
-          const daysLeft = moment(userSession.trialExpirationDate).diff(
-            moment(),
-            'days',
-          );
-          setTrialDaysLeft(daysLeft < 0 ? 0 : daysLeft);
-        }
+        setCurrentEmail(userSession.email);
       }
 
       setIsLoading(false);
@@ -45,11 +36,10 @@ const PricingPage = () => {
       keywords={defaultKeywords}
       hasValidSession={hasValidSession}
     >
-      <div className="pricing common">
-        <Pricing
+      <div className="email-password common">
+        <EmailPassword
           hasValidSession={hasValidSession}
-          hasValidSubscription={hasValidSubscription}
-          trialDaysLeft={trialDaysLeft}
+          currentEmail={currentEmail}
         />
       </div>
       <Loading isShowing={isLoading} />
@@ -57,4 +47,4 @@ const PricingPage = () => {
   );
 };
 
-export default PricingPage;
+export default EmailPasswordPage;

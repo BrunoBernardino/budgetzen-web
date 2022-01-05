@@ -5,6 +5,7 @@ import { sessionNamespace } from 'lib/constants';
 import { AuthToken, Currency, Theme } from 'lib/types';
 
 const USERBASE_APP_ID = process.env.NEXT_PUBLIC_USERBASE_APP_ID;
+const sessionLengthInHours = 90 * 24;
 
 export const formatNumber = (currency: Currency, number: number) =>
   new Intl.NumberFormat('en-US', {
@@ -153,6 +154,36 @@ export const doLogout = async () => {
   return false;
 };
 
+export const isLoggedIn = async () => {
+  try {
+    const session = await userbase.init({
+      appId: USERBASE_APP_ID,
+      sessionLength: sessionLengthInHours,
+    });
+    if (session.user) {
+      return true;
+    }
+  } catch (error) {
+    // Do nothing
+  }
+
+  return false;
+};
+
+export const getUserSession = async () => {
+  try {
+    const session = await userbase.init({
+      appId: USERBASE_APP_ID,
+      sessionLength: sessionLengthInHours,
+    });
+    return session.user;
+  } catch (error) {
+    // Do nothing
+  }
+
+  return null;
+};
+
 type GetUserInfo = () => AuthToken;
 export const getUserInfo: GetUserInfo = () => {
   const defaultAuthToken: AuthToken = {
@@ -173,28 +204,4 @@ export const getUserInfo: GetUserInfo = () => {
   }
 
   return defaultAuthToken;
-};
-
-export const isLoggedIn = async () => {
-  try {
-    const session = await userbase.init({ appId: USERBASE_APP_ID });
-    if (session.user) {
-      return true;
-    }
-  } catch (error) {
-    // Do nothing
-  }
-
-  return false;
-};
-
-export const getUserSession = async () => {
-  try {
-    const session = await userbase.init({ appId: USERBASE_APP_ID });
-    return session.user;
-  } catch (error) {
-    // Do nothing
-  }
-
-  return null;
 };

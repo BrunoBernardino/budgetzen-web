@@ -112,7 +112,10 @@ const loadItemsAsync = async () => {
 
 export const initializeDb = async () => {
   try {
-    await userbase.init({ appId: USERBASE_APP_ID });
+    await userbase.init({
+      appId: USERBASE_APP_ID,
+      sessionLength: sessionLengthInHours,
+    });
 
     await loadItemsAsync();
   } catch (error) {
