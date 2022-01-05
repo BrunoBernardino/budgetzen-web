@@ -6,6 +6,6 @@ useDotEnv: true
 myNextAppplication:
   component: '@sls-next/serverless-component@3.6.0'
   inputs:
-    domain: ['v2', 'budgetzen.net']
+    domain: ['app', 'budgetzen.net']
     bucketName: budgetzen-web-v2
     bucketRegion: us-east-1
