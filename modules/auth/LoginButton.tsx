@@ -82,6 +82,7 @@ const LoginButton = () => {
             handleLogin();
           }
         }}
+        data-automation="login-email"
       />
       <TextInput
         type="password"
@@ -96,12 +97,14 @@ const LoginButton = () => {
             handleLogin();
           }
         }}
+        data-automation="login-password"
       />
       <Button
         onClick={handleLogin}
         width="large"
         type="primary"
         style={{ margin: '20px auto' }}
+        data-automation="login-button"
       >
         Login
       </Button>

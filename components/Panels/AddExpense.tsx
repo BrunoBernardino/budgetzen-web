@@ -171,6 +171,7 @@ const AddExpense = ({ budgets, reloadData }: AddExpenseProps) => {
         type="number"
         inputMode="decimal"
         onKeyDown={onKeyDown}
+        data-automation="add-expense-cost"
       />
 
       <Label>Description</Label>
@@ -181,6 +182,7 @@ const AddExpense = ({ budgets, reloadData }: AddExpenseProps) => {
         autoComplete="off"
         type="text"
         onKeyDown={onKeyDown}
+        data-automation="add-expense-description"
       />
 
       <Label>Budget</Label>
@@ -190,6 +192,7 @@ const AddExpense = ({ budgets, reloadData }: AddExpenseProps) => {
           setBudget(budgets[event.target.selectedIndex].name)
         }
         value={budget || 'Misc'}
+        data-automation="add-expense-budget"
       >
         {budgetsToShow.map((budgetOption: T.Budget) => (
           <option key={budgetOption.id} value={budgetOption.name}>
@@ -206,12 +209,14 @@ const AddExpense = ({ budgets, reloadData }: AddExpenseProps) => {
         autoComplete="off"
         type="date"
         onKeyDown={onKeyDown}
+        data-automation="add-expense-date"
       />
       <Button
         isDisabled={isSubmitting}
         onClick={() => addExpense()}
         type="primary"
         style={{ margin: '20px 0' }}
+        data-automation="add-expense-button"
       >
         {isSubmitting ? 'Adding...' : 'Add Expense'}
       </Button>
