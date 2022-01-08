@@ -397,7 +397,7 @@ export const saveExpense = async (expense: T.Expense) => {
         (_expense) => _expense.description === expense.description,
       );
 
-      if (matchingExpense.budget) {
+      if (matchingExpense && matchingExpense.budget) {
         expense.budget = matchingExpense.budget;
       }
     }
