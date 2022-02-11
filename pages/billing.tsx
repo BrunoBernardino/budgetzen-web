@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import moment from 'moment';
 
 import { Main } from 'components/Layout';
 import Billing from 'components/Panels/Billing';
@@ -22,11 +23,14 @@ const BillingPage = () => {
     const checkSession = async () => {
       const userSession = await getUserSession();
       if (userSession) {
+        const trialDaysLeft = moment(userSession.trialExpirationDate).diff(
+          moment(),
+          'days',
+        );
         setHasValidSession(true);
         setHasValidSubscription(userSession.subscriptionStatus === 'active');
         setIsTrialing(
-          userSession.subscriptionStatus !== 'active' &&
-            Boolean(userSession.trialExpirationDate),
+          userSession.subscriptionStatus !== 'active' && trialDaysLeft > 0,
         );
         setIsSubscriptionCanceled(Boolean(userSession.cancelSubscriptionAt));
         setIsSubscriptionMonthly(

@@ -73,7 +73,7 @@ const Pricing = ({
           </>
         ) : (
           <>
-            <Paragraph>
+            <Paragraph isBold>
               Your trial{' '}
               {trialDaysLeft > 0
                 ? `will expire in ${trialDaysLeft} day${

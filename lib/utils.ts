@@ -98,8 +98,8 @@ export const showNotification = (
     toast: true,
     position: 'top-end',
     showConfirmButton: false,
-    timer: 5000,
-    timerProgressBar: true,
+    timer: type === 'success' ? 2500 : 0,
+    timerProgressBar: type === 'success',
     didOpen: (toast) => {
       toast.addEventListener('mouseenter', Swal.stopTimer);
       toast.addEventListener('mouseleave', Swal.resumeTimer);

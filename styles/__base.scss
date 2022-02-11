@@ -86,6 +86,10 @@ button {
   display: none;
 }
 
+.swal2-toast.swal2-icon-error {
+  cursor: pointer;
+}
+
 // Tweak CSS for modal from https://github.com/chenjiahan/rodal/issues/27#issuecomment-381396700
 .rodal,
 .rodal-mask {

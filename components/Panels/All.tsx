@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
 import { useAsync } from 'react-use';
+import { useRouter } from 'next/router';
 
 import LogoutLink from 'modules/auth/LogoutLink';
 import { Loading } from 'components';
-import { getUserInfo, showNotification } from 'lib/utils';
+import { getUserInfo, showNotification, getUserSession } from 'lib/utils';
 import {
   initializeDb,
   fetchBudgets,
@@ -42,6 +43,7 @@ const LeftSide = styled.section`
 `;
 
 const All = () => {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [monthInView, setMonthInView] = useState(moment().format('YYYY-MM'));
   const [currency, setCurrency] = useState<T.Currency>('USD');
@@ -115,6 +117,20 @@ const All = () => {
       await initializeDb();
 
       await reloadData();
+
+      const userSession = await getUserSession();
+
+      const trialDaysLeft = moment(userSession.trialExpirationDate).diff(
+        moment(),
+        'days',
+      );
+      if (userSession.subscriptionStatus !== 'active' && trialDaysLeft < 0) {
+        showNotification('Your trial has expired!', 'error');
+        // Give people some time to logout or export
+        setTimeout(() => {
+          router.push('/pricing');
+        }, 10000);
+      }
     }
   }, []);
 
