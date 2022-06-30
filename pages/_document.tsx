@@ -53,9 +53,9 @@ export default class MyDocument extends Document {
           <Main />
           <NextScript />
           <script
-            src="https://cdn.usefathom.com/script.js"
-            data-site="SMOFTKDK"
             defer
+            data-domain="app.budgetzen.net"
+            src="https://plausible.io/js/plausible.js"
           />
           <script src="https://js.stripe.com/v3/" defer />
         </body>
