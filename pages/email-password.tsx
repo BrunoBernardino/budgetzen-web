@@ -56,14 +56,9 @@ export const getServerSideProps = async ({ req }: { req: Request }) => {
 
     try {
       await axios.post('https://stats.onbrn.com/api/event', {
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-        },
-        body: {
-          domain: baseUrl.replace('https://', ''),
-          name: 'pageview',
-          url: `${baseUrl}${pathname}`,
-        },
+        domain: baseUrl.replace('https://', ''),
+        name: 'pageview',
+        url: `${baseUrl}${pathname}`,
       });
     } catch (error) {
       console.log('Failed to log pageview');
