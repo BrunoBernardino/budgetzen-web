@@ -52,11 +52,6 @@ export default class MyDocument extends Document {
         <body>
           <Main />
           <NextScript />
-          <script
-            defer
-            data-domain="app.budgetzen.net"
-            src="https://plausible.io/js/plausible.js"
-          />
           <script src="https://js.stripe.com/v3/" defer />
         </body>
       </Html>

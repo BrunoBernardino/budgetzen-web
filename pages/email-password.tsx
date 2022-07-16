@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 import { Main } from 'components/Layout';
 import EmailPassword from 'components/Panels/EmailPassword';
@@ -8,6 +9,7 @@ import {
   defaultTitle,
   defaultDescription,
   defaultKeywords,
+  baseUrl,
 } from 'lib/constants';
 
 const EmailPasswordPage = () => {
@@ -45,6 +47,33 @@ const EmailPasswordPage = () => {
       <Loading isShowing={isLoading} />
     </Main>
   );
+};
+
+export const getServerSideProps = async ({ req }: { req: Request }) => {
+  // @ts-ignore it does exist
+  if (req && req.headers && !req.headers.host.startsWith('localhost')) {
+    const pathname = req.url;
+
+    try {
+      await axios.post('https://stats.onbrn.com/api/event', {
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+        },
+        body: {
+          domain: baseUrl.replace('https://', ''),
+          name: 'pageview',
+          url: `${baseUrl}${pathname}`,
+        },
+      });
+    } catch (error) {
+      console.log('Failed to log pageview');
+      console.error(error);
+    }
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default EmailPasswordPage;

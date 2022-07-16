@@ -6,7 +6,7 @@ This is the web app for the [Budget Zen app](https://budgetzen.net), built with 
 
 This is v2, which is [end-to-end encrypted via userbase](https://userbase.com), and works via web on any device (it's a PWA - Progressive Web App).
 
-It's not compatible with Budget Zen v1 (not end-to-end encrypted), which you can still get locally from [this commit](https://github.com/BrunoBernardino/budgetzen-web/tree/397d625469b7dfd8d1968c847b32e607ee7c8ee9) and built in [here](https://v1.budgetzen.net). You can still export and import the data as the JSON format is the same (unencrypted).
+It's not compatible with Budget Zen v1 (not end-to-end encrypted), which you can still get locally from [this commit](https://github.com/BrunoBernardino/budgetzen-web/tree/397d625469b7dfd8d1968c847b32e607ee7c8ee9). You can still export and import the data as the JSON format is the same (unencrypted).
 
 ## Development
 

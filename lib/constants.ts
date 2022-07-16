@@ -1,5 +1,6 @@
 import { getUserInfo } from 'lib/utils';
 
+export const baseUrl = 'https://app.budgetzen.net';
 export const defaultTitle =
   'Budget Zen — Simple and Encrypted Budget Management';
 export const defaultDescription = 'Simple and encryped budget management.';
