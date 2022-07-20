@@ -374,17 +374,13 @@ a.button.secondary:focus {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: bold;
-  color: var(--color-link-hover-dark);
+  color: var(--color-link);
   text-align: left;
 }
 
 .input-wrapper > label.checkbox {
   cursor: pointer;
   display: inline-block;
-}
-
-#add-expense-form .input-wrapper>label {
-  color: var(--color-link);
 }
 
 .input-wrapper input[type="text"],
@@ -691,6 +687,8 @@ a.button.secondary:focus {
   justify-content: space-between;
   padding: 0.5rem;
   transition: all 60ms ease-in-out;
+  color: var(--color-link-hover-dark);
+  border-radius: 3px;
 }
 
 #budgets-filter-form .input-wrapper > label:hover {
@@ -771,7 +769,7 @@ a.button.secondary:focus {
 }
 
 .text {
-  color: #ccc;
+  color: var(--color-link);
   text-align: center;
   align-items: center;
   flex: 1;

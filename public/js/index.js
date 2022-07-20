@@ -284,6 +284,7 @@
 
     async function navigateToMonth(month) {
       currentMonth = month;
+      budgetFilters.clear();
       await showData();
     }
 
@@ -610,22 +611,16 @@
         template: '#budgets-filter-modal',
         focusConfirm: false,
         allowEscapeKey: true,
+        showConfirmButton: false,
         didClose: () => {
           budgetsFilterButton.blur();
         },
         willOpen: async () => {
-          // Show all budgets in #budgets-filter-form
-          const allBudgets = await window.app.dataUtils.fetchBudgets();
-          const allUniquelyNamedBudgets = allBudgets.reduce((budgetsList, budget) => {
-            if (!budgetsList.some((_budget) => budget.name === _budget.name)) {
-              budgetsList.push(budget);
-            }
-
-            return budgetsList;
-          }, []);
+          // Show month's budgets in #budgets-filter-form
+          const monthBudgets = await window.app.dataUtils.fetchBudgets(currentMonth);
           const budgetsFilterForm = document.getElementById('budgets-filter-form');
           budgetsFilterForm.replaceChildren();
-          for (const budget of allUniquelyNamedBudgets) {
+          for (const budget of monthBudgets) {
             const element = getBudgetsFilterModalBudgetItemHtmlElement(budget);
 
             const inputElement = element.querySelector('input');
