@@ -1,0 +1,35 @@
+{
+  "fmt": {
+    "options": {
+      "useTabs": false,
+      "lineWidth": 120,
+      "indentWidth": 2,
+      "singleQuote": true,
+      "proseWrap": "preserve"
+    },
+    "files": {
+      "exclude": [
+        "public/js/stripe.js",
+        "public/js/sweetalert.js",
+        "public/js/userbase.js",
+        "public/js/userbase.js.map"
+      ]
+    }
+  },
+  "lint": {
+    "rules": {
+      "exclude": [
+        "no-explicit-any",
+        "no-window-prefix"
+      ]
+    },
+    "files": {
+      "exclude": [
+        "public/js/stripe.js",
+        "public/js/sweetalert.js",
+        "public/js/userbase.js",
+        "public/js/userbase.js.map"
+      ]
+    }
+  }
+}

@@ -3,12 +3,12 @@
   "short_name": "Budget Zen",
   "icons": [
     {
-      "src": "/images/logo.svg",
+      "src": "/public/images/logo.svg",
       "sizes": "250x150 any",
       "type": "image/svg+xml"
     },
     {
-      "src": "/images/favicon.png",
+      "src": "/public/images/favicon.png",
       "sizes": "310x310",
       "type": "image/png",
       "purpose": "any maskable"
