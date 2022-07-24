@@ -32,6 +32,7 @@ export function pageContent() {
                 type="email"
                 placeholder="you@example.com"
                 name="email"
+                data-automation="login-email"
               />
             </fieldset>
             <fieldset class="input-wrapper">
@@ -41,10 +42,11 @@ export function pageContent() {
                 type="password"
                 placeholder="something secret"
                 name="password"
+                data-automation="login-password"
               />
             </fieldset>
             <div class="buttons-wrapper">
-              <button type="submit" id="login-button">
+              <button type="submit" id="login-button" data-automation="login-button">
                 Login
               </button>
               <span class="or">or</span>
@@ -114,6 +116,7 @@ export function pageContent() {
                 autocomplete="off"
                 type="text"
                 inputmode="decimal"
+                data-automation="add-expense-cost"
               />
             </fieldset>
             <fieldset class="input-wrapper">
@@ -123,6 +126,7 @@ export function pageContent() {
                 placeholder="Volunteering"
                 autocomplete="off"
                 type="text"
+                data-automation="add-expense-description"
               />
             </fieldset>
             <fieldset class="input-wrapper">
@@ -131,6 +135,7 @@ export function pageContent() {
                 id="expense-budget"
                 placeholder="Misc"
                 autocomplete="off"
+                data-automation="add-expense-budget"
               ></select>
             </fieldset>
             <fieldset class="input-wrapper">
@@ -140,10 +145,11 @@ export function pageContent() {
                 placeholder="Today"
                 autocomplete="off"
                 type="date"
+                data-automation="add-expense-date"
               />
             </fieldset>
             
-            <button type="submit" id="add-expense-button">Add Expense</button>
+            <button type="submit" id="add-expense-button" data-automation="add-expense-button">Add Expense</button>
           </form>
         </section>
       </div>
