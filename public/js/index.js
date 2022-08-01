@@ -59,13 +59,7 @@
       const { success, error } = await loginOrSignupMethod(email, password);
 
       if (success) {
-        const { Swal } = window;
-
-        Swal.fire(
-          'Alright!',
-          'That looks alright. Let\'s get on with it!',
-          'success',
-        );
+        window.app.showNotification('Logged in successfully.', 'success');
 
         window.app.showValidSessionElements();
         loginForm.reset();
