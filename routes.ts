@@ -137,6 +137,8 @@ const routes: Routes = {
           headers['content-type'] = 'text/javascript';
         } else if (fileExtension === 'css') {
           headers['content-type'] = 'text/css';
+        } else if (fileExtension === 'json') {
+          headers['content-type'] = 'application/json';
         } else if (fileExtension === 'jpg') {
           headers['content-type'] = 'image/jpeg';
           return serveFile(request, fullFilePath);
