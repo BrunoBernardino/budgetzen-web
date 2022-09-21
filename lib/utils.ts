@@ -1,4 +1,4 @@
-import 'https://deno.land/std@0.142.0/dotenv/load.ts';
+import 'https://deno.land/std@0.156.0/dotenv/load.ts';
 
 import header from '../components/header.ts';
 import footer from '../components/footer.ts';

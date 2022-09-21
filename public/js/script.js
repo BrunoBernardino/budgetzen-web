@@ -506,6 +506,8 @@
         await fetchBudgets(expense.date.substring(0, 7))
       ).find((budget) => budget.name === expense.budget);
 
+      const { userbase } = window;
+
       if (!existingBudget) {
         const newBudgetId = `${generateId()}`;
 
@@ -519,8 +521,6 @@
           itemId: newBudgetId,
         });
       }
-
-      const { userbase } = window;
 
       if (expense.id === 'newExpense') {
         expense.id = `${generateId()}`;
@@ -868,6 +868,8 @@
           finalBudgetsToAdd,
           10,
         );
+
+        const { userbase } = window;
 
         for (const budgetsToAdd of addBudgetChunks) {
           await userbase.putTransaction({

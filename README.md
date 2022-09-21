@@ -10,7 +10,7 @@ It's not compatible with Budget Zen v1 (not end-to-end encrypted), which you can
 
 ## Requirements
 
-This was tested with `deno@1.22.0`, though it's possible older versions might work.
+This was tested with `deno@1.25.3`, though it's possible older versions might work.
 
 There are no other dependencies. **Deno**!
 

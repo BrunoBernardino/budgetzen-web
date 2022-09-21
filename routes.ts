@@ -1,4 +1,4 @@
-import { readableStreamFromReader } from 'https://deno.land/std@0.142.0/streams/mod.ts';
+import { serveFile } from 'https://deno.land/std@0.156.0/http/file_server.ts';
 import { baseUrl, basicLayoutResponse, isRunningLocally, PageContentResult, recordPageView } from './lib/utils.ts';
 
 // NOTE: This won't be necessary once https://github.com/denoland/deploy_feedback/issues/1 is closed
@@ -18,7 +18,7 @@ export interface Route {
   handler: (
     request: Request,
     match: URLPatternResult,
-  ) => (Response | Promise<Response>);
+  ) => Response | Promise<Response>;
 }
 
 interface Routes {
@@ -104,12 +104,11 @@ const routes: Routes = {
   robots: {
     pattern: new URLPattern({ pathname: '/robots.txt' }),
     handler: async (_request) => {
-      const file = await Deno.open(`public/robots.txt`, { read: true });
-      const readableStream = readableStreamFromReader(file);
+      const fileContents = await Deno.readTextFile(`public/robots.txt`);
 
       const oneDayInSeconds = 24 * 60 * 60;
 
-      return new Response(readableStream, {
+      return new Response(fileContents, {
         headers: {
           'content-type': 'text/plain',
           'cache-control': `max-age=${oneDayInSeconds}, public`,
@@ -119,12 +118,11 @@ const routes: Routes = {
   },
   public: {
     pattern: new URLPattern({ pathname: '/public/:filePath*' }),
-    handler: async (_request, match) => {
+    handler: async (request, match) => {
       const { filePath } = match.pathname.groups;
 
       try {
-        const file = await Deno.open(`public/${filePath}`, { read: true });
-        const readableStream = readableStreamFromReader(file);
+        const fullFilePath = `public/${filePath}`;
 
         const oneDayInSeconds = isRunningLocally(match) ? 0 : 24 * 60 * 60;
 
@@ -141,15 +139,21 @@ const routes: Routes = {
           headers['content-type'] = 'text/css';
         } else if (fileExtension === 'jpg') {
           headers['content-type'] = 'image/jpeg';
+          return serveFile(request, fullFilePath);
         } else if (fileExtension === 'png') {
           headers['content-type'] = 'image/png';
+          return serveFile(request, fullFilePath);
         } else if (fileExtension === 'svg') {
           headers['content-type'] = 'image/svg+xml';
-        } else if (fileExtension === 'json') {
-          headers['content-type'] = 'text/json';
+          return serveFile(request, fullFilePath);
+        } else if (fileExtension === 'ico') {
+          headers['content-type'] = 'image/x-icon';
+          return serveFile(request, fullFilePath);
         }
 
-        return new Response(readableStream, {
+        const fileContents = await Deno.readTextFile(fullFilePath);
+
+        return new Response(fileContents, {
           headers,
         });
       } catch (error) {
