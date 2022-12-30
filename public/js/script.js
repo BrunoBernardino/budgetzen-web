@@ -214,6 +214,7 @@
         description: item.item.description,
         budget: item.item.budget,
         date: item.item.date,
+        isRecurring: item.item.isRecurring,
       };
     } catch (_error) {
       return null;
@@ -444,6 +445,7 @@
                   description: expense.description,
                   budget: newName,
                   date: expense.date,
+                  isRecurring: expense.isRecurring,
                 },
                 itemId: expense.id,
               })),
@@ -501,6 +503,10 @@
         expense.budget = 'Misc';
       }
 
+      if (!expense.isRecurring || typeof expense.isRecurring !== 'boolean') {
+        expense.isRecurring = false;
+      }
+
       // Check if the budget exists for the expense in that given month, otherwise create one
       const existingBudget = (
         await fetchBudgets(expense.date.substring(0, 7))
@@ -532,6 +538,7 @@
             description: expense.description,
             budget: expense.budget,
             date: expense.date,
+            isRecurring: expense.isRecurring,
           },
           itemId: expense.id,
         });
@@ -543,6 +550,7 @@
             description: expense.description,
             budget: expense.budget,
             date: expense.date,
+            isRecurring: expense.isRecurring,
           },
           itemId: expense.id,
         });
@@ -790,6 +798,7 @@
           budget: expense.budget,
           description: expense.description,
           date: expense.date,
+          isRecurring: expense.isRecurring,
         };
 
         finalExpensesToAdd.push(newExpense);
@@ -810,6 +819,7 @@
               budget: expense.budget,
               description: expense.description,
               date: expense.date,
+              isRecurring: expense.isRecurring,
             },
             itemId: expense.id,
           })),
@@ -849,6 +859,7 @@
       newBudget.month = destinationMonth;
       return newBudget;
     });
+
     if (destinationBudgets.length > 0) {
       try {
         const finalBudgetsToAdd = [];
@@ -889,6 +900,65 @@
         Swal.fire({
           title: 'Uh-oh',
           text: 'Something went wrong copying budgets.',
+        });
+
+        console.error(error);
+      }
+    }
+
+    const originalRecurringExpenses = (await fetchExpenses(originalMonth)).filter((expense) => expense.isRecurring);
+    const destinationExpenses = originalRecurringExpenses.map((expense) => {
+      const expenseDay = new Date(expense.date).getDate();
+      const newExpense = { ...expense };
+      newExpense.id = `${generateId()}`;
+      newExpense.date = `${destinationMonth}-${(`0${expenseDay}`).slice(-2)}`;
+      return newExpense;
+    });
+
+    if (destinationExpenses.length > 0) {
+      try {
+        const finalExpensesToAdd = [];
+
+        for (const expense of destinationExpenses) {
+          const newExpense = {
+            id: expense.id,
+            cost: expense.cost,
+            description: expense.description,
+            budget: expense.budget,
+            date: expense.date,
+            isRecurring: expense.isRecurring,
+          };
+
+          finalExpensesToAdd.push(newExpense);
+        }
+
+        const addExpenseChunks = splitArrayInChunks(
+          finalExpensesToAdd,
+          10,
+        );
+
+        const { userbase } = window;
+
+        for (const expensesToAdd of addExpenseChunks) {
+          await userbase.putTransaction({
+            databaseName: 'expenses',
+            operations: expensesToAdd.map((expense) => ({
+              command: 'Insert',
+              item: {
+                cost: expense.cost,
+                description: expense.description,
+                budget: expense.budget,
+                date: expense.date,
+                isRecurring: expense.isRecurring,
+              },
+              itemId: expense.id,
+            })),
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          title: 'Uh-oh',
+          text: 'Something went wrong copying expenses.',
         });
 
         console.error(error);

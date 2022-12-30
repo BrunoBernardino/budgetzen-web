@@ -1,4 +1,4 @@
-import { assertEquals } from 'https://deno.land/std@0.156.0/testing/asserts.ts';
+import { assertEquals } from 'std/testing/asserts.ts';
 import { abortController } from './main.ts';
 
 const baseUrl = 'http://localhost:8000';

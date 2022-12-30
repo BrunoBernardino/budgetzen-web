@@ -1,5 +1,5 @@
-import { serveFile } from 'https://deno.land/std@0.156.0/http/file_server.ts';
-import { baseUrl, basicLayoutResponse, isRunningLocally, PageContentResult, recordPageView } from './lib/utils.ts';
+import { serveFile } from 'std/http/file_server.ts';
+import { baseUrl, basicLayoutResponse, PageContentResult, recordPageView } from './lib/utils.ts';
 
 // NOTE: This won't be necessary once https://github.com/denoland/deploy_feedback/issues/1 is closed
 import * as indexPage from './pages/index.ts';
@@ -37,7 +37,13 @@ function createBasicRouteHandler(id: string, pathname: string) {
         const { pageContent, pageAction } = pages[id];
 
         if (!request.url.startsWith('http://localhost')) {
-          recordPageView(match.pathname.input);
+          if (
+            !request.headers.get('user-agent')?.match(
+              /(duckduckgo|adsbot-google|googlebot|mediapartners-google|slurp|bingbot|bingpreview|msnbot)/i,
+            )
+          ) {
+            recordPageView(match.pathname.input);
+          }
         }
 
         if (request.method !== 'GET') {
@@ -95,7 +101,7 @@ const routes: Routes = {
 
       return new Response(sitemapContent, {
         headers: {
-          'content-type': 'application/xml',
+          'content-type': 'application/xml; charset=utf-8',
           'cache-control': `max-age=${oneDayInSeconds}, public`,
         },
       });
@@ -103,61 +109,17 @@ const routes: Routes = {
   },
   robots: {
     pattern: new URLPattern({ pathname: '/robots.txt' }),
-    handler: async (_request) => {
-      const fileContents = await Deno.readTextFile(`public/robots.txt`);
-
-      const oneDayInSeconds = 24 * 60 * 60;
-
-      return new Response(fileContents, {
-        headers: {
-          'content-type': 'text/plain',
-          'cache-control': `max-age=${oneDayInSeconds}, public`,
-        },
-      });
+    handler: (request) => {
+      return serveFile(request, `public/robots.txt`);
     },
   },
   public: {
     pattern: new URLPattern({ pathname: '/public/:filePath*' }),
-    handler: async (request, match) => {
+    handler: (request, match) => {
       const { filePath } = match.pathname.groups;
 
       try {
-        const fullFilePath = `public/${filePath}`;
-
-        const oneDayInSeconds = isRunningLocally(match) ? 0 : 24 * 60 * 60;
-
-        const headers: ResponseInit['headers'] = {
-          'cache-control': `max-age=${oneDayInSeconds}, public`,
-        };
-
-        // NOTE: It would be nice to figure out a better way to deduce content-type without dependencies
-        const fileExtension = filePath.split('.').pop()?.toLowerCase();
-
-        if (fileExtension === 'js') {
-          headers['content-type'] = 'text/javascript';
-        } else if (fileExtension === 'css') {
-          headers['content-type'] = 'text/css';
-        } else if (fileExtension === 'json') {
-          headers['content-type'] = 'application/json';
-        } else if (fileExtension === 'jpg') {
-          headers['content-type'] = 'image/jpeg';
-          return serveFile(request, fullFilePath);
-        } else if (fileExtension === 'png') {
-          headers['content-type'] = 'image/png';
-          return serveFile(request, fullFilePath);
-        } else if (fileExtension === 'svg') {
-          headers['content-type'] = 'image/svg+xml';
-          return serveFile(request, fullFilePath);
-        } else if (fileExtension === 'ico') {
-          headers['content-type'] = 'image/x-icon';
-          return serveFile(request, fullFilePath);
-        }
-
-        const fileContents = await Deno.readTextFile(fullFilePath);
-
-        return new Response(fileContents, {
-          headers,
-        });
+        return serveFile(request, `public/${filePath}`);
       } catch (error) {
         if (error.toString().includes('NotFound')) {
           return new Response('Not Found', { status: 404 });

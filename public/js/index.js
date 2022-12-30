@@ -373,6 +373,7 @@
             description: document.getElementById('edit-expense-description').value,
             budget: document.getElementById('edit-expense-budget').value,
             date: document.getElementById('edit-expense-date').value,
+            isRecurring: document.getElementById('edit-expense-recurring').value === 'yes',
           };
 
           const saveExpenseButton = Swal.getConfirmButton();
@@ -453,6 +454,8 @@
           document.getElementById('edit-expense-description').value = expense.description;
           document.getElementById('edit-expense-budget').value = expense.budget;
           document.getElementById('edit-expense-date').value = expense.date;
+          document.getElementById('edit-expense-recurring').value = expense.isRecurring ? 'yes' : 'no';
+          document.getElementById('edit-expense-recurring').selectedIndex = expense.isRecurring ? 1 : 0;
         },
       });
     }

@@ -218,6 +218,15 @@ export function pageContent() {
               type="date"
             />
           </fieldset>
+          <fieldset class="input-wrapper">
+            <label for="edit-expense-recurring">Is Recurring?</label>
+            <select
+              id="edit-expense-recurring"
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </fieldset>
         </form>
       </swal-html>
       <swal-button type="confirm">
