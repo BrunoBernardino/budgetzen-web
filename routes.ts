@@ -39,7 +39,7 @@ function createBasicRouteHandler(id: string, pathname: string) {
         if (!request.url.startsWith('http://localhost')) {
           if (
             !request.headers.get('user-agent')?.match(
-              /(duckduckgo|adsbot-google|googlebot|mediapartners-google|slurp|bingbot|bingpreview|msnbot)/i,
+              /(duckduckgo|adsbot-google|googlebot|mediapartners-google|slurp|bingbot|bingpreview|msnbot|feedly|inoreader|newsblur|feedbin|theoldreader|dreamwidth|bazqux|bloglovin|wrangler|nextcloud|digitalocean|alittle)/i,
             )
           ) {
             recordPageView(match.pathname.input);
