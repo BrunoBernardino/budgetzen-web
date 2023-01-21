@@ -192,22 +192,3 @@ export function uniqueBy(
       .values(),
   ];
 }
-
-export async function recordPageView(pathname: string) {
-  try {
-    await fetch('https://stats.onbrn.com/api/event', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-      },
-      body: JSON.stringify({
-        domain: baseUrl.replace('https://', ''),
-        name: 'pageview',
-        url: `${baseUrl}${pathname}`,
-      }),
-    });
-  } catch (error) {
-    console.log('Failed to log pageview');
-    console.error(error);
-  }
-}

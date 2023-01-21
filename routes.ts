@@ -1,5 +1,5 @@
 import { serveFile } from 'std/http/file_server.ts';
-import { baseUrl, basicLayoutResponse, PageContentResult, recordPageView } from './lib/utils.ts';
+import { baseUrl, basicLayoutResponse, PageContentResult } from './lib/utils.ts';
 
 // NOTE: This won't be necessary once https://github.com/denoland/deploy_feedback/issues/1 is closed
 import * as indexPage from './pages/index.ts';
@@ -35,16 +35,6 @@ function createBasicRouteHandler(id: string, pathname: string) {
 
         // @ts-ignore necessary because of the comment above
         const { pageContent, pageAction } = pages[id];
-
-        if (!request.url.startsWith('http://localhost')) {
-          if (
-            !request.headers.get('user-agent')?.match(
-              /(duckduckgo|adsbot-google|googlebot|mediapartners-google|slurp|bingbot|bingpreview|msnbot|feedly|inoreader|newsblur|feedbin|theoldreader|dreamwidth|bazqux|bloglovin|wrangler|nextcloud|digitalocean|alittle)/i,
-            )
-          ) {
-            recordPageView(match.pathname.input);
-          }
-        }
 
         if (request.method !== 'GET') {
           return pageAction(request, match) as Response;
