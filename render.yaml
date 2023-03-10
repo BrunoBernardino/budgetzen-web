@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: budgetzen
+    env: docker
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: BASE_URL
+        fromService:
+          name: budgetzen
+          type: web
+          property: host
+      - key: POSTGRESQL_HOST
+        fromDatabase:
+          name: budgetzen
+          property: host
+      - key: POSTGRESQL_USER
+        fromDatabase:
+          name: budgetzen
+          property: user
+      - key: POSTGRESQL_PASSWORD
+        fromDatabase:
+          name: budgetzen
+          property: password
+      - key: POSTGRESQL_DBNAME
+        fromDatabase:
+          name: budgetzen
+          property: database
+      - key: POSTGRESQL_PORT
+        fromDatabase:
+          name: budgetzen
+          property: port
+
+databases:
+  - name: budgetzen
+    plan: starter

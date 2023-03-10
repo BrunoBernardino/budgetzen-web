@@ -1,0 +1,44 @@
+/* Base/Custom */
+
+#loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.7);
+  transition: all 200ms ease-in-out;
+  visibility: visible;
+  opacity: 1;
+
+  svg path, svg rect {
+    fill: rgba(255, 255, 255, 0.8);
+  }
+
+  &.hide {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.swal2-html-container {
+  .text {
+    color: #aaa;
+  }
+
+  .input-wrapper > label {
+    color: #999;
+  }
+
+  .input-wrapper input[type="text"], .input-wrapper input[type="date"], .input-wrapper input[type="datetime"], .input-wrapper input[type="email"], .input-wrapper input[type="number"], .input-wrapper input[type="search"], .input-wrapper input[type="time"], .input-wrapper input[type="url"], .input-wrapper input[type="password"], .input-wrapper textarea, .input-wrapper select {
+    border-color: #ddd;
+
+    &:focus {
+      border-color: #aaa;
+    }
+  }
+}

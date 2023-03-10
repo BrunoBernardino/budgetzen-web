@@ -1,0 +1,28 @@
+name: "Cron: Check subscriptions"
+
+on:
+  workflow_dispatch:
+  schedule:
+    # At 04:06 every day.
+    - cron: '6 4 * * *'
+
+jobs:
+  cron-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.30.3
+      - env:
+          POSTGRESQL_HOST: ${{ secrets.POSTGRESQL_HOST }}
+          POSTGRESQL_USER: ${{ secrets.POSTGRESQL_USER }}
+          POSTGRESQL_PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
+          POSTGRESQL_DBNAME: ${{ secrets.POSTGRESQL_DBNAME }}
+          POSTGRESQL_PORT: ${{ secrets.POSTGRESQL_PORT }}
+          POSTGRESQL_CAFILE: ${{ secrets.POSTGRESQL_CAFILE }}
+          STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+          PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID }}
+          PAYPAL_CLIENT_SECRET: ${{ secrets.PAYPAL_CLIENT_SECRET }}
+        run: |
+          make crons/check-subscriptions

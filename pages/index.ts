@@ -1,4 +1,5 @@
-import { html, PageContentResult } from '../lib/utils.ts';
+import { helpEmail, html, PageContentResult } from '/lib/utils.ts';
+import verificationCodeModal from '/components/modals/verification-code.ts';
 
 export function pageAction() {
   return new Response('Not Implemented', { status: 501 });
@@ -8,10 +9,10 @@ export function pageContent() {
   const htmlContent = html`
     <section class="main-section">
       <div data-has-invalid-session>
-        <h1>Simple + Encrypted Budget Management</h1>
+        <h1>Simple + Encrypted Expense Management</h1>
         <section class="hero">
           <p>
-            Budget Zen is a simple and <strong>encrypted</strong> budget management
+            Budget Zen is a simple and <strong>encrypted</strong> expense management
             app. You can <a href="https://budgetzen.net">learn more about it here</a>, as this
             is the app.
           </p>
@@ -32,7 +33,6 @@ export function pageContent() {
                 type="email"
                 placeholder="you@example.com"
                 name="email"
-                data-automation="login-email"
               />
             </fieldset>
             <fieldset class="input-wrapper">
@@ -42,11 +42,10 @@ export function pageContent() {
                 type="password"
                 placeholder="something secret"
                 name="password"
-                data-automation="login-password"
               />
             </fieldset>
             <div class="buttons-wrapper">
-              <button type="submit" id="login-button" data-automation="login-button">
+              <button type="submit" id="login-button">
                 Login
               </button>
               <span class="or">or</span>
@@ -56,15 +55,14 @@ export function pageContent() {
             </div>
           </form>
           <p>
-            When you signup, you're agreeing with the <a href="https://budgetzen.net/terms">Terms of Service</a>.
-          </p>
-          <p>
-            Note that logging in will take up a few seconds. This is intentional, in order to generate a safer assymetric encryption key. After logging in, the app should be blazing fast in any device.
+            Note that logging in will take up a few seconds. This is
+            intentional, in order to generate a safer assymetric encryption key.
+            After logging in, the app should be blazing fast in any device.
           </p>
         </section>
         <h2>Need help?</h2>
         <p>
-          If you're having any issues or have any questions, <strong><a href="mailto:me@brunobernardino.com">please reach out</a></strong>.
+          If you're having any issues or have any questions, <strong><a href="mailto:${helpEmail}">please reach out</a></strong>.
         </p>
       </div>
       
@@ -86,7 +84,6 @@ export function pageContent() {
                 <button id="budgets-filter-button" type="button">≡</button>
               </section>
               <section id="expenses">
-              
               </section>
             </section>
             <section class="budgets-wrapper">
@@ -98,7 +95,6 @@ export function pageContent() {
               
               <section id="budgets">
               </section>
-
               <button type="button" id="add-budget-button">Add Budget</button>
             </section>
           </div>
@@ -123,7 +119,7 @@ export function pageContent() {
               <label for="expense-description">Description</label>
               <input
                 id="expense-description"
-                placeholder="Volunteering"
+                placeholder="Lunch"
                 autocomplete="off"
                 type="text"
                 data-automation="add-expense-description"
@@ -331,7 +327,10 @@ export function pageContent() {
         Cancel
       </swal-button>
     </template>
-    <script src="/public/js/index.js"></script>
+
+    ${verificationCodeModal()}
+    
+    <script src="/public/ts/index.ts" type="module"></script>
   `;
 
   return {

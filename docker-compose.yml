@@ -1,0 +1,31 @@
+services:
+  postgresql:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=fake
+      - POSTGRES_DB=budgetzen
+    restart: on-failure
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  # NOTE: This would be nice to develop with https:// locally, but it doesn't work, for whatever reason, so we need a system caddy instead
+  # caddy:
+  #   image: caddy:2-alpine
+  #   restart: unless-stopped
+  #   command: caddy reverse-proxy --from https://localhost:443 --to http://localhost:8000
+  #   network_mode: "host"
+  #   volumes:
+  #     - caddy:/data
+
+volumes:
+  pgdata:
+    driver: local
+  # caddy:
+  #   driver: local

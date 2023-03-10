@@ -1,12 +1,12 @@
-const cacheVersion = 'v0';
+const CACHE_VERSION = 'budgetzen_v0';
 
 const addResourcesToCache = async (resources) => {
-  const cache = await caches.open(cacheVersion);
+  const cache = await caches.open(CACHE_VERSION);
   await cache.addAll(resources);
 };
 
 const putInCache = async (request, response) => {
-  const cache = await caches.open(cacheVersion);
+  const cache = await caches.open(CACHE_VERSION);
   await cache.put(request, response);
 };
 
@@ -56,11 +56,10 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     addResourcesToCache([
       '/',
+      '/public/js/script.js',
+      '/public/js/index.js',
       '/public/css/style.css',
       '/public/manifest.json',
-      '/public/js/script.js',
-      '/public/js/userbase.js',
-      '/public/js/stripe.js',
       '/public/js/sweetalert.js',
     ]),
   );

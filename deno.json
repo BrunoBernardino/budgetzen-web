@@ -9,10 +9,7 @@
     },
     "files": {
       "exclude": [
-        "public/js/stripe.js",
-        "public/js/sweetalert.js",
-        "public/js/userbase.js",
-        "public/js/userbase.js.map"
+        "public/js/sweetalert.js"
       ]
     }
   },
@@ -25,12 +22,17 @@
     },
     "files": {
       "exclude": [
-        "public/js/stripe.js",
-        "public/js/sweetalert.js",
-        "public/js/userbase.js",
-        "public/js/userbase.js.map"
+        "public/js/sweetalert.js"
       ]
     }
+  },
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "deno.ns"
+    ]
   },
   "importMap": "./import_map.json",
   "lock": false

@@ -1,16 +1,28 @@
 import { serveFile } from 'std/http/file_server.ts';
-import { baseUrl, basicLayoutResponse, PageContentResult } from './lib/utils.ts';
+import { baseUrl, basicLayoutResponse, PageContentResult, serveFileWithSass, serveFileWithTs } from './lib/utils.ts';
 
 // NOTE: This won't be necessary once https://github.com/denoland/deploy_feedback/issues/1 is closed
 import * as indexPage from './pages/index.ts';
 import * as pricingPage from './pages/pricing.ts';
 import * as settingsPage from './pages/settings.ts';
 import * as billingPage from './pages/billing.ts';
+import * as apiUserPage from './pages/api/user.ts';
+import * as apiSessionPage from './pages/api/session.ts';
+import * as apiSubscriptionPage from './pages/api/subscription.ts';
+import * as apiDataPage from './pages/api/data.ts';
+import * as apiBudgetsPage from './pages/api/budgets.ts';
+import * as apiExpensesPage from './pages/api/expenses.ts';
 const pages = {
   index: indexPage,
   pricing: pricingPage,
   settings: settingsPage,
   billing: billingPage,
+  apiUser: apiUserPage,
+  apiSession: apiSessionPage,
+  apiSubscription: apiSubscriptionPage,
+  apiData: apiDataPage,
+  apiBudgets: apiBudgetsPage,
+  apiExpenses: apiExpensesPage,
 };
 
 export interface Route {
@@ -46,7 +58,7 @@ function createBasicRouteHandler(id: string, pathname: string) {
           return pageContentResult;
         }
 
-        const { htmlContent: htmlContent, titlePrefix } = (pageContentResult as PageContentResult);
+        const { htmlContent: htmlContent, titlePrefix } = pageContentResult as PageContentResult;
 
         return basicLayoutResponse(htmlContent, { currentPath: match.pathname.input, titlePrefix });
       } catch (error) {
@@ -97,6 +109,12 @@ const routes: Routes = {
       });
     },
   },
+  favicon: {
+    pattern: new URLPattern({ pathname: '/favicon.ico' }),
+    handler: (request) => {
+      return serveFile(request, 'public/images/favicon.ico');
+    },
+  },
   robots: {
     pattern: new URLPattern({ pathname: '/robots.txt' }),
     handler: (request) => {
@@ -109,7 +127,17 @@ const routes: Routes = {
       const { filePath } = match.pathname.groups;
 
       try {
-        return serveFile(request, `public/${filePath}`);
+        const fullFilePath = `public/${filePath}`;
+
+        const fileExtension = filePath.split('.').pop()?.toLowerCase();
+
+        if (fileExtension === 'ts') {
+          return serveFileWithTs(request, fullFilePath);
+        } else if (fileExtension === 'scss') {
+          return serveFileWithSass(request, fullFilePath);
+        } else {
+          return serveFile(request, fullFilePath);
+        }
       } catch (error) {
         if (error.toString().includes('NotFound')) {
           return new Response('Not Found', { status: 404 });
@@ -125,6 +153,12 @@ const routes: Routes = {
   pricing: createBasicRouteHandler('pricing', '/pricing'),
   settings: createBasicRouteHandler('settings', '/settings'),
   billing: createBasicRouteHandler('billing', '/billing'),
+  apiUser: createBasicRouteHandler('apiUser', '/api/user'),
+  apiSession: createBasicRouteHandler('apiSession', '/api/session'),
+  apiSubscription: createBasicRouteHandler('apiSubscription', '/api/subscription'),
+  apiData: createBasicRouteHandler('apiData', '/api/data'),
+  apiBudgets: createBasicRouteHandler('apiBudgets', '/api/budgets'),
+  apiExpenses: createBasicRouteHandler('apiExpenses', '/api/expenses'),
 };
 
 export default routes;

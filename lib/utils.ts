@@ -1,18 +1,33 @@
 import 'std/dotenv/load.ts';
+import { emit } from 'https://deno.land/x/emit@0.15.0/mod.ts';
+import sass from 'https://deno.land/x/denosass@1.0.6/mod.ts';
+import { serveFile } from 'std/http/file_server.ts';
 
-import header from '../components/header.ts';
-import footer from '../components/footer.ts';
-import loading from '../components/loading.ts';
+import header from '/components/header.ts';
+import footer from '/components/footer.ts';
+import loading from '/components/loading.ts';
 
 // This allows us to have nice html syntax highlighting in template literals
 export const html = String.raw;
 
-const USERBASE_APP_ID = Deno.env.get('USERBASE_APP_ID') || '';
-const sessionLengthInHours = 90 * 24; // 3 months
-
-export const baseUrl = 'https://app.budgetzen.net';
+export const baseUrl = Deno.env.get('BASE_URL') || 'https://app.budgetzen.net';
 export const defaultTitle = 'Budget Zen — Simple and end-to-end encrypted budget and expense manager';
 export const defaultDescription = 'Simple and end-to-end encrypted budget and expense manager.';
+export const helpEmail = 'help@budgetzen.net';
+
+export const PORT = Deno.env.get('PORT') || 8000;
+export const STRIPE_MONTHLY_URL = 'https://buy.stripe.com/eVa01H57C3MB6CQ14s';
+export const STRIPE_YEARLY_URL = 'https://buy.stripe.com/28o5m1dE896V0es8wV';
+export const STRIPE_CUSTOMER_URL = 'https://billing.stripe.com/p/login/4gw15w3G9bDyfWU6oo';
+export const PAYPAL_MONTHLY_URL =
+  `https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-41N48210MJ2770038MQDVBLI&return_url=${
+    encodeURI(`${baseUrl}/pricing?paypalCheckoutId=true`)
+  }`;
+export const PAYPAL_YEARLY_URL =
+  `https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-20P504881F952811BMQDVA4Q&return_url=${
+    encodeURI(`${baseUrl}/pricing?paypalCheckoutId=true`)
+  }`;
+export const PAYPAL_CUSTOMER_URL = 'https://www.paypal.com';
 
 export interface PageContentResult {
   htmlContent: string;
@@ -45,6 +60,7 @@ function basicLayout(htmlContent: string, { currentPath, titlePrefix, descriptio
       <meta property="og:title" content="${title}" />
       <link rel="icon" href="/public/images/favicon.png" type="image/png">
       <link rel="apple-touch-icon" href="/public/images/favicon.png">
+      <link rel="stylesheet" href="/public/scss/style.scss">
       <link rel="stylesheet" href="/public/css/style.css">
 
       <link rel="manifest" href="/public/manifest.json" />
@@ -56,21 +72,22 @@ function basicLayout(htmlContent: string, { currentPath, titlePrefix, descriptio
     <body>
       ${loading()}
       ${header(currentPath)}
-      <section class="wrapper" id="app-root">
+      <section class="wrapper">
         ${htmlContent}
       </section>
       ${footer()}
       <script type="text/javascript">
-        window.app = {};
-        window.app.userbaseConfig = {
-          appId: "${USERBASE_APP_ID}",
-          sessionLength: ${sessionLengthInHours},
+        window.app = {
+          STRIPE_MONTHLY_URL: '${STRIPE_MONTHLY_URL}',
+          STRIPE_YEARLY_URL: '${STRIPE_YEARLY_URL}',
+          STRIPE_CUSTOMER_URL: '${STRIPE_CUSTOMER_URL}',
+          PAYPAL_MONTHLY_URL: '${PAYPAL_MONTHLY_URL}',
+          PAYPAL_YEARLY_URL: '${PAYPAL_YEARLY_URL}',
+          PAYPAL_CUSTOMER_URL: '${PAYPAL_CUSTOMER_URL}',
         };
       </script>
-      <script src="/public/js/userbase.js"></script>
       <script src="/public/js/script.js"></script>
       <script src="/public/js/sweetalert.js" defer></script>
-      <script src="/public/js/stripe.js" defer></script>
     </body>
     </html>
     `;
@@ -81,88 +98,93 @@ export function basicLayoutResponse(htmlContent: string, options: BasicLayoutOpt
     headers: {
       'content-type': 'text/html; charset=utf-8',
       'content-security-policy':
-        'default-src \'self\' https://*.userbase.com wss://*.userbase.com https://*.stripe.com https://stripe.com data: blob:; child-src \'self\' data: blob: https://*.stripe.com; img-src \'self\' data: blob: https://*.stripe.com; style-src \'self\' \'unsafe-inline\' https://*.stripe.com; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\';',
+        'default-src \'self\'; child-src \'self\'; img-src \'self\'; style-src \'self\' \'unsafe-inline\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\';',
       'x-frame-options': 'DENY',
+      'x-content-type-options': 'nosniff',
       'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
     },
   });
 }
 
 export function isRunningLocally(urlPatternResult: URLPatternResult) {
-  return urlPatternResult.hostname.input === 'localhost';
+  return urlPatternResult.hostname.input.includes('localhost');
 }
-
-// NOTE: The functions below are used in the frontend, but this copy allows for easier testing and type-checking
 
 export function escapeHtml(unsafe: string) {
   return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
     .replaceAll('\'', '&#039;');
 }
 
-export function formatNumber(currency: string, number: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(number);
+async function transpileTs(content: string, specifier: URL) {
+  const urlStr = specifier.toString();
+  const result = await emit(specifier, {
+    load(specifier: string) {
+      if (specifier !== urlStr) {
+        return Promise.resolve({ kind: 'module', specifier, content: '' });
+      }
+      return Promise.resolve({ kind: 'module', specifier, content });
+    },
+  });
+  return result[urlStr];
 }
 
-type SortableByDate = { date: string };
-export function sortByDate(
-  objectA: SortableByDate,
-  objectB: SortableByDate,
-) {
-  if (objectA.date < objectB.date) {
-    return -1;
+export async function serveFileWithTs(request: Request, filePath: string, extraHeaders?: ResponseInit['headers']) {
+  const response = await serveFile(request, filePath);
+
+  if (response.status !== 200) {
+    return response;
   }
-  if (objectA.date > objectB.date) {
-    return 1;
-  }
-  return 0;
+
+  const tsCode = await response.text();
+  const jsCode = await transpileTs(tsCode, new URL('file:///src.ts'));
+  const { headers } = response;
+  headers.set('content-type', 'application/javascript; charset=utf-8');
+  headers.delete('content-length');
+
+  return new Response(jsCode, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+    ...(extraHeaders || {}),
+  });
 }
 
-type SortableByCount = { count: number };
-export function sortByCount(
-  objectA: SortableByCount,
-  objectB: SortableByCount,
-) {
-  if (objectA.count < objectB.count) {
-    return 1;
-  }
-  if (objectA.count > objectB.count) {
-    return -1;
-  }
-  return 0;
+function transpileSass(content: string) {
+  const compiler = sass(content);
+
+  return compiler.to_string('compressed') as string;
 }
 
-type SortableByName = { name: string };
-export function sortByName(
-  objectA: SortableByName,
-  objectB: SortableByName,
-) {
-  const nameA = objectA.name.toUpperCase();
-  const nameB = objectB.name.toUpperCase();
-  if (nameA < nameB) {
-    return -1;
+export async function serveFileWithSass(request: Request, filePath: string, extraHeaders?: ResponseInit['headers']) {
+  const response = await serveFile(request, filePath);
+
+  if (response.status !== 200) {
+    return response;
   }
-  if (nameA > nameB) {
-    return 1;
-  }
-  return 0;
+
+  const sassCode = await response.text();
+  const cssCode = transpileSass(sassCode);
+  const { headers } = response;
+  headers.set('content-type', 'text/css; charset=utf-8');
+  headers.delete('content-length');
+
+  return new Response(cssCode, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+    ...(extraHeaders || {}),
+  });
 }
 
-type SortableByMissingBudget = { expensesCost: number; value: number };
-export function sortByMissingBudget(
-  objectA: SortableByMissingBudget,
-  objectB: SortableByMissingBudget,
-) {
-  const valueA = objectA.value - objectA.expensesCost;
-  const valueB = objectB.value - objectB.expensesCost;
-  return valueB - valueA;
+export function generateRandomCode(length = 6) {
+  const getRandomDigit = () => Math.floor(Math.random() * (10)); // 0-9
+
+  const codeDigits = Array.from({ length }).map(getRandomDigit);
+
+  return codeDigits.join('');
 }
 
-export function splitArrayInChunks(array: any[], chunkLength: number) {
+export function splitArrayInChunks<T = any>(array: T[], chunkLength: number) {
   const chunks = [];
   let chunkIndex = 0;
   const arrayLength = array.length;
@@ -172,23 +194,4 @@ export function splitArrayInChunks(array: any[], chunkLength: number) {
   }
 
   return chunks;
-}
-
-export function uniqueBy(
-  array: any[],
-  predicate: string | ((item: any) => any),
-) {
-  const filter = typeof predicate === 'function' ? predicate : (object: any) => object[predicate];
-
-  return [
-    ...array
-      .reduce((map, item) => {
-        const key = item === null || item === undefined ? item : filter(item);
-
-        map.has(key) || map.set(key, item);
-
-        return map;
-      }, new Map())
-      .values(),
-  ];
 }

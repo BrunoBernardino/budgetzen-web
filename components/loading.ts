@@ -1,4 +1,4 @@
-import { html } from '../lib/utils.ts';
+import { html } from '/lib/utils.ts';
 
 export default function loading() {
   return html`

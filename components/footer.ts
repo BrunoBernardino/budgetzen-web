@@ -1,4 +1,4 @@
-import { html } from '../lib/utils.ts';
+import { helpEmail, html } from '/lib/utils.ts';
 
 export default function footer() {
   return html`
@@ -9,7 +9,7 @@ export default function footer() {
           <article class="faq-item" data-has-invalid-session>
             <h4>What is Budget Zen?</h4>
             <p>
-              Simple and encrypted budget management.
+              Simple and encrypted expense management.
               <a href="https://budgetzen.net">Read more here</a>.
             </p>
           </article>
@@ -47,8 +47,9 @@ export default function footer() {
       </section>
       <h3 class="links">
         <a href="https://budgetzen.net/blog">Blog</a> | 
+        <a href="https://budgetzen.net/terms">Terms of Service</a> | 
         <a href="https://budgetzen.net/privacy">Privacy Policy</a> | 
-        <a href="mailto:me@brunobernardino.com">Get Help</a> | <span class="by">by</span> 
+        <a href="mailto:${helpEmail}">Get Help</a> | <span class="by">by</span> 
         <a href="https://brunobernardino.com">Bruno Bernardino</a>
       </h3>
     </footer>
