@@ -187,6 +187,7 @@ document.addEventListener('app-loaded', async () => {
     const allBudgets = await fetchBudgets('all');
     const budgets = await fetchBudgets(currentMonth);
     const expenses = await fetchExpenses(currentMonth);
+    fetchExpenses('all'); // Helpful for faster addition
 
     const budgetOptions = new Set([{ name: 'Misc' }, ...allBudgets].map((budget) => budget.name));
 

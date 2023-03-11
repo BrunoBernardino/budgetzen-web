@@ -22,6 +22,12 @@ export interface App {
   doLogout?: () => void;
 }
 
+interface CachedData {
+  expenses: Expense[];
+}
+
+const CACHED_DATA: CachedData = { expenses: [] };
+
 export function showValidSessionElements() {
   const elementsToShow = document.querySelectorAll('[data-has-valid-session]');
   const elementsToHide = document.querySelectorAll('[data-has-invalid-session]');
@@ -356,6 +362,10 @@ export async function fetchExpenses(month: string) {
       expense.budget = await Encryption.decrypt(expense.budget, cryptoKey);
     }
 
+    if (month === 'all') {
+      CACHED_DATA.expenses = expenses;
+    }
+
     return expenses;
   } catch (error) {
     const { Swal } = window;
@@ -487,7 +497,11 @@ export async function saveExpense(
       (!expense.budget || expense.budget === 'Misc') &&
       expense.id === 'newExpense'
     ) {
-      const matchingExpense = (await fetchExpenses('all')).find(
+      if (CACHED_DATA.expenses.length === 0) {
+        await fetchExpenses('all');
+      }
+
+      const matchingExpense = CACHED_DATA.expenses.find(
         (_expense) => _expense.description === expense.description,
       );
 
@@ -533,6 +547,8 @@ export async function saveExpense(
     if (expense.id !== 'newExpense') {
       body.id = expense.id;
     }
+
+    CACHED_DATA.expenses.push({ ...expense, id: expense.id!, user_id: body.user_id, extra: body.extra });
 
     await fetch('/api/expenses', { method: body.id ? 'PATCH' : 'POST', headers, body: JSON.stringify(body) });
 

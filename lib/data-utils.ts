@@ -448,7 +448,7 @@ export async function importUserData(
 ) {
   const addBudgetChunks = splitArrayInChunks(
     budgets,
-    100, // import in transactions of 100 events each
+    1000, // import in transactions of 1000 budgets each
   );
 
   for (const budgetsToAdd of addBudgetChunks) {
@@ -463,7 +463,7 @@ export async function importUserData(
 
   const addExpenseChunks = splitArrayInChunks(
     expenses,
-    100, // import in transactions of 100 events each
+    1000, // import in transactions of 1000 expenses each
   );
 
   for (const expensesToAdd of addExpenseChunks) {
