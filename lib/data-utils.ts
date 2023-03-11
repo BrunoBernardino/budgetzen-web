@@ -266,7 +266,7 @@ export async function getAllBudgets(userId: string) {
   const budgets = await db.query<Budget>(
     sql`SELECT * FROM "budgetzen_budgets"
       WHERE "user_id" = $1
-      ORDER BY "month" DESC`,
+      ORDER BY "month" DESC, "id" DESC`,
     [
       userId,
     ],
@@ -280,7 +280,7 @@ export async function getBudgetsByMonth(userId: string, month: string) {
     sql`SELECT * FROM "budgetzen_budgets"
       WHERE "user_id" = $1 AND
         "month" = $2
-      ORDER BY "month" DESC`,
+      ORDER BY "month" DESC, "id" DESC`,
     [
       userId,
       month,
@@ -351,7 +351,7 @@ export async function getAllExpenses(userId: string) {
   const expenses = await db.query<Expense>(
     sql`SELECT * FROM "budgetzen_expenses"
       WHERE "user_id" = $1
-      ORDER BY "date" DESC`,
+      ORDER BY "date" DESC, "id" DESC`,
     [
       userId,
     ],
@@ -366,7 +366,7 @@ export async function getExpensesByMonth(userId: string, month: string) {
       WHERE "user_id" = $1 AND
         "date" >= '${month}-01' AND
         "date" <= '${month}-31'
-      ORDER BY "date" DESC`,
+      ORDER BY "date" DESC, "id" DESC`,
     [
       userId,
     ],

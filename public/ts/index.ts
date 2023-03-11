@@ -21,7 +21,7 @@ import {
 } from './utils.ts';
 
 document.addEventListener('app-loaded', async () => {
-  const user = await checkForValidSession();
+  await checkForValidSession();
 
   const loginForm = document.getElementById('login-form') as HTMLFormElement;
   const emailInput = document.getElementById('email') as HTMLInputElement;
@@ -175,6 +175,8 @@ document.addEventListener('app-loaded', async () => {
   }
 
   async function showData(isComingFromEmptyState = false) {
+    const user = await checkForValidSession();
+
     currency = user?.extra.currency || '$';
 
     monthNavigationLabel.textContent = showFormattedDate(currentMonth, {
