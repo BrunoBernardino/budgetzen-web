@@ -130,6 +130,15 @@ document.addEventListener('app-loaded', async () => {
       formatNumber(currency, Number(budget.value))
     }`;
 
+    const missingBarWrapperElement = clonedElement.querySelector('span.missing-bar') as HTMLSpanElement;
+    const missingBarElement = missingBarWrapperElement.querySelector('span') as HTMLSpanElement;
+    let missingBarPercent = Math.floor(100 * budget.expensesCost / Number(budget.value));
+    if (missingBarPercent >= 100) {
+      missingBarPercent = 100;
+      missingBarElement.style.backgroundColor = '#611928';
+    }
+    missingBarElement.style.width = `${missingBarPercent}%`;
+
     const nameElement = clonedElement.querySelector('article span.name') as HTMLSpanElement;
     nameElement.textContent = budget.name;
 

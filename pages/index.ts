@@ -164,6 +164,7 @@ export function pageContent() {
       <section class="budget-item" data-name="{budget.name}">
         <article>
           <span class="cost">{budget.expensesCost} of {budget.value}</span>
+          <span class="missing-bar"><span></span></span>
           <span class="name">{budget.name}</span>
         </article>
         <span class="missing">{budget.missing}</span>
