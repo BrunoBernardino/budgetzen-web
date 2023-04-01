@@ -184,6 +184,8 @@ document.addEventListener('app-loaded', async () => {
   }
 
   async function showData(isComingFromEmptyState = false) {
+    window.app.showLoading();
+
     const user = await checkForValidSession();
 
     currency = user?.extra.currency || '$';
@@ -312,6 +314,8 @@ document.addEventListener('app-loaded', async () => {
 
       expenseBudgetSelect.appendChild(element);
     }
+
+    window.app.hideLoading();
   }
 
   async function navigateToMonth(month: string) {
