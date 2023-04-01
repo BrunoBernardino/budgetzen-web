@@ -240,7 +240,7 @@ document.addEventListener('app-loaded', async () => {
     // If this is for the current or next month and there are no budgets, create budgets based on the previous/current month.
     if (budgets.length === 0 && !isComingFromEmptyState) {
       const currentMonthDate = new Date(`${currentMonth}-15`);
-      currentMonthDate.setMonth(currentMonthDate.getMonth() + 1);
+      currentMonthDate.setMonth(currentMonthDate.getMonth());
       const actualCurrentMonth = currentMonthDate.toISOString().substring(0, 7);
 
       const nextMonthDate = new Date();
