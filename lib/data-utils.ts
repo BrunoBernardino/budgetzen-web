@@ -183,7 +183,10 @@ export async function validateUserAndSession(userId: string, sessionId: string, 
     throw new Error('Not Found');
   }
 
+  const oneMonthFromToday = new Date(new Date().setUTCMonth(new Date().getUTCMonth() + 1));
+
   session.last_seen_at = new Date();
+  session.expires_at = oneMonthFromToday;
 
   await updateSession(session);
 
