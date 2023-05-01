@@ -24,13 +24,13 @@ async function cleanupSessions() {
 }
 
 async function cleanupInactiveUsers() {
-  const thirtyDaysAgo = new Date(new Date().setUTCDate(new Date().getUTCDate() - 30));
+  const sevenDaysAgo = new Date(new Date().setUTCDate(new Date().getUTCDate() - 7));
 
   try {
     const result = await db.query<Pick<User, 'id'>>(
-      sql`SELECT "id" FROM "budgetzen_users" WHERE "status" = 'inactive' AND "subscription" ->> 'expires_at' <= $1`,
+      sql`SELECT "id" FROM "budgetzen_users" WHERE "status" IN ('inactive', 'trial') AND "subscription" ->> 'expires_at' <= $1`,
       [
-        thirtyDaysAgo.toISOString().substring(0, 10),
+        sevenDaysAgo.toISOString().substring(0, 10),
       ],
     );
 

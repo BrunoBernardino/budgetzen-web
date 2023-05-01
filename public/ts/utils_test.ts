@@ -1,5 +1,5 @@
 import { assertEquals } from 'std/testing/asserts.ts';
-import { dateDiffInDays, formatNumber, SupportedCurrencySymbol } from './utils.ts';
+import { dateDiffInDays, formatNumber, SupportedCurrencySymbol, validateEmail } from './utils.ts';
 
 Deno.test('that dateDiffInDays works', () => {
   const tests = [
@@ -50,6 +50,22 @@ Deno.test('that formatNumber works', () => {
 
   for (const test of tests) {
     const result = formatNumber(test.currency, test.number);
+    assertEquals(result, test.expected);
+  }
+});
+
+Deno.test('that validateEmail works', () => {
+  const tests: { email: string; expected: boolean }[] = [
+    { email: 'user@example.com', expected: true },
+    { email: 'u@e.c', expected: true },
+    { email: 'user@example.', expected: false },
+    { email: '@example.com', expected: false },
+    { email: 'user@example.', expected: false },
+    { email: 'ABC', expected: false },
+  ];
+
+  for (const test of tests) {
+    const result = validateEmail(test.email);
     assertEquals(result, test.expected);
   }
 });

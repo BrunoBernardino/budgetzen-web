@@ -975,3 +975,15 @@ export function debounce(callback: any, waitInMs: number) {
     }, waitInMs);
   };
 }
+
+export function validateEmail(email: string) {
+  const trimmedEmail = (email || '').trim().toLocaleLowerCase();
+  if (!trimmedEmail) {
+    return false;
+  }
+
+  const requiredCharsNotInEdges = ['@', '.'];
+  return requiredCharsNotInEdges.every((char) =>
+    trimmedEmail.includes(char) && !trimmedEmail.startsWith(char) && !trimmedEmail.endsWith(char)
+  );
+}
