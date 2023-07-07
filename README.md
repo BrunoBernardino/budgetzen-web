@@ -8,6 +8,8 @@ This is v3, which is [end-to-end encrypted with open Web Standards](https://en.w
 
 It's not compatible with Budget Zen v2 ([end-to-end encrypted via Userbase](https://userbase.com)) which you can still get locally from [this commit](https://github.com/BrunoBernardino/budgetzen-web/tree/7e88a602be437cd4d54268f87113b21e9cff5c60), nor v1 (not end-to-end encrypted), which you can still get locally from [this commit](https://github.com/BrunoBernardino/budgetzen-web/tree/397d625469b7dfd8d1968c847b32e607ee7c8ee9). You can still export and import the data as the JSON format is the same across all 3 versions (unencrypted).
 
+> **NOTE:** If your Android launcher doesn't show PWAs as an app, I've got a solution for you: [a simple webview app](https://github.com/BrunoBernardino/budgetzen-android-webview).
+
 ## Self-host it!
 
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/BrunoBernardino/budgetzen-web)
