@@ -1,17 +1,13 @@
 {
   "fmt": {
-    "options": {
-      "useTabs": false,
-      "lineWidth": 120,
-      "indentWidth": 2,
-      "singleQuote": true,
-      "proseWrap": "preserve"
-    },
-    "files": {
-      "exclude": [
-        "public/js/sweetalert.js"
-      ]
-    }
+    "useTabs": false,
+    "lineWidth": 120,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "exclude": [
+      "public/js/sweetalert.js"
+    ]
   },
   "lint": {
     "rules": {
@@ -20,11 +16,9 @@
         "no-window-prefix"
       ]
     },
-    "files": {
-      "exclude": [
-        "public/js/sweetalert.js"
-      ]
-    }
+    "exclude": [
+      "public/js/sweetalert.js"
+    ]
   },
   "compilerOptions": {
     "lib": [

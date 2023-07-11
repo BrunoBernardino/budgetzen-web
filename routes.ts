@@ -129,7 +129,7 @@ const routes: Routes = {
       try {
         const fullFilePath = `public/${filePath}`;
 
-        const fileExtension = filePath.split('.').pop()?.toLowerCase();
+        const fileExtension = filePath!.split('.').pop()?.toLowerCase();
 
         if (fileExtension === 'ts') {
           return serveFileWithTs(request, fullFilePath);

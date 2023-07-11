@@ -120,7 +120,6 @@ export function pageContent() {
               <input
                 id="expense-description"
                 placeholder="Lunch"
-                autocomplete="off"
                 type="text"
                 data-automation="add-expense-description"
               />
@@ -139,7 +138,6 @@ export function pageContent() {
               <input
                 id="expense-date"
                 placeholder="Today"
-                autocomplete="off"
                 type="date"
                 data-automation="add-expense-date"
               />
@@ -193,8 +191,7 @@ export function pageContent() {
             <label for="edit-expense-description">Description</label>
             <input
               id="edit-expense-description"
-              placeholder="Volunteering"
-              autocomplete="off"
+              placeholder="Lunch"
               type="text"
             />
           </fieldset>
@@ -203,7 +200,6 @@ export function pageContent() {
             <select
               id="edit-expense-budget"
               placeholder="Misc"
-              autocomplete="off"
             ></select>
           </fieldset>
           <fieldset class="input-wrapper">
@@ -211,7 +207,6 @@ export function pageContent() {
             <input
               id="edit-expense-date"
               placeholder="Today"
-              autocomplete="off"
               type="date"
             />
           </fieldset>
@@ -247,7 +242,6 @@ export function pageContent() {
             <input
               id="edit-budget-name"
               placeholder="Food"
-              autocomplete="off"
               type="text"
             />
           </fieldset>
@@ -266,7 +260,6 @@ export function pageContent() {
             <input
               id="edit-budget-month"
               placeholder="Today"
-              autocomplete="off"
               type="date"
             />
           </fieldset>
