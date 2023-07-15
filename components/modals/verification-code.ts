@@ -15,7 +15,8 @@ export default function verificationCodeModal() {
             <label for="verification-code-input">Code</label>
             <input
               id="verification-code-input"
-              type="text"
+              type="number"
+              autocomplete="off"
             />
           </fieldset>
         </form>
