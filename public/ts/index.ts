@@ -33,12 +33,15 @@ document.addEventListener('app-loaded', async () => {
   const budgetsFilterButton = document.getElementById('budgets-filter-button') as HTMLButtonElement;
   const addBudgetButton = document.getElementById('add-budget-button') as HTMLButtonElement;
 
-  const expensesList = document.getElementById('expenses')!;
-  const budgetsList = document.getElementById('budgets')!;
+  const expensesList = document.getElementById('expenses') as HTMLDivElement;
+  const budgetsList = document.getElementById('budgets') as HTMLDivElement;
   const addExpenseForm = document.getElementById('add-expense-form') as HTMLFormElement;
   const addExpenseButton = document.getElementById('add-expense-button') as HTMLButtonElement;
   const expenseCostInput = document.getElementById('expense-cost') as HTMLInputElement;
   const expenseDescriptionInput = document.getElementById('expense-description') as HTMLInputElement;
+  const expenseDescriptionAutocompleteSuggestionsList = document.getElementById(
+    'expense-description-autocomplete-suggestions',
+  ) as HTMLDivElement;
   const expenseBudgetSelect = document.getElementById('expense-budget') as HTMLSelectElement;
   const expenseDateInput = document.getElementById('expense-date') as HTMLInputElement;
   const monthNavigationPreviousButton = document.getElementById('month-navigation-previous') as HTMLButtonElement;
@@ -48,6 +51,7 @@ document.addEventListener('app-loaded', async () => {
   let currentMonth = (new Date().toISOString()).substring(0, 7);
   let currency: SupportedCurrencySymbol = '$';
   const budgetFilters = new Set<string>();
+  const uniqueExpenseNames = new Set<string>();
 
   async function login(event: MouseEvent | SubmitEvent) {
     loginButton.textContent = 'Logging in...';
@@ -200,7 +204,15 @@ document.addEventListener('app-loaded', async () => {
     const allBudgets = await fetchBudgets('all');
     const budgets = await fetchBudgets(currentMonth);
     const expenses = await fetchExpenses(currentMonth);
-    fetchExpenses('all'); // Helpful for faster addition
+
+    // IIFE because we don't want to wait for all expenses in the main event-loop, but need it to get unique names
+    (async () => {
+      const allExpenses = await fetchExpenses('all');
+      const allExpenseNames: string[] = []; // This is necessary because you can't sort a Set, but it follows insertion order
+      allExpenses.forEach((expense) => allExpenseNames.push(expense.description));
+      allExpenseNames.sort();
+      allExpenseNames.forEach((expenseName) => uniqueExpenseNames.add(expenseName));
+    })();
 
     const budgetOptions = new Set([{ name: 'Misc' }, ...allBudgets].map((budget) => budget.name));
 
@@ -718,6 +730,42 @@ document.addEventListener('app-loaded', async () => {
     }
   }
 
+  function showAutocompleteSuggestions() {
+    const { value } = expenseDescriptionInput;
+
+    if (value.length <= 2) {
+      expenseDescriptionAutocompleteSuggestionsList.classList.add('hidden');
+      return;
+    }
+
+    const suggestedExpenseNames = new Set<string>();
+
+    uniqueExpenseNames.forEach((expenseName) => {
+      if (expenseName.toLocaleLowerCase().includes(value.toLocaleLowerCase())) {
+        suggestedExpenseNames.add(expenseName);
+      }
+    });
+
+    expenseDescriptionAutocompleteSuggestionsList.replaceChildren();
+    suggestedExpenseNames.forEach((expenseName) => {
+      const expenseNameElement = document.createElement('span');
+      expenseNameElement.innerText = expenseName;
+
+      expenseNameElement.addEventListener('click', () => {
+        expenseDescriptionInput.value = expenseName;
+        expenseDescriptionInput.focus();
+      });
+
+      expenseDescriptionAutocompleteSuggestionsList.appendChild(expenseNameElement);
+    });
+
+    expenseDescriptionAutocompleteSuggestionsList.classList.remove('hidden');
+  }
+
+  function hideAutocompleteSuggestions() {
+    expenseDescriptionAutocompleteSuggestionsList.classList.add('hidden');
+  }
+
   if (window.app.isLoggedIn) {
     initializePage();
   }
@@ -731,4 +779,7 @@ document.addEventListener('app-loaded', async () => {
   monthNavigationPreviousButton.addEventListener('click', navigateToPreviousMonth);
   monthNavigationNextButton.addEventListener('click', navigateToNextMonth);
   monthNavigationLabel.addEventListener('click', chooseMonthModal);
+  expenseDescriptionInput.addEventListener('focus', showAutocompleteSuggestions);
+  expenseDescriptionInput.addEventListener('keyup', debounce(showAutocompleteSuggestions, 150));
+  expenseDescriptionInput.addEventListener('blur', debounce(hideAutocompleteSuggestions, 150));
 });

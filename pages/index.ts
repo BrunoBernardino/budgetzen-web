@@ -112,7 +112,6 @@ export function pageContent() {
                 autocomplete="off"
                 type="text"
                 inputmode="decimal"
-                data-automation="add-expense-cost"
               />
             </fieldset>
             <fieldset class="input-wrapper">
@@ -121,8 +120,8 @@ export function pageContent() {
                 id="expense-description"
                 placeholder="Lunch"
                 type="text"
-                data-automation="add-expense-description"
               />
+              <aside id="expense-description-autocomplete-suggestions" class="hidden"></aside>
             </fieldset>
             <fieldset class="input-wrapper">
               <label for="expense-budget">Budget</label>
@@ -130,7 +129,6 @@ export function pageContent() {
                 id="expense-budget"
                 placeholder="Misc"
                 autocomplete="off"
-                data-automation="add-expense-budget"
               ></select>
             </fieldset>
             <fieldset class="input-wrapper">
@@ -139,11 +137,10 @@ export function pageContent() {
                 id="expense-date"
                 placeholder="Today"
                 type="date"
-                data-automation="add-expense-date"
               />
             </fieldset>
             
-            <button type="submit" id="add-expense-button" data-automation="add-expense-button">Add Expense</button>
+            <button type="submit" id="add-expense-button">Add Expense</button>
           </form>
         </section>
       </div>

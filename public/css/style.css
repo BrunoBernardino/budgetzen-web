@@ -382,6 +382,7 @@ a.button.secondary:focus {
   background: #fff;
   border-radius: 3px;
   transition: all 80ms ease-in-out;
+  color: var(--color-background);
 }
 .input-wrapper input[type="text"]:focus,
 .input-wrapper input[type="date"]:focus,

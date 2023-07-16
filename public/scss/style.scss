@@ -140,3 +140,42 @@
   text-align: right;
   text-transform: uppercase;
 }
+
+#expense-description-autocomplete-suggestions {
+  display: flex;
+  position: absolute;
+  z-index: 10;
+  padding: 0;
+  border-radius: 3px;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+  background-color: #efefef;
+  margin: 0.5rem;
+  min-width: 250px;
+  max-width: 275px;
+  flex-direction: column;
+  overflow: auto;
+  max-height: 130px;
+
+  span {
+    padding: 0.5rem;
+    display: block;
+    color: var(--color-background);
+    cursor: pointer;
+
+    &:hover {
+      background-color: #ddd !important;
+    }
+
+    &:nth-child(2n+1) {
+      background-color: #fff;
+    }
+
+    &:first-child {
+      border-radius: 3px 3px 0 0;
+    }
+
+    &:last-child {
+      border-radius: 0 0 3px 3px;
+    }
+  }
+}
