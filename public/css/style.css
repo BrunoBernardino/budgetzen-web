@@ -555,6 +555,7 @@ a.button.secondary:focus {
 .expenses-wrapper .expenses-filter-wrapper {
   display: flex;
   margin: 20px 0.5rem;
+  justify-content: space-between;
 }
 
 #expenses-filter .input-wrapper {

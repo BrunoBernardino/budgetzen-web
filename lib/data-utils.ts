@@ -378,6 +378,27 @@ export async function getExpensesByMonth(userId: string, month: string) {
   return expenses;
 }
 
+export async function getExpensesForLastYear(userId: string) {
+  const twelveMonthsAgoMonth = new Date(new Date().setUTCMonth(new Date().getUTCMonth() - 12)).toISOString().substring(
+    0,
+    7,
+  );
+  const currentMonth = new Date().toISOString().substring(0, 7);
+
+  const expenses = await db.query<Expense>(
+    sql`SELECT * FROM "budgetzen_expenses"
+      WHERE "user_id" = $1 AND
+        "date" >= '${twelveMonthsAgoMonth}-01' AND
+        "date" <= '${currentMonth}-31'
+      ORDER BY "date" DESC, "id" DESC`,
+    [
+      userId,
+    ],
+  );
+
+  return expenses;
+}
+
 export async function createExpense(expense: Omit<Expense, 'id'>) {
   const newExpense = (await db.query<Expense>(
     sql`INSERT INTO "budgetzen_expenses" (

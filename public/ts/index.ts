@@ -207,11 +207,11 @@ document.addEventListener('app-loaded', async () => {
 
     // IIFE because we don't want to wait for all expenses in the main event-loop, but need it to get unique names
     (async () => {
-      const allExpenses = await fetchExpenses('all');
-      const allExpenseNames: string[] = []; // This is necessary because you can't sort a Set, but it follows insertion order
-      allExpenses.forEach((expense) => allExpenseNames.push(expense.description));
-      allExpenseNames.sort();
-      allExpenseNames.forEach((expenseName) => uniqueExpenseNames.add(expenseName));
+      const yearExpenses = await fetchExpenses('year');
+      const recentExpenseNames: string[] = []; // This is necessary because you can't sort a Set, but it follows insertion order
+      yearExpenses.forEach((expense) => recentExpenseNames.push(expense.description));
+      recentExpenseNames.sort();
+      recentExpenseNames.forEach((expenseName) => uniqueExpenseNames.add(expenseName));
     })();
 
     const budgetOptions = new Set([{ name: 'Misc' }, ...allBudgets].map((budget) => budget.name));

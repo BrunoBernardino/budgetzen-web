@@ -3,6 +3,7 @@ import {
   deleteExpense,
   getAllExpenses,
   getExpensesByMonth,
+  getExpensesForLastYear,
   monthRegExp,
   updateExpense,
   validateUserAndSession,
@@ -80,13 +81,21 @@ export async function pageContent(request: Request, _match: URLPatternResult) {
   const userId = urlSearchParams.get('user_id');
   const month = urlSearchParams.get('month');
 
-  if (!sessionId || !userId || !month || (!monthRegExp.test(month) && month !== 'all')) {
+  if (!sessionId || !userId || !month || (!monthRegExp.test(month) && month !== 'all' && month !== 'year')) {
     return new Response('Bad Request', { status: 400 });
   }
 
   const { user } = await validateUserAndSession(userId, sessionId);
 
-  const events = await (month === 'all' ? getAllExpenses(user.id) : getExpensesByMonth(user.id, month));
+  let expenses: Expense[] = [];
 
-  return new Response(JSON.stringify(events), { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+  if (month === 'all') {
+    expenses = await getAllExpenses(user.id);
+  } else if (month === 'year') {
+    expenses = await getExpensesForLastYear(user.id);
+  } else {
+    expenses = await getExpensesByMonth(user.id, month);
+  }
+
+  return new Response(JSON.stringify(expenses), { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
 }
