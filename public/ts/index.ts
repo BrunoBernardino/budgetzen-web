@@ -378,6 +378,7 @@ document.addEventListener('app-loaded', async () => {
     addExpenseButton.textContent = 'Adding...';
     isAddingExpense = true;
     window.app.showLoading();
+    hideAutocompleteSuggestions();
 
     const cost = Number.parseFloat(expenseCostInput.value.replace(',', '.'));
     const description = expenseDescriptionInput.value;
