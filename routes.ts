@@ -1,7 +1,7 @@
 import { serveFile } from 'std/http/file_server.ts';
 import { baseUrl, basicLayoutResponse, PageContentResult, serveFileWithSass, serveFileWithTs } from './lib/utils.ts';
 
-// NOTE: This won't be necessary once https://github.com/denoland/deploy_feedback/issues/1 is closed
+// NOTE: This won't be necessary once https://github.com/denoland/deploy_feedback/issues/433 is closed
 import * as indexPage from './pages/index.ts';
 import * as pricingPage from './pages/pricing.ts';
 import * as settingsPage from './pages/settings.ts';
@@ -42,7 +42,7 @@ function createBasicRouteHandler(id: string, pathname: string) {
     pattern: new URLPattern({ pathname }),
     handler: async (request: Request, match: URLPatternResult) => {
       try {
-        // NOTE: Use this instead once https://github.com/denoland/deploy_feedback/issues/1 is closed
+        // NOTE: Use this instead once https://github.com/denoland/deploy_feedback/issues/433 is closed
         // const { pageContent, pageAction } = await import(`./pages/${id}.ts`);
 
         // @ts-ignore necessary because of the comment above
@@ -74,6 +74,8 @@ function createBasicRouteHandler(id: string, pathname: string) {
   };
 }
 
+const oneDayInSeconds = 24 * 60 * 60;
+
 const routes: Routes = {
   sitemap: {
     pattern: new URLPattern({ pathname: '/sitemap.xml' }),
@@ -99,8 +101,6 @@ const routes: Routes = {
 </urlset>
 `;
 
-      const oneDayInSeconds = 24 * 60 * 60;
-
       return new Response(sitemapContent, {
         headers: {
           'content-type': 'application/xml; charset=utf-8',
@@ -109,21 +109,25 @@ const routes: Routes = {
       });
     },
   },
-  favicon: {
-    pattern: new URLPattern({ pathname: '/favicon.ico' }),
-    handler: (request) => {
-      return serveFile(request, 'public/images/favicon.ico');
-    },
-  },
   robots: {
     pattern: new URLPattern({ pathname: '/robots.txt' }),
-    handler: (request) => {
-      return serveFile(request, `public/robots.txt`);
+    handler: async (request) => {
+      const response = await serveFile(request, `public/robots.txt`);
+      response.headers.set('cache-control', `max-age=${oneDayInSeconds}, public`);
+      return response;
+    },
+  },
+  favicon: {
+    pattern: new URLPattern({ pathname: '/favicon.ico' }),
+    handler: async (request) => {
+      const response = await serveFile(request, `public/images/favicon.ico`);
+      response.headers.set('cache-control', `max-age=${oneDayInSeconds}, public`);
+      return response;
     },
   },
   public: {
     pattern: new URLPattern({ pathname: '/public/:filePath*' }),
-    handler: (request, match) => {
+    handler: async (request, match) => {
       const { filePath } = match.pathname.groups;
 
       try {
@@ -131,13 +135,18 @@ const routes: Routes = {
 
         const fileExtension = filePath!.split('.').pop()?.toLowerCase();
 
+        let response: Response;
+
         if (fileExtension === 'ts') {
-          return serveFileWithTs(request, fullFilePath);
+          response = await serveFileWithTs(request, fullFilePath);
         } else if (fileExtension === 'scss') {
-          return serveFileWithSass(request, fullFilePath);
+          response = await serveFileWithSass(request, fullFilePath);
         } else {
-          return serveFile(request, fullFilePath);
+          response = await serveFile(request, `public/${filePath}`);
         }
+
+        response.headers.set('cache-control', `max-age=${oneDayInSeconds}, public`);
+        return response;
       } catch (error) {
         if (error.toString().includes('NotFound')) {
           return new Response('Not Found', { status: 404 });
