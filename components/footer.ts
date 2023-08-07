@@ -49,8 +49,9 @@ export default function footer() {
         <a href="https://budgetzen.net/blog">Blog</a> | 
         <a href="https://budgetzen.net/terms">Terms of Service</a> | 
         <a href="https://budgetzen.net/privacy">Privacy Policy</a> | 
+        <a href="https://status.budgetzen.net" target="_blank" rel="noopener noreferrer">Status</a> | 
         <a href="mailto:${helpEmail}">Get Help</a> | <span class="by">by</span> 
-        <a href="https://brunobernardino.com">Bruno Bernardino</a>
+        <a href="https://brunobernardino.com" target="_blank" rel="noopener noreferrer">Bruno Bernardino</a>
       </h3>
     </footer>
   `;
