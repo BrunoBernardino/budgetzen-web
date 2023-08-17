@@ -734,8 +734,8 @@ document.addEventListener('app-loaded', async () => {
   function showAutocompleteSuggestions() {
     const { value } = expenseDescriptionInput;
 
-    if (value.length <= 2) {
-      expenseDescriptionAutocompleteSuggestionsList.classList.add('hidden');
+    if (value.length <= 2 || isAddingExpense) {
+      hideAutocompleteSuggestions();
       return;
     }
 
