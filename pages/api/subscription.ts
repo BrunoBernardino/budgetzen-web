@@ -1,7 +1,6 @@
 import { updateUser, validateUserAndSession } from '/lib/data-utils.ts';
 import { getSubscriptions as getStripeSubscriptions } from '/lib/providers/stripe.ts';
-// import { getSubscriptions as getPaypalSubscriptions } from '/lib/providers/paypal.ts';
-import { sendUpdateEmailInProviderEmail } from '/lib/providers/postmark.ts';
+import { getPayments as getPaypalPayments } from '/lib/providers/paypal.ts';
 
 export async function pageAction(request: Request) {
   if (request.method !== 'POST') {
@@ -38,24 +37,27 @@ export async function pageAction(request: Request) {
       await updateUser(user);
     }
   } else if (provider === 'paypal') {
-    // NOTE: "Hack" for manually updating/verifying until PayPal builds a subscriptions list API
-    await sendUpdateEmailInProviderEmail(user.email, user.email);
-    //   const subscriptions = await getPaypalSubscriptions();
+    const payments = await getPaypalPayments();
 
-    //   const subscription = subscriptions.find((subscription) => subscription.subscriber.email_address === user.email);
+    const payment = payments.find((payment) =>
+      payment.payer.payer_info.email === user.email &&
+      payment.transactions.find((transaction) => transaction.soft_descriptor.toLocaleLowerCase().includes('budget zen'))
+    );
 
-    //   if (subscription) {
-    //     user.subscription.isMonthly = parseInt(subscription.billing_info.last_payment.amount.value, 10) < 10;
-    //     user.subscription.updated_at = new Date().toISOString();
-    //     user.subscription.expires_at = new Date(subscription.billing_info.next_billing_time).toISOString();
-    //     user.subscription.external.stripe = {
-    //       user_id: subscription.subscriber.payer_id,
-    //       subscription_id: subscription.id,
-    //     };
-    user.status = 'active';
+    if (payment) {
+      user.subscription.isMonthly = parseInt(payment.transactions[0].amount.total, 10) < 10;
+      user.subscription.updated_at = new Date().toISOString();
+      user.subscription.expires_at = new Date(
+        new Date(payment.update_time).setUTCMonth(new Date(payment.update_time).getUTCMonth() + 1),
+      ).toISOString();
+      user.subscription.external.paypal = {
+        user_id: payment.payer.payer_info.payer_id,
+        subscription_id: payment.id,
+      };
+      user.status = 'active';
 
-    await updateUser(user);
-    //  }
+      await updateUser(user);
+    }
   }
 
   return new Response(JSON.stringify({ success: true }), {

@@ -3,42 +3,58 @@ import 'std/dotenv/load.ts';
 const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID') || '';
 const PAYPAL_CLIENT_SECRET = Deno.env.get('PAYPAL_CLIENT_SECRET') || '';
 
-interface PaypalSubscriber {
-  payer_id: string;
-  name: {
-    given_name: string;
-    surname: string;
-  };
-  email_address: string;
-}
-
-interface PaypalSubscription {
+interface PaypalPayment {
   id: string;
-  plan_id: string;
-  start_time: string;
-  subscriber: PaypalSubscriber;
-  billing_info: {
-    next_billing_time: string;
-    last_payment: {
-      amount: {
-        value: string;
-      };
-      time: string;
+  intent: 'sale' | 'authorize' | 'order';
+  transactions: PaypalTransaction[];
+  state: 'created' | 'approved' | 'failed';
+  failure_reason: string;
+  create_time: string;
+  update_time: string;
+  payer: {
+    payer_info: {
+      email: string;
+      payer_id: string;
     };
   };
-  create_time: string;
-  status: 'ACTIVE' | 'APPROVED' | 'APPROVAL_PENDING' | 'SUSPENDED' | 'CANCELLED' | 'EXPIRED';
 }
 
-let stripeAccessToken = '';
+interface PaypalTransaction {
+  invoice_number: string;
+  soft_descriptor: string;
+  item_list: {
+    items: PaypalItemListItem[];
+  };
+  amount: {
+    currency: string;
+    total: string;
+  };
+}
+
+interface PaypalItemListItem {
+  sku: string;
+  name: string;
+  description: string;
+  quantity: string;
+  price: string;
+  currency: string;
+}
+
+interface PaypalResponse {
+  count: number;
+  next_id: string;
+  payments: PaypalPayment[];
+}
+
+let paypalAccessToken = '';
 
 async function getApiRequestHeaders() {
-  if (!stripeAccessToken) {
-    stripeAccessToken = await getAccessToken();
+  if (!paypalAccessToken) {
+    paypalAccessToken = await getAccessToken();
   }
 
   return {
-    'Authorization': `Bearer ${stripeAccessToken}`,
+    'Authorization': `Bearer ${paypalAccessToken}`,
     'Accept': 'application/json; charset=utf-8',
     'Content-Type': 'application/json; charset=utf-8',
   };
@@ -61,23 +77,25 @@ async function getAccessToken() {
   return result.access_token;
 }
 
-export async function getSubscriptions() {
+export async function getPayments() {
   const searchParams = new URLSearchParams();
 
-  searchParams.set('page_size', '20');
+  searchParams.set('count', '100');
 
-  // NOTE: This doesn't exist yet
-  const response = await fetch(`https://api-m.paypal.com/v1/billing/subscriptions?${searchParams.toString()}`, {
+  // NOTE: This is deprecated, but there's no good alternative yet
+  const response = await fetch(`https://api-m.paypal.com/v1/payments/payment?${searchParams.toString()}`, {
     method: 'GET',
     headers: await getApiRequestHeaders(),
   });
 
-  const result = (await response.json()) as PaypalSubscription[];
+  const result = (await response.json()) as PaypalResponse;
 
-  if (!result) {
-    console.log(JSON.stringify({ result }, null, 2));
+  const payments = result.payments;
+
+  if (!payments) {
+    console.log(JSON.stringify({ payments }, null, 2));
     throw new Error(`Failed to make API request: "${result}"`);
   }
 
-  return result;
+  return payments;
 }

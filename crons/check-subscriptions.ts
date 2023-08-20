@@ -1,6 +1,6 @@
 import Database, { sql } from '/lib/interfaces/database.ts';
 import { getSubscriptions as getStripeSubscriptions } from '/lib/providers/stripe.ts';
-// import { getSubscriptions as getPaypalSubscriptions } from '/lib/providers/paypal.ts';
+import { getPayments as getPaypalPayments } from '/lib/providers/paypal.ts';
 import { updateUser } from '/lib/data-utils.ts';
 import { User } from '/lib/types.ts';
 
@@ -13,6 +13,8 @@ async function checkSubscriptions() {
     );
 
     let updatedUsers = 0;
+
+    const now = new Date();
 
     const stripeSubscriptions = await getStripeSubscriptions();
 
@@ -50,34 +52,41 @@ async function checkSubscriptions() {
       }
     }
 
-    // const paypalSubscriptions = await getPaypalSubscriptions();
+    const paypalPayments = await getPaypalPayments();
 
-    // for (const subscription of paypalSubscriptions) {
-    //   const matchingUser = users.find((user) => user.email === subscription.subscriber.email_address);
+    for (const payment of paypalPayments) {
+      const matchingUser = users.find((user) =>
+        user.email === payment.payer.payer_info.email &&
+        // Skip payments that aren't related to Budget Zen
+        payment.transactions.find((transaction) =>
+          transaction.soft_descriptor.toLocaleLowerCase().includes('budget zen')
+        )
+      );
 
-    //   if (matchingUser) {
-    //     if (!matchingUser.subscription.external.paypal) {
-    //       matchingUser.subscription.external.paypal = {
-    //         user_id: subscription.subscriber.payer_id,
-    //         subscription_id: subscription.id,
-    //       };
-    //     }
+      if (matchingUser) {
+        if (!matchingUser.subscription.external.paypal) {
+          matchingUser.subscription.external.paypal = {
+            user_id: payment.payer.payer_info.payer_id,
+            subscription_id: payment.id,
+          };
+        }
 
-    //     matchingUser.subscription.isMonthly = parseInt(subscription.billing_info.last_payment.amount.value, 10) < 10;
-    //     matchingUser.subscription.updated_at = new Date().toISOString();
-    //     matchingUser.subscription.expires_at = new Date(subscription.billing_info.next_billing_time).toISOString();
+        matchingUser.subscription.expires_at = new Date(
+          new Date(payment.update_time).setUTCMonth(new Date(payment.update_time).getUTCMonth() + 1),
+        ).toISOString();
+        matchingUser.subscription.updated_at = new Date().toISOString();
 
-    //     if (['ACTIVE', 'APPROVED'].includes(subscription.status)) {
-    //       matchingUser.status = 'active';
-    //     } else {
-    //       matchingUser.status = 'inactive';
-    //     }
+        if (new Date(matchingUser.subscription.expires_at) > now) {
+          matchingUser.status = 'active';
+        } else {
+          matchingUser.status = 'inactive';
+        }
 
-    //     await updateUser(matchingUser);
+        await updateUser(matchingUser);
 
-    //     ++updatedUsers;
-    //   }
-    // }
+        ++updatedUsers;
+      }
+    }
 
     console.log('Updated', updatedUsers, 'users');
   } catch (error) {

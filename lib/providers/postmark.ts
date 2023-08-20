@@ -12,7 +12,7 @@ interface PostmarkResponse {
   Message: string;
 }
 
-type TemplateAlias = 'verify-login' | 'verify-delete' | 'verify-update' | 'update-paddle-email';
+type TemplateAlias = 'verify-login' | 'verify-delete' | 'verify-update' | 'update-billing-email';
 
 function getApiRequestHeaders() {
   return {
@@ -149,5 +149,5 @@ export async function sendUpdateEmailInProviderEmail(
     newEmail,
   };
 
-  await sendEmailWithTemplate(helpEmail, 'update-paddle-email', data);
+  await sendEmailWithTemplate(helpEmail, 'update-billing-email', data);
 }
