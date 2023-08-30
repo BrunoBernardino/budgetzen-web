@@ -12,7 +12,12 @@ interface PostmarkResponse {
   Message: string;
 }
 
-type TemplateAlias = 'verify-login' | 'verify-delete' | 'verify-update' | 'update-billing-email';
+type TemplateAlias =
+  | 'verify-login'
+  | 'verify-delete'
+  | 'verify-update'
+  | 'update-billing-email'
+  | 'subscription-expired';
 
 function getApiRequestHeaders() {
   return {
@@ -150,4 +155,10 @@ export async function sendUpdateEmailInProviderEmail(
   };
 
   await sendEmailWithTemplate(helpEmail, 'update-billing-email', data);
+}
+
+export async function sendSubscriptionExpiredEmail(
+  email: string,
+) {
+  await sendEmailWithTemplate(email, 'subscription-expired', {});
 }

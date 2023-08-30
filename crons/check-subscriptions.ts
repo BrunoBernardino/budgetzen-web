@@ -1,6 +1,7 @@
 import Database, { sql } from '/lib/interfaces/database.ts';
 import { getSubscriptions as getStripeSubscriptions } from '/lib/providers/stripe.ts';
 import { getPayments as getPaypalPayments } from '/lib/providers/paypal.ts';
+import { sendSubscriptionExpiredEmail } from '/lib/providers/postmark.ts';
 import { updateUser } from '/lib/data-utils.ts';
 import { User } from '/lib/types.ts';
 
@@ -43,6 +44,10 @@ async function checkSubscriptions() {
         } else if (subscription.status === 'trialing') {
           matchingUser.status = 'trial';
         } else {
+          if (matchingUser.status === 'active') {
+            await sendSubscriptionExpiredEmail(matchingUser.email);
+          }
+
           matchingUser.status = 'inactive';
         }
 
@@ -79,6 +84,10 @@ async function checkSubscriptions() {
         if (new Date(matchingUser.subscription.expires_at) > now) {
           matchingUser.status = 'active';
         } else {
+          if (matchingUser.status === 'active') {
+            await sendSubscriptionExpiredEmail(matchingUser.email);
+          }
+
           matchingUser.status = 'inactive';
         }
 
