@@ -15,10 +15,11 @@ export async function pageAction(request: Request) {
 
   const { user } = await validateUserAndSession(user_id, session_id);
 
-  if (provider === 'stripe') {
+  if (provider === 'stripe' && !user.subscription.external.stripe) {
     const subscriptions = await getStripeSubscriptions();
 
     const subscription = subscriptions.find((subscription) =>
+      subscription.status === 'active' &&
       subscription.customer.email === user.email &&
       subscription.items.data.some((item) => item.price.id.startsWith('budget-zen-'))
     );

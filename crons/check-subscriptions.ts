@@ -30,6 +30,9 @@ async function checkSubscriptions() {
             user_id: subscription.customer.id,
             subscription_id: subscription.id,
           };
+        } else if (matchingUser.subscription.external.stripe.subscription_id !== subscription.id) {
+          // Skip previous subscriptions
+          continue;
         }
 
         matchingUser.subscription.isMonthly = subscription.items.data.some((item) => item.price.id.includes('monthly'));
