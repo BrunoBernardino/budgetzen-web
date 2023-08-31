@@ -15,9 +15,9 @@ document.addEventListener('app-loaded', async () => {
 
     const headers = commonRequestHeaders;
 
-    const provider = urlSearchParams.get('paypalCheckoutId') ? 'paypal' : 'stripe';
+    const provider = 'stripe';
 
-    const body: { user_id: string; session_id: string; provider: 'stripe' | 'paypal' } = {
+    const body: { user_id: string; session_id: string; provider: 'stripe' } = {
       user_id: session.userId,
       session_id: session.sessionId,
       provider,
@@ -45,30 +45,7 @@ document.addEventListener('app-loaded', async () => {
       return;
     }
 
-    const { Swal } = window;
-
-    const stripeOrPayPalDialogResult = await Swal.fire({
-      icon: 'question',
-      title: 'Stripe or PayPal?',
-      text: 'Do you prefer paying via Stripe or PayPal?',
-      focusConfirm: false,
-      showCancelButton: true,
-      showDenyButton: true,
-      confirmButtonText: 'Stripe',
-      denyButtonText: 'PayPal',
-      cancelButtonText: 'Wait, cancel.',
-    });
-
-    if (
-      stripeOrPayPalDialogResult.isConfirmed ||
-      stripeOrPayPalDialogResult.isDenied
-    ) {
-      if (stripeOrPayPalDialogResult.isDenied) {
-        window.location.href = window.app.PAYPAL_MONTHLY_URL;
-      } else {
-        window.location.href = window.app.STRIPE_MONTHLY_URL;
-      }
-    }
+    window.location.href = window.app.STRIPE_MONTHLY_URL;
   }
 
   async function subscribeYearly(event: Event) {
@@ -82,30 +59,7 @@ document.addEventListener('app-loaded', async () => {
       return;
     }
 
-    const { Swal } = window;
-
-    const stripeOrPayPalDialogResult = await Swal.fire({
-      icon: 'question',
-      title: 'Stripe or PayPal?',
-      text: 'Do you prefer paying via Stripe or PayPal?',
-      focusConfirm: false,
-      showCancelButton: true,
-      showDenyButton: true,
-      confirmButtonText: 'Stripe',
-      denyButtonText: 'PayPal',
-      cancelButtonText: 'Wait, cancel.',
-    });
-
-    if (
-      stripeOrPayPalDialogResult.isConfirmed ||
-      stripeOrPayPalDialogResult.isDenied
-    ) {
-      if (stripeOrPayPalDialogResult.isDenied) {
-        window.location.href = window.app.PAYPAL_YEARLY_URL;
-      } else {
-        window.location.href = window.app.STRIPE_YEARLY_URL;
-      }
-    }
+    window.location.href = window.app.STRIPE_YEARLY_URL;
   }
 
   function getValidSubscriptionHtmlElement() {
@@ -136,7 +90,7 @@ document.addEventListener('app-loaded', async () => {
   }
 
   async function updateUI() {
-    if (urlSearchParams.get('stripeCheckoutId') || urlSearchParams.get('paypalCheckoutId')) {
+    if (urlSearchParams.get('stripeCheckoutId')) {
       await subscriptionSuccessfull();
     }
 

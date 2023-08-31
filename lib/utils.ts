@@ -19,14 +19,6 @@ export const PORT = Deno.env.get('PORT') || 8000;
 export const STRIPE_MONTHLY_URL = 'https://buy.stripe.com/eVa01H57C3MB6CQ14s';
 export const STRIPE_YEARLY_URL = 'https://buy.stripe.com/28o5m1dE896V0es8wV';
 export const STRIPE_CUSTOMER_URL = 'https://billing.stripe.com/p/login/4gw15w3G9bDyfWU6oo';
-export const PAYPAL_MONTHLY_URL =
-  `https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-41N48210MJ2770038MQDVBLI&return_url=${
-    encodeURI(`${baseUrl}/pricing?paypalCheckoutId=true`)
-  }`;
-export const PAYPAL_YEARLY_URL =
-  `https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-20P504881F952811BMQDVA4Q&return_url=${
-    encodeURI(`${baseUrl}/pricing?paypalCheckoutId=true`)
-  }`;
 export const PAYPAL_CUSTOMER_URL = 'https://www.paypal.com';
 
 export interface PageContentResult {
@@ -81,8 +73,6 @@ function basicLayout(htmlContent: string, { currentPath, titlePrefix, descriptio
           STRIPE_MONTHLY_URL: '${STRIPE_MONTHLY_URL}',
           STRIPE_YEARLY_URL: '${STRIPE_YEARLY_URL}',
           STRIPE_CUSTOMER_URL: '${STRIPE_CUSTOMER_URL}',
-          PAYPAL_MONTHLY_URL: '${PAYPAL_MONTHLY_URL}',
-          PAYPAL_YEARLY_URL: '${PAYPAL_YEARLY_URL}',
           PAYPAL_CUSTOMER_URL: '${PAYPAL_CUSTOMER_URL}',
         };
       </script>

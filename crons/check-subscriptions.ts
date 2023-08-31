@@ -1,6 +1,5 @@
 import Database, { sql } from '/lib/interfaces/database.ts';
 import { getSubscriptions as getStripeSubscriptions } from '/lib/providers/stripe.ts';
-import { getPayments as getPaypalPayments } from '/lib/providers/paypal.ts';
 import { sendSubscriptionExpiredEmail } from '/lib/providers/postmark.ts';
 import { updateUser } from '/lib/data-utils.ts';
 import { User } from '/lib/types.ts';
@@ -14,8 +13,6 @@ async function checkSubscriptions() {
     );
 
     let updatedUsers = 0;
-
-    const now = new Date();
 
     const stripeSubscriptions = await getStripeSubscriptions();
 
@@ -43,46 +40,6 @@ async function checkSubscriptions() {
           matchingUser.status = 'active';
         } else if (subscription.status === 'trialing') {
           matchingUser.status = 'trial';
-        } else {
-          if (matchingUser.status === 'active') {
-            await sendSubscriptionExpiredEmail(matchingUser.email);
-          }
-
-          matchingUser.status = 'inactive';
-        }
-
-        await updateUser(matchingUser);
-
-        ++updatedUsers;
-      }
-    }
-
-    const paypalPayments = await getPaypalPayments();
-
-    for (const payment of paypalPayments) {
-      const matchingUser = users.find((user) =>
-        user.email === payment.payer.payer_info.email &&
-        // Skip payments that aren't related to Budget Zen
-        payment.transactions.find((transaction) =>
-          transaction.soft_descriptor.toLocaleLowerCase().includes('budget zen')
-        )
-      );
-
-      if (matchingUser) {
-        if (!matchingUser.subscription.external.paypal) {
-          matchingUser.subscription.external.paypal = {
-            user_id: payment.payer.payer_info.payer_id,
-            subscription_id: payment.id,
-          };
-        }
-
-        matchingUser.subscription.expires_at = new Date(
-          new Date(payment.update_time).setUTCMonth(new Date(payment.update_time).getUTCMonth() + 1),
-        ).toISOString();
-        matchingUser.subscription.updated_at = new Date().toISOString();
-
-        if (new Date(matchingUser.subscription.expires_at) > now) {
-          matchingUser.status = 'active';
         } else {
           if (matchingUser.status === 'active') {
             await sendSubscriptionExpiredEmail(matchingUser.email);

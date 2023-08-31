@@ -13,8 +13,6 @@ export interface App {
   STRIPE_MONTHLY_URL: string;
   STRIPE_YEARLY_URL: string;
   STRIPE_CUSTOMER_URL: string;
-  PAYPAL_MONTHLY_URL: string;
-  PAYPAL_YEARLY_URL: string;
   PAYPAL_CUSTOMER_URL: string;
   isLoggedIn: boolean;
   showLoading: () => void;
