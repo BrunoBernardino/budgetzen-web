@@ -1,5 +1,5 @@
-import { assertEquals } from 'std/testing/asserts.ts';
-import { escapeHtml, generateRandomCode, splitArrayInChunks } from './utils.ts';
+import { assertEquals } from 'std/assert/assert_equals.ts';
+import { escapeHtml, generateRandomCode, jsonToFormUrlEncoded, splitArrayInChunks } from './utils.ts';
 
 Deno.test('that escapeHtml works', () => {
   const tests = [
@@ -99,6 +99,72 @@ Deno.test('that splitArrayInChunks works', () => {
       test.input.array,
       test.input.chunkLength,
     );
+    assertEquals(output, test.expected);
+  }
+});
+
+Deno.test('that jsonToFormUrlEncoded works', () => {
+  const tests = [
+    {
+      input: {
+        user: {
+          id: 'uuid-1',
+          role: 'user',
+          groups: [
+            {
+              id: 'uuid-1',
+              permissions: ['view_banking', 'edit_banking'],
+            },
+            {
+              id: 'uuid-2',
+              permissions: ['view_employees'],
+            },
+          ],
+        },
+        permissions: ['view_banking'],
+      },
+      expected:
+        'user[id]=uuid-1&user[role]=user&user[groups][0][id]=uuid-1&user[groups][0][permissions][0]=view_banking&user[groups][0][permissions][1]=edit_banking&user[groups][1][id]=uuid-2&user[groups][1][permissions][0]=view_employees&permissions[0]=view_banking',
+    },
+    {
+      input: {
+        user: {
+          id: 'uuid-1',
+          role: 'user',
+          groups: ['all', 'there'],
+        },
+        permissions: ['view_employees'],
+      },
+      expected:
+        'user[id]=uuid-1&user[role]=user&user[groups][0]=all&user[groups][1]=there&permissions[0]=view_employees',
+    },
+    {
+      input: {
+        user: {
+          id: 'uuid-1',
+          role: 'admin',
+          groups: [],
+        },
+        permissions: ['edit_banking'],
+      },
+      expected: 'user[id]=uuid-1&user[role]=admin&permissions[0]=edit_banking',
+    },
+    {
+      input: [{ something: 1 }],
+      expected: '0[something]=1',
+    },
+    {
+      input: { something: 1 },
+      expected: 'something=1',
+    },
+    {
+      input: { something: [1, 2] },
+      expected: 'something[0]=1&something[1]=2',
+    },
+  ];
+
+  for (const test of tests) {
+    const output = jsonToFormUrlEncoded(test.input);
     assertEquals(output, test.expected);
   }
 });

@@ -45,7 +45,9 @@ document.addEventListener('app-loaded', async () => {
       return;
     }
 
-    window.location.href = window.app.STRIPE_MONTHLY_URL;
+    window.location.href = `${window.app.STRIPE_MONTHLY_URL}?client_reference_id=${user.id}&customer_email=${
+      encodeURIComponent(user.email)
+    }`;
   }
 
   async function subscribeYearly(event: Event) {
@@ -59,7 +61,9 @@ document.addEventListener('app-loaded', async () => {
       return;
     }
 
-    window.location.href = window.app.STRIPE_YEARLY_URL;
+    window.location.href = `${window.app.STRIPE_YEARLY_URL}?client_reference_id=${user.id}&customer_email=${
+      encodeURIComponent(user.email)
+    }`;
   }
 
   function getValidSubscriptionHtmlElement() {

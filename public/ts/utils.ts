@@ -12,8 +12,6 @@ declare global {
 export interface App {
   STRIPE_MONTHLY_URL: string;
   STRIPE_YEARLY_URL: string;
-  STRIPE_CUSTOMER_URL: string;
-  PAYPAL_CUSTOMER_URL: string;
   isLoggedIn: boolean;
   showLoading: () => void;
   hideLoading: () => void;
@@ -154,7 +152,7 @@ async function getUser() {
     searchParams.set('email', session.email);
 
     const response = await fetch(`/api/user?${searchParams.toString()}`, { method: 'GET', headers });
-    const user = (await response.json()) as User;
+    const user = (await response.json()) as User & { customerPortalUrl: string };
 
     return user;
   } catch (_error) {

@@ -72,8 +72,6 @@ function basicLayout(htmlContent: string, { currentPath, titlePrefix, descriptio
         window.app = {
           STRIPE_MONTHLY_URL: '${STRIPE_MONTHLY_URL}',
           STRIPE_YEARLY_URL: '${STRIPE_YEARLY_URL}',
-          STRIPE_CUSTOMER_URL: '${STRIPE_CUSTOMER_URL}',
-          PAYPAL_CUSTOMER_URL: '${PAYPAL_CUSTOMER_URL}',
         };
       </script>
       <script src="/public/js/script.js"></script>
@@ -184,4 +182,16 @@ export function splitArrayInChunks<T = any>(array: T[], chunkLength: number) {
   }
 
   return chunks;
+}
+
+// Because new URLSearchParams(Object.entries(object)).toString() doesn't work recursively
+export function jsonToFormUrlEncoded(object: any, key = '', list: string[] = []) {
+  if (typeof (object) === 'object') {
+    for (const subKey in object) {
+      jsonToFormUrlEncoded(object[subKey], key ? `${key}[${subKey}]` : subKey, list);
+    }
+  } else {
+    list.push(`${key}=${encodeURIComponent(object)}`);
+  }
+  return list.join('&');
 }

@@ -11,14 +11,7 @@ document.addEventListener('app-loaded', async () => {
     event.preventDefault();
     event.stopPropagation();
 
-    let updateUrl = '';
-
-    if (user?.subscription.external.stripe) {
-      updateUrl = window.app.STRIPE_CUSTOMER_URL;
-    }
-    if (user?.subscription.external.paypal) {
-      updateUrl = window.app.PAYPAL_CUSTOMER_URL;
-    }
+    const updateUrl = user?.customerPortalUrl;
 
     if (!updateUrl) {
       showNotification('You need to reach out in order to update your subscription, sorry!', 'error');
@@ -32,14 +25,7 @@ document.addEventListener('app-loaded', async () => {
     event.preventDefault();
     event.stopPropagation();
 
-    let cancelUrl = '';
-
-    if (user?.subscription.external.stripe) {
-      cancelUrl = window.app.STRIPE_CUSTOMER_URL;
-    }
-    if (user?.subscription.external.paypal) {
-      cancelUrl = window.app.PAYPAL_CUSTOMER_URL;
-    }
+    const cancelUrl = user?.customerPortalUrl;
 
     if (!cancelUrl) {
       showNotification('You need to reach out in order to cancel your subscription, sorry!', 'error');
@@ -53,14 +39,7 @@ document.addEventListener('app-loaded', async () => {
     event.preventDefault();
     event.stopPropagation();
 
-    let updateUrl = '';
-
-    if (user?.subscription.external.stripe) {
-      updateUrl = window.app.STRIPE_CUSTOMER_URL;
-    }
-    if (user?.subscription.external.paypal) {
-      updateUrl = window.app.PAYPAL_CUSTOMER_URL;
-    }
+    const updateUrl = user?.customerPortalUrl;
 
     if (!updateUrl) {
       showNotification('You need to reach out in order to resume your subscription, sorry!', 'error');

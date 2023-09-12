@@ -11,7 +11,7 @@ import {
   validateUserAndSession,
   validateVerificationCode,
 } from '/lib/data-utils.ts';
-import { EncryptedData } from '/lib/types.ts';
+import { EncryptedData, User } from '/lib/types.ts';
 import {
   sendUpdateEmailInProviderEmail,
   sendVerifyDeleteAccountEmail,
@@ -19,6 +19,8 @@ import {
   sendVerifyUpdatePasswordEmail,
 } from '/lib/providers/postmark.ts';
 import { SupportedCurrencySymbol, validateEmail } from '/public/ts/utils.ts';
+import { PAYPAL_CUSTOMER_URL, STRIPE_CUSTOMER_URL } from '/lib/utils.ts';
+import { createCustomerPortalSession } from '/lib/providers/stripe.ts';
 
 async function createUserAction(request: Request) {
   const { email, encrypted_key_pair }: { email: string; encrypted_key_pair: EncryptedData } = await request.json();
@@ -190,5 +192,24 @@ export async function pageContent(request: Request) {
 
   await updateSession(session);
 
-  return new Response(JSON.stringify(user), { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+  let customerPortalUrl = '';
+
+  if (user.subscription.external.paypal) {
+    customerPortalUrl = PAYPAL_CUSTOMER_URL;
+  } else if (user.subscription.external.stripe) {
+    customerPortalUrl = STRIPE_CUSTOMER_URL;
+
+    if (user.subscription.external.stripe.user_id) {
+      try {
+        customerPortalUrl = await createCustomerPortalSession(user.subscription.external.stripe.user_id);
+      } catch (error) {
+        console.error(`Failed to create custom Stripe customer portal URL: ${error}`);
+        console.log(error);
+      }
+    }
+  }
+
+  const finalResult: User & { customerPortalUrl: string } = { ...user, customerPortalUrl };
+
+  return new Response(JSON.stringify(finalResult), { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
 }

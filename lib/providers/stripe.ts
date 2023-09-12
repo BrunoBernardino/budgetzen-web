@@ -1,5 +1,7 @@
 import 'std/dotenv/load.ts';
 
+import { baseUrl, jsonToFormUrlEncoded } from '/lib/utils.ts';
+
 const STRIPE_API_KEY = Deno.env.get('STRIPE_API_KEY') || '';
 
 interface StripeCustomer {
@@ -60,11 +62,23 @@ interface StripeResponse {
   data: any[];
 }
 
-function getApiRequestHeaders() {
+interface StripeCustomerPortalSession {
+  id: string;
+  object: 'billing_portal.session';
+  configuration: string;
+  created: number;
+  customer: string;
+  return_url: string;
+  url: string;
+}
+
+function getApiRequestHeaders(method: 'GET' | 'POST') {
   return {
     'Authorization': `Bearer ${STRIPE_API_KEY}`,
     'Accept': 'application/json; charset=utf-8',
-    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Type': method === 'GET'
+      ? 'application/json; charset=utf-8'
+      : 'application/x-www-form-urlencoded; charset=utf-8',
   };
 }
 
@@ -76,7 +90,7 @@ export async function getSubscriptions() {
 
   const response = await fetch(`https://api.stripe.com/v1/subscriptions?${searchParams.toString()}`, {
     method: 'GET',
-    headers: getApiRequestHeaders(),
+    headers: getApiRequestHeaders('GET'),
   });
 
   const result = (await response.json()) as StripeResponse;
@@ -89,4 +103,26 @@ export async function getSubscriptions() {
   }
 
   return subscriptions;
+}
+
+export async function createCustomerPortalSession(stripeCustomerId: string) {
+  const customerPortalSession = {
+    customer: stripeCustomerId,
+    return_url: baseUrl,
+  };
+
+  const response = await fetch(`https://api.stripe.com/v1/billing_portal/sessions`, {
+    method: 'POST',
+    headers: getApiRequestHeaders('POST'),
+    body: jsonToFormUrlEncoded(customerPortalSession),
+  });
+
+  const result = (await response.json()) as StripeCustomerPortalSession;
+
+  if (!result?.url) {
+    console.log(JSON.stringify({ result }, null, 2));
+    throw new Error(`Failed to make API request: "${result}"`);
+  }
+
+  return result.url;
 }
