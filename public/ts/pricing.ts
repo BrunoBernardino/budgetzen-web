@@ -45,7 +45,7 @@ document.addEventListener('app-loaded', async () => {
       return;
     }
 
-    window.location.href = `${window.app.STRIPE_MONTHLY_URL}?client_reference_id=${user.id}&customer_email=${
+    window.location.href = `${window.app.STRIPE_MONTHLY_URL}?client_reference_id=${user.id}&prefilled_email=${
       encodeURIComponent(user.email)
     }`;
   }
@@ -61,7 +61,7 @@ document.addEventListener('app-loaded', async () => {
       return;
     }
 
-    window.location.href = `${window.app.STRIPE_YEARLY_URL}?client_reference_id=${user.id}&customer_email=${
+    window.location.href = `${window.app.STRIPE_YEARLY_URL}?client_reference_id=${user.id}&prefilled_email=${
       encodeURIComponent(user.email)
     }`;
   }
