@@ -1,6 +1,6 @@
 import Database, { sql } from '/lib/interfaces/database.ts';
 import { getSubscriptions as getStripeSubscriptions } from '/lib/providers/stripe.ts';
-import { sendSubscriptionExpiredEmail } from '/lib/providers/postmark.ts';
+import { sendSubscriptionExpiredEmail } from '/lib/providers/brevo.ts';
 import { updateUser } from '/lib/data-utils.ts';
 import { User } from '/lib/types.ts';
 

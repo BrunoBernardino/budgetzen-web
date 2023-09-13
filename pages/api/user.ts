@@ -17,7 +17,7 @@ import {
   sendVerifyDeleteAccountEmail,
   sendVerifyUpdateEmailEmail,
   sendVerifyUpdatePasswordEmail,
-} from '/lib/providers/postmark.ts';
+} from '/lib/providers/brevo.ts';
 import { SupportedCurrencySymbol, validateEmail } from '/public/ts/utils.ts';
 import { PAYPAL_CUSTOMER_URL, STRIPE_CUSTOMER_URL } from '/lib/utils.ts';
 import { createCustomerPortalSession } from '/lib/providers/stripe.ts';

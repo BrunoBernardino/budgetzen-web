@@ -6,7 +6,7 @@ import {
   validateUserAndSession,
   validateVerificationCode,
 } from '/lib/data-utils.ts';
-import { sendVerifyLoginEmail } from '/lib/providers/postmark.ts';
+import { sendVerifyLoginEmail } from '/lib/providers/brevo.ts';
 
 async function validateSession(request: Request) {
   const { email }: { email: string } = await request.json();

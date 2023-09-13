@@ -6,7 +6,7 @@ import {
   validateUserAndSession,
   validateVerificationCode,
 } from '/lib/data-utils.ts';
-import { sendVerifyDeleteDataEmail } from '/lib/providers/postmark.ts';
+import { sendVerifyDeleteDataEmail } from '/lib/providers/brevo.ts';
 import { Budget, Expense } from '/lib/types.ts';
 
 async function importDataAction(request: Request) {
