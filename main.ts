@@ -1,5 +1,5 @@
-import { serve } from 'std/http/server.ts';
 import routes, { Route } from './routes.ts';
+import { IS_UNSAFE_SELF_HOSTED } from './lib/utils.ts';
 
 function handler(request: Request) {
   const routeKeys = Object.keys(routes);
@@ -22,4 +22,8 @@ export const abortController = new AbortController();
 
 const PORT = Deno.env.get('PORT') || 8000;
 
-serve(handler, { port: PORT as number, signal: abortController.signal });
+if (IS_UNSAFE_SELF_HOSTED) {
+  console.log('IS_UNSAFE_SELF_HOSTED enabled! No emails will be sent and all signups will be forever.');
+}
+
+Deno.serve({ port: PORT as number, signal: abortController.signal }, handler);

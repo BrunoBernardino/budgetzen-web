@@ -1,6 +1,6 @@
 import Database, { sql } from './interfaces/database.ts';
 import { Budget, Expense, User, UserSession, VerificationCode } from './types.ts';
-import { generateRandomCode, splitArrayInChunks } from './utils.ts';
+import { generateRandomCode, IS_UNSAFE_SELF_HOSTED, splitArrayInChunks } from './utils.ts';
 
 const db = new Database();
 
@@ -25,7 +25,7 @@ export async function getUserById(id: string) {
 }
 
 export async function createUser(email: User['email'], encryptedKeyPair: User['encrypted_key_pair']) {
-  const trialDays = 30;
+  const trialDays = IS_UNSAFE_SELF_HOSTED ? 30_000 : 30;
   const now = new Date();
   const trialEndDate = new Date(new Date().setUTCDate(new Date().getUTCDate() + trialDays));
 
@@ -47,7 +47,7 @@ export async function createUser(email: User['email'], encryptedKeyPair: User['e
     [
       email,
       JSON.stringify(subscription),
-      'trial',
+      IS_UNSAFE_SELF_HOSTED ? 'active' : 'trial',
       encryptedKeyPair,
       JSON.stringify({}),
     ],

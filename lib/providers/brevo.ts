@@ -1,6 +1,6 @@
 import 'std/dotenv/load.ts';
 
-import { helpEmail } from '/lib/utils.ts';
+import { helpEmail, IS_UNSAFE_SELF_HOSTED } from '/lib/utils.ts';
 
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') || '';
 
@@ -60,6 +60,12 @@ async function sendEmailWithTemplate(
 
   if (cc) {
     email.cc = [{ email: cc }];
+  }
+
+  if (IS_UNSAFE_SELF_HOSTED) {
+    console.log('Email not sent!');
+    console.log(JSON.stringify(email, null, 2));
+    return;
   }
 
   const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {

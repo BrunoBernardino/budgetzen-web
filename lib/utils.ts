@@ -20,6 +20,7 @@ export const STRIPE_MONTHLY_URL = 'https://buy.stripe.com/eVa01H57C3MB6CQ14s';
 export const STRIPE_YEARLY_URL = 'https://buy.stripe.com/28o5m1dE896V0es8wV';
 export const STRIPE_CUSTOMER_URL = 'https://billing.stripe.com/p/login/4gw15w3G9bDyfWU6oo';
 export const PAYPAL_CUSTOMER_URL = 'https://www.paypal.com';
+export const IS_UNSAFE_SELF_HOSTED = Boolean(Deno.env.get('IS_UNSAFE_SELF_HOSTED') || '');
 
 export interface PageContentResult {
   htmlContent: string;
@@ -186,7 +187,7 @@ export function splitArrayInChunks<T = any>(array: T[], chunkLength: number) {
 
 // Because new URLSearchParams(Object.entries(object)).toString() doesn't work recursively
 export function jsonToFormUrlEncoded(object: any, key = '', list: string[] = []) {
-  if (typeof (object) === 'object') {
+  if (typeof object === 'object') {
     for (const subKey in object) {
       jsonToFormUrlEncoded(object[subKey], key ? `${key}[${subKey}]` : subKey, list);
     }
