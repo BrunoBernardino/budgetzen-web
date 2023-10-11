@@ -1,8 +1,8 @@
 import Database, { sql } from '/lib/interfaces/database.ts';
 import { getSubscriptions as getStripeSubscriptions } from '/lib/providers/stripe.ts';
-import { sendSubscriptionExpiredEmail } from '/lib/providers/brevo.ts';
+import { sendSubscriptionExpiredEmail, sendTrialExpiredEmail } from '/lib/providers/brevo.ts';
 import { updateUser } from '/lib/data-utils.ts';
-import { User } from '/lib/types.ts';
+import { User, UserSession } from '/lib/types.ts';
 
 const db = new Database();
 
@@ -57,10 +57,53 @@ async function checkSubscriptions() {
       }
     }
 
-    console.log('Updated', updatedUsers, 'users');
+    console.log('Updated the subscriptions of', updatedUsers, 'users');
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function checkExpiredTrials() {
+  const now = new Date();
+  const sevenDaysAgo = new Date(new Date().setUTCDate(new Date().getUTCDate() - 7));
+
+  try {
+    const users = await db.query<User>(
+      sql`SELECT * FROM "budgetzen_users" WHERE "status" = 'trial' AND "subscription" ->> 'expires_at' <= $1`,
+      [
+        now,
+      ],
+    );
+
+    let updatedUsers = 0;
+
+    for (const user of users) {
+      // TCheck if there's any active session in the last 7 days before sending an email
+      const userSessions = await db.query<Pick<UserSession, 'id'>>(
+        sql`SELECT * FROM "budgetzen_user_sessions" WHERE "user_id" = $1 AND "last_seen_at" >= $2`,
+        [
+          user.id,
+          sevenDaysAgo,
+        ],
+      );
+
+      if (userSessions.length > 0) {
+        await sendTrialExpiredEmail(user.email);
+      }
+
+      user.status = 'inactive';
+
+      await updateUser(user);
+
+      ++updatedUsers;
+    }
+
+    console.log('Marked', updatedUsers, 'users as inactive');
   } catch (error) {
     console.log(error);
   }
 }
 
 await checkSubscriptions();
+
+await checkExpiredTrials();

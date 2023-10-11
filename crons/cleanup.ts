@@ -28,7 +28,7 @@ async function cleanupInactiveUsers() {
 
   try {
     const result = await db.query<Pick<User, 'id'>>(
-      sql`SELECT "id" FROM "budgetzen_users" WHERE "status" IN ('inactive', 'trial') AND "subscription" ->> 'expires_at' <= $1`,
+      sql`SELECT "id" FROM "budgetzen_users" WHERE "status" = 'inactive' AND "subscription" ->> 'expires_at' <= $1`,
       [
         sevenDaysAgo.toISOString().substring(0, 10),
       ],

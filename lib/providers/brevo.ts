@@ -10,6 +10,7 @@ enum BrevoTemplateId {
   BUDGETZEN_VERIFY_DELETE = 10,
   BUDGETZEN_UPDATE_BILLING_EMAIL = 11,
   BUDGETZEN_SUBSCRIPTION_EXPIRED = 12,
+  BUDGETZEN_TRIAL_EXPIRED = 14,
 }
 
 interface BrevoResponse {
@@ -28,7 +29,7 @@ function getApiRequestHeaders() {
 
 interface BrevoRequestBody {
   templateId?: number;
-  params: Record<string, any>;
+  params: Record<string, any> | null;
   to: { email: string; name?: string }[];
   cc?: { email: string; name?: string }[];
   bcc?: { email: string; name?: string }[];
@@ -155,5 +156,11 @@ export async function sendUpdateEmailInProviderEmail(
 export async function sendSubscriptionExpiredEmail(
   email: string,
 ) {
-  await sendEmailWithTemplate(email, BrevoTemplateId.BUDGETZEN_SUBSCRIPTION_EXPIRED, {});
+  await sendEmailWithTemplate(email, BrevoTemplateId.BUDGETZEN_SUBSCRIPTION_EXPIRED, null);
+}
+
+export async function sendTrialExpiredEmail(
+  email: string,
+) {
+  await sendEmailWithTemplate(email, BrevoTemplateId.BUDGETZEN_TRIAL_EXPIRED, null);
 }
