@@ -599,6 +599,7 @@ a.button.secondary:focus {
   flex: 1;
   padding: 0;
   margin: 10px 0 30px;
+  width: 100%;
 }
 
 @media only screen and (min-width: 600px) {
