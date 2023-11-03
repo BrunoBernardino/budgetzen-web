@@ -29,6 +29,7 @@ document.addEventListener('app-loaded', async () => {
   const loginButton = document.getElementById('login-button') as HTMLButtonElement;
   const signupButton = document.getElementById('signup-button') as HTMLButtonElement;
 
+  const expensesFilterForm = document.getElementById('expenses-filter') as HTMLFormElement;
   const expensesFilterSearchInput = document.getElementById('expenses-filter-search') as HTMLInputElement;
   const budgetsFilterButton = document.getElementById('budgets-filter-button') as HTMLButtonElement;
   const addBudgetButton = document.getElementById('add-budget-button') as HTMLButtonElement;
@@ -96,8 +97,6 @@ document.addEventListener('app-loaded', async () => {
         showNotification('Invalid email/password.', 'error');
       }
     }
-
-    window.app.hideLoading();
 
     isLoggingInOrSigningUp = false;
   }
@@ -773,6 +772,11 @@ document.addEventListener('app-loaded', async () => {
 
   loginForm.addEventListener('submit', login);
   signupButton.addEventListener('click', signup);
+  expensesFilterForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    showData();
+  });
   addExpenseForm.addEventListener('submit', addExpense);
   addBudgetButton.addEventListener('click', showAddBudgetModal);
   budgetsFilterButton.addEventListener('click', showBudgetsFilterModal);
