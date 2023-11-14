@@ -6,6 +6,8 @@ import { User, UserSession } from '/lib/types.ts';
 
 const db = new Database();
 
+const oneDayInSeconds = 86_400;
+
 async function checkSubscriptions() {
   try {
     const users = await db.query<User>(
@@ -37,7 +39,8 @@ async function checkSubscriptions() {
 
         matchingUser.subscription.isMonthly = subscription.items.data.some((item) => item.price.id.includes('monthly'));
         matchingUser.subscription.updated_at = new Date().toISOString();
-        matchingUser.subscription.expires_at = new Date(subscription.current_period_end * 1000).toISOString();
+        matchingUser.subscription.expires_at = new Date((subscription.current_period_end + oneDayInSeconds) * 1000)
+          .toISOString();
 
         if (['active', 'paused'].includes(subscription.status)) {
           matchingUser.status = 'active';
