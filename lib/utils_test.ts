@@ -8,7 +8,7 @@ Deno.test('that escapeHtml works', () => {
       expected: '&lt;a href=&quot;https://brunobernardino.com&quot;&gt;URL&lt;/a&gt;',
     },
     {
-      input: '"><img onerror=\'alert(1)\' />',
+      input: "\"><img onerror='alert(1)' />",
       expected: '&quot;&gt;&lt;img onerror=&#039;alert(1)&#039; /&gt;',
     },
   ];

@@ -87,7 +87,7 @@ export function basicLayoutResponse(htmlContent: string, options: BasicLayoutOpt
     headers: {
       'content-type': 'text/html; charset=utf-8',
       'content-security-policy':
-        'default-src \'self\'; child-src \'self\'; img-src \'self\'; style-src \'self\' \'unsafe-inline\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\';',
+        "default-src 'self'; child-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval';",
       'x-frame-options': 'DENY',
       'x-content-type-options': 'nosniff',
       'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
@@ -101,7 +101,7 @@ export function isRunningLocally(urlPatternResult: URLPatternResult) {
 
 export function escapeHtml(unsafe: string) {
   return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
-    .replaceAll('\'', '&#039;');
+    .replaceAll("'", '&#039;');
 }
 
 async function transpileTs(content: string, specifier: URL) {

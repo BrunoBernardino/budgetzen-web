@@ -461,7 +461,7 @@ document.addEventListener('app-loaded', async () => {
 
         const { isConfirmed } = await Swal.fire({
           title: 'Are you sure?',
-          text: 'You won\'t be able to recover this expense!',
+          text: "You won't be able to recover this expense!",
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: 'red',
@@ -568,7 +568,7 @@ document.addEventListener('app-loaded', async () => {
 
         const { isConfirmed } = await Swal.fire({
           title: 'Are you sure?',
-          text: 'You won\'t be able to recover this budget!',
+          text: "You won't be able to recover this budget!",
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: 'red',

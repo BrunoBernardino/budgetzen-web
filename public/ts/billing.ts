@@ -57,7 +57,7 @@ document.addEventListener('app-loaded', async () => {
 
     const { isConfirmed } = await Swal.fire({
       title: 'Are you sure?',
-      text: 'You won\'t be able to recover your data!',
+      text: "You won't be able to recover your data!",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: 'red',

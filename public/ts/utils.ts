@@ -588,7 +588,7 @@ export async function deleteBudget(budgetId: string) {
 
       if (matchingBudgets.length === 1) {
         showNotification(
-          'There are expenses using this budget. You can\'t delete a budget with expenses',
+          "There are expenses using this budget. You can't delete a budget with expenses",
           'error',
         );
         return false;
