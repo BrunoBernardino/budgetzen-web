@@ -179,3 +179,20 @@
     }
   }
 }
+
+#swap-accounts-select {
+  box-sizing: border-box;
+	width: auto;
+  max-width: 120px;
+	display: block;
+	outline: none;
+	border: none;
+	font-size: 0.9rem;
+	padding: 0.25rem 0.25rem;
+  border: 1px solid #fff;
+  background: #fff;
+  border-radius: 3px;
+  transition: all 80ms ease-in-out;
+  text-overflow: ellipsis;
+  margin: 0 0.5rem;
+}

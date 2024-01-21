@@ -1,6 +1,6 @@
 .PHONY: start
 start:
-	deno run --watch --allow-net --allow-read --allow-env main.ts
+	deno run --watch --allow-net --allow-read --allow-env --allow-write main.ts
 
 .PHONY: format
 format:

@@ -1,4 +1,10 @@
-import { checkForValidSession, commonRequestHeaders, dateDiffInDays, showNotification } from './utils.ts';
+import {
+  checkForValidSession,
+  commonInitializer,
+  commonRequestHeaders,
+  dateDiffInDays,
+  showNotification,
+} from './utils.ts';
 import LocalData from './local-data.ts';
 
 document.addEventListener('app-loaded', async () => {
@@ -127,6 +133,7 @@ document.addEventListener('app-loaded', async () => {
 
   function initializePage() {
     updateUI();
+    commonInitializer();
   }
 
   if (window.app.isLoggedIn) {

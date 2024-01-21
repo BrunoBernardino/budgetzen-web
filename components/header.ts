@@ -21,6 +21,11 @@ export default function header(currentPath: string) {
               <a href="/pricing">Pricing</a>
             </li>
             <li data-has-valid-session class="hidden">
+              <select id="swap-accounts-select">
+                <option value="">Swap account...</option>
+              </select>
+            </li>
+            <li data-has-valid-session class="hidden">
               <a onclick="window.app.doLogout();" style="cursor: pointer;">Logout</a>
             </li>
           </ul>
