@@ -367,7 +367,7 @@ a.button.secondary:focus {
 .input-wrapper input[type="url"],
 .input-wrapper input[type="password"],
 .input-wrapper textarea,
-.input-wrapper select 
+.input-wrapper select
 {
 	box-sizing: border-box;
 	width: 100%;
@@ -394,7 +394,7 @@ a.button.secondary:focus {
 .input-wrapper input[type="url"]:focus,
 .input-wrapper input[type="password"]:focus,
 .input-wrapper textarea:focus,
-.input-wrapper select:focus 
+.input-wrapper select:focus
 {
   border-color: var(--color-link-hover);
 }

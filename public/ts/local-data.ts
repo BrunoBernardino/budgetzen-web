@@ -6,6 +6,7 @@ export interface StoredSession {
   userId: string;
   email: string;
   keyPair: KeyPair;
+  otherSessions?: Omit<StoredSession, 'otherSessions'>[];
 }
 
 export default class LocalData {

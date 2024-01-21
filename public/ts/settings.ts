@@ -1,6 +1,7 @@
 import { Budget, Expense } from '/lib/types.ts';
 import {
   checkForValidSession,
+  commonInitializer,
   commonRequestHeaders,
   exportAllData,
   importData,
@@ -370,6 +371,7 @@ document.addEventListener('app-loaded', async () => {
 
   function initializePage() {
     newCurrencySelect.value = user?.extra.currency || '$';
+    commonInitializer();
   }
 
   if (window.app.isLoggedIn) {

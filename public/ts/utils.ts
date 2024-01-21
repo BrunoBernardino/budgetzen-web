@@ -164,8 +164,59 @@ async function getUser() {
   return null;
 }
 
+export function getOtherAccounts() {
+  try {
+    const session = LocalData.get('session')!;
+
+    return session.otherSessions?.map((otherSession) => ({
+      email: otherSession.email,
+    })) || [];
+  } catch (_error) {
+    // Do nothing
+  }
+
+  return [];
+}
+
+export function swapAccount(newEmail: string) {
+  try {
+    const session = LocalData.get('session')!;
+
+    const foundSession = session.otherSessions?.find((otherSession) => otherSession.email === newEmail);
+
+    if (foundSession) {
+      const otherSessions = [...(session.otherSessions || [])].filter((otherSession) =>
+        otherSession.email !== foundSession.email
+      );
+
+      otherSessions.unshift(session);
+
+      const newSession: StoredSession = {
+        ...foundSession,
+        otherSessions,
+      };
+
+      LocalData.set('session', newSession);
+
+      window.location.reload();
+    }
+  } catch (_error) {
+    // Do nothing
+  }
+
+  return [];
+}
+
 export async function validateLogin(email: string, password: string) {
   const { Swal } = window;
+
+  let existingSession: StoredSession | null = null;
+
+  try {
+    existingSession = LocalData.get('session');
+  } catch (_error) {
+    // Do nothing
+  }
 
   try {
     const headers = commonRequestHeaders;
@@ -230,11 +281,18 @@ export async function validateLogin(email: string, password: string) {
 
     await fetch('/api/session', { method: 'PATCH', headers, body: JSON.stringify(verificationBody) });
 
+    const otherSessions = [...(existingSession?.otherSessions || [])];
+
+    if (existingSession && existingSession.email !== lowercaseEmail) {
+      otherSessions.unshift(existingSession);
+    }
+
     const session: StoredSession = {
       sessionId,
       userId: user.id,
       email: lowercaseEmail,
       keyPair,
+      otherSessions,
     };
 
     LocalData.set('session', session);
@@ -252,6 +310,14 @@ export async function validateLogin(email: string, password: string) {
 }
 
 export async function createAccount(email: string, password: string) {
+  let existingSession: StoredSession | null = null;
+
+  try {
+    existingSession = LocalData.get('session');
+  } catch (_error) {
+    // Do nothing
+  }
+
   try {
     const headers = commonRequestHeaders;
 
@@ -273,11 +339,18 @@ export async function createAccount(email: string, password: string) {
       throw new Error('Failed to create user. Try logging in instead.');
     }
 
+    const otherSessions = [...(existingSession?.otherSessions || [])];
+
+    if (existingSession && existingSession.email !== lowercaseEmail) {
+      otherSessions.unshift(existingSession);
+    }
+
     const session: StoredSession = {
       sessionId,
       userId: user.id,
       email: lowercaseEmail,
       keyPair,
+      otherSessions,
     };
 
     LocalData.set('session', session);
@@ -867,6 +940,57 @@ export async function importData(replaceData: boolean, budgets: Budget[], expens
   return false;
 }
 
+export async function commonInitializer() {
+  const user = await checkForValidSession();
+  const swapAccountsSelect = document.getElementById('swap-accounts-select') as HTMLSelectElement;
+
+  function populateSwapAccountsSelect() {
+    if (user) {
+      const otherSessions = getOtherAccounts();
+      otherSessions.sort(sortByEmail);
+
+      const currentUserOptionHtml = `<option>${user.email}</option>`;
+      const newLoginOptionHtml = `<option value="new">Login to another account</option>`;
+      const fullSelectHtmlStrings: string[] = [currentUserOptionHtml];
+
+      for (const otherSession of otherSessions) {
+        const optionHtml = `<option>${otherSession.email}</option>`;
+        fullSelectHtmlStrings.push(optionHtml);
+      }
+
+      fullSelectHtmlStrings.push(newLoginOptionHtml);
+
+      swapAccountsSelect.innerHTML = fullSelectHtmlStrings.join('\n');
+    }
+  }
+
+  function chooseAnotherAccount() {
+    const currentEmail = user?.email;
+    const chosenEmail = swapAccountsSelect.value;
+
+    if (!chosenEmail) {
+      return;
+    }
+
+    if (chosenEmail === currentEmail) {
+      return;
+    }
+
+    if (chosenEmail === 'new') {
+      // Show login form again
+      hideValidSessionElements();
+      return;
+    }
+
+    swapAccount(chosenEmail);
+  }
+
+  populateSwapAccountsSelect();
+
+  swapAccountsSelect.removeEventListener('change', chooseAnotherAccount);
+  swapAccountsSelect.addEventListener('change', chooseAnotherAccount);
+}
+
 const months = [
   'January',
   'February',
@@ -930,6 +1054,22 @@ export function sortByName(
     return -1;
   }
   if (nameA > nameB) {
+    return 1;
+  }
+  return 0;
+}
+
+type SortableByEmail = { email: string };
+export function sortByEmail(
+  objectA: SortableByEmail,
+  objectB: SortableByEmail,
+) {
+  const emailA = objectA.email.toLowerCase();
+  const emailB = objectB.email.toLowerCase();
+  if (emailA < emailB) {
+    return -1;
+  }
+  if (emailA > emailB) {
     return 1;
   }
   return 0;

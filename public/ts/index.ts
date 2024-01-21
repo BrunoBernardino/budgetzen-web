@@ -2,6 +2,7 @@ import { Budget, Expense } from '/lib/types.ts';
 import {
   BudgetToShow,
   checkForValidSession,
+  commonInitializer,
   copyBudgetsAndExpenses,
   createAccount,
   debounce,
@@ -362,6 +363,7 @@ document.addEventListener('app-loaded', async () => {
 
   function initializePage() {
     showData();
+    commonInitializer();
   }
 
   let isAddingExpense = false;
