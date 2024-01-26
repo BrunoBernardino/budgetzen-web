@@ -81,7 +81,7 @@ async function checkExpiredTrials() {
     let updatedUsers = 0;
 
     for (const user of users) {
-      // TCheck if there's any active session in the last 7 days before sending an email
+      // Check if there's any active session in the last 7 days before sending an email
       const userSessions = await db.query<Pick<UserSession, 'id'>>(
         sql`SELECT * FROM "budgetzen_user_sessions" WHERE "user_id" = $1 AND "last_seen_at" >= $2`,
         [
@@ -107,6 +107,38 @@ async function checkExpiredTrials() {
   }
 }
 
+// This is necessary for old/manual subscriptions which won't be handled automatically by Stripe
+async function checkExpiredSubscriptions() {
+  const threeDaysAgo = new Date(new Date().setUTCDate(new Date().getUTCDate() - 3));
+
+  try {
+    const users = await db.query<User>(
+      sql`SELECT * FROM "budgetzen_users" WHERE "status" = 'active' AND "subscription" ->> 'expires_at' <= $1 AND "subscription" ->> 'updated_at' <= $1`,
+      [
+        threeDaysAgo,
+      ],
+    );
+
+    let updatedUsers = 0;
+
+    for (const user of users) {
+      await sendSubscriptionExpiredEmail(user.email);
+
+      user.status = 'inactive';
+
+      await updateUser(user);
+
+      ++updatedUsers;
+    }
+
+    console.log('Marked', updatedUsers, 'users as inactive');
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 await checkSubscriptions();
 
 await checkExpiredTrials();
+
+await checkExpiredSubscriptions();
