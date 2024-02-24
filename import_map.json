@@ -3,6 +3,6 @@
     "/": "./",
     "./": "./",
 
-    "std/": "https://deno.land/std@0.212.0/"
+    "std/": "https://deno.land/std@0.217.0/"
   }
 }

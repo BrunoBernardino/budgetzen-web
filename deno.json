@@ -13,7 +13,8 @@
     "rules": {
       "exclude": [
         "no-explicit-any",
-        "no-window-prefix"
+        "no-window-prefix",
+        "no-window"
       ]
     },
     "exclude": [
