@@ -1,4 +1,4 @@
-import 'std/dotenv/load.ts';
+import 'std/dotenv/load';
 
 import { helpEmail, IS_UNSAFE_SELF_HOSTED } from '/lib/utils.ts';
 

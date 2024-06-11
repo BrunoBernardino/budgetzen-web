@@ -1,7 +1,7 @@
-import 'std/dotenv/load.ts';
-import { transpile } from 'https://deno.land/x/emit@0.33.0/mod.ts';
+import 'std/dotenv/load';
+import { serveFile } from 'std/http/file-server';
+import { transpile } from 'deno/emit';
 import sass from 'https://deno.land/x/denosass@1.0.6/mod.ts';
-import { serveFile } from 'std/http/file_server.ts';
 
 import header from '/components/header.ts';
 import footer from '/components/footer.ts';

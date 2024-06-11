@@ -1,4 +1,4 @@
-import { serveFile } from 'std/http/file_server.ts';
+import { serveFile } from 'std/http/file-server';
 import { baseUrl, basicLayoutResponse, PageContentResult, serveFileWithSass, serveFileWithTs } from './lib/utils.ts';
 
 // NOTE: This won't be necessary once https://github.com/denoland/deploy_feedback/issues/433 is closed
