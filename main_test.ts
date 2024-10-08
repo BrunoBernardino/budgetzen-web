@@ -1,4 +1,4 @@
-import { assertEquals } from 'std/assert/assert-equals';
+import { assertEquals } from 'std/assert/equals';
 import { abortController } from './main.ts';
 
 const baseUrl = 'http://localhost:8000';

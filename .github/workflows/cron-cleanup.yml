@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.44.1
+          deno-version-file: .dvmrc
       - env:
           POSTGRESQL_HOST: ${{ secrets.POSTGRESQL_HOST }}
           POSTGRESQL_USER: ${{ secrets.POSTGRESQL_USER }}

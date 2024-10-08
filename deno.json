@@ -29,6 +29,15 @@
       "deno.ns"
     ]
   },
-  "importMap": "./import_map.json",
-  "lock": false
+  "lock": false,
+  "imports": {
+    "/": "./",
+    "./": "./",
+
+    "std/assert/equals": "jsr:@std/assert@1.0.6/equals",
+    "std/assert/not-equals": "jsr:@std/assert@1.0.6/not-equals",
+    "std/http/file-server": "jsr:@std/http@1.0.7/file-server",
+    "std/dotenv/load": "jsr:@std/dotenv@0.225.2/load",
+    "deno/emit": "jsr:@deno/emit@0.45.0"
+  }
 }

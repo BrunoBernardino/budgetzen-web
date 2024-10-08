@@ -10,6 +10,7 @@ format:
 test:
 	deno fmt --check
 	deno lint
+	deno check .
 	deno test --allow-net --allow-read --allow-env --check
 
 .PHONY: migrate-db

@@ -1,4 +1,4 @@
-import { assertEquals } from 'std/assert/assert-equals';
+import { assertEquals } from 'std/assert/equals';
 import { dateDiffInDays, formatNumber, SupportedCurrencySymbol, validateEmail } from './utils.ts';
 
 Deno.test('that dateDiffInDays works', () => {
