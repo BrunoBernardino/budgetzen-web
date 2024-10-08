@@ -30,4 +30,4 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
 
       - name: Deploy via SSH
-        run: ssh server 'cd apps/budgetzen-web && git add . && git stash && git pull origin main && git stash clear && git remote prune origin && cp ../../scripts/config/budgetzen-web/.env . && cp ../../scripts/config/budgetzen-web/docker-compose.yml . && docker system prune -f && docker-compose up -d --build && docker-compose ps && docker-compose logs'
+        run: ssh server 'cd apps/budgetzen-web && git add . && git stash && git pull origin main && git stash clear && git remote prune origin && cp ../../scripts/config/budgetzen-web/.env . && cp ../../scripts/config/budgetzen-web/docker-compose.yml . && docker system prune -f && docker compose up -d --build && docker compose ps && docker compose logs'
