@@ -2,7 +2,7 @@
 
 [![](https://github.com/BrunoBernardino/budgetzen-web/workflows/Run%20Tests/badge.svg)](https://github.com/BrunoBernardino/budgetzen-web/actions?workflow=Run+Tests)
 
-This is the web app for the [Budget Zen app](https://budgetzen.net), built with [Deno](https://deno.land) and deployed using [docker-compose](https://docs.docker.com/compose/).
+This is the web app for the [Budget Zen app](https://budgetzen.net), built with [Deno](https://deno.land) and deployed using [docker compose](https://docs.docker.com/compose/).
 
 This is v3, which is [end-to-end encrypted with open Web Standards](https://en.wikipedia.org/wiki/End-to-end_encryption), and works via web on any device (it's a PWA - Progressive Web App).
 
@@ -30,7 +30,7 @@ It's meant to have no unnecessary dependencies, packagers, or bundlers. Just van
 
 This was tested with [`Deno`](https://deno.land)'s version stated in the `.dvmrc` file, though other versions may work.
 
-For the PostgreSQL dependency (used when running locally, self-hosted, or in CI), you should have `Docker` and `docker-compose` installed.
+For the PostgreSQL dependency (used when running locally, self-hosted, or in CI), you should have `Docker` and `docker compose` installed.
 
 If you want to run the app locally with SSL (Web Crypto standards require `https` except for Chrome), you can use [`Caddy`](https://caddyserver.com) (there's a `Caddyfile` that proxies `https://localhost` to the Deno app).
 
@@ -39,7 +39,7 @@ Don't forget to set up your `.env` file based on `.env.sample`.
 ## Development
 
 ```sh
-$ docker-compose up # (optional) runs docker with postgres, locally
+$ docker compose up # (optional) runs docker with postgres, locally
 $ sudo caddy run # (optional) runs an https proxy for the deno app
 $ make migrate-db # runs any missing database migrations
 $ make start # runs the app

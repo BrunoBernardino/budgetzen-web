@@ -10,11 +10,11 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version-file: .dvmrc
-      - run: docker-compose pull
+      - run: docker compose pull
       - uses: jpribyl/action-docker-layer-caching@v0.1.1
         continue-on-error: true
       - run: |
           cp .env.sample .env
-          docker-compose up -d
+          docker compose up -d
           make migrate-db
           make test
