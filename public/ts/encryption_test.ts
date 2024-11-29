@@ -97,6 +97,6 @@ Deno.test('that decryption works', async () => {
   try {
     await Encryption.decrypt(encryptedSecretWithGoodKey, derivedBadKey);
   } catch (error) {
-    assertEquals(error.message, 'Decryption failed');
+    assertEquals((error as Error).message, 'Decryption failed');
   }
 });

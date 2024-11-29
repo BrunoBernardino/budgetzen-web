@@ -62,7 +62,7 @@ function createBasicRouteHandler(id: string, pathname: string) {
 
         return basicLayoutResponse(htmlContent, { currentPath: match.pathname.input, titlePrefix });
       } catch (error) {
-        if (error.toString().includes('NotFound')) {
+        if ((error as Error).toString().includes('NotFound')) {
           return new Response('Not Found', { status: 404 });
         }
 
@@ -148,7 +148,7 @@ const routes: Routes = {
         response.headers.set('cache-control', `max-age=${oneDayInSeconds}, public`);
         return response;
       } catch (error) {
-        if (error.toString().includes('NotFound')) {
+        if ((error as Error).toString().includes('NotFound')) {
           return new Response('Not Found', { status: 404 });
         }
 

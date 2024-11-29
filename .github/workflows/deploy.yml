@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches:    
+    branches:
       - main
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
             IdentityFile ~/.ssh/server.key
             StrictHostKeyChecking no
           END
-          cat ~/.ssh/config                                        
+          cat ~/.ssh/config
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}

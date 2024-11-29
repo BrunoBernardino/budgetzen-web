@@ -3,48 +3,114 @@
    License: none (public domain)
 */
 
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block;
 }
 body {
-	line-height: 1;
+  line-height: 1;
 }
 ol, ul {
-	list-style: none;
+  list-style: none;
 }
 blockquote, q {
-	quotes: none;
+  quotes: none;
 }
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
+blockquote:before, blockquote:after, q:before, q:after {
+  content: '';
+  content: none;
 }
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 /* Variables */
@@ -64,8 +130,18 @@ table {
 
 html,
 body {
-  font: 16px/16px 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
-    'Fira Sans', 'Droid Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font:
+    16px/16px 'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   background: var(--color-background);
   background-size: cover;
   color: var(--color-text);
@@ -278,7 +354,7 @@ hr {
 }
 
 hr:before {
-  content: "";
+  content: '';
   width: 6px;
   height: 6px;
   background: var(--color-link-hover);
@@ -288,7 +364,7 @@ hr:before {
   top: -5px;
   left: 50%;
   margin: 0 0 0 -3px;
-  transform:rotate(45deg);
+  transform: rotate(45deg);
 }
 
 button, a.button {
@@ -330,21 +406,21 @@ a.button.secondary:focus {
 }
 
 .delete-button {
-  background:rgb(161, 0, 0);
+  background: rgb(161, 0, 0);
   color: #fff;
   margin-left: 1rem;
   margin-right: 1rem;
 }
 
 .input-wrapper {
-	display: block;
-	border: none;
-	margin: 2rem 0 1rem;
+  display: block;
+  border: none;
+  margin: 2rem 0 1rem;
   transition: all 100ms ease-in-out;
 }
 
 .input-wrapper > label {
-	font-size: 1rem;
+  font-size: 1rem;
   display: block;
   margin-bottom: 0.5rem;
   font-weight: bold;
@@ -357,45 +433,43 @@ a.button.secondary:focus {
   display: inline-block;
 }
 
-.input-wrapper input[type="text"],
-.input-wrapper input[type="date"],
-.input-wrapper input[type="datetime"],
-.input-wrapper input[type="email"],
-.input-wrapper input[type="number"],
-.input-wrapper input[type="search"],
-.input-wrapper input[type="time"],
-.input-wrapper input[type="url"],
-.input-wrapper input[type="password"],
+.input-wrapper input[type='text'],
+.input-wrapper input[type='date'],
+.input-wrapper input[type='datetime'],
+.input-wrapper input[type='email'],
+.input-wrapper input[type='number'],
+.input-wrapper input[type='search'],
+.input-wrapper input[type='time'],
+.input-wrapper input[type='url'],
+.input-wrapper input[type='password'],
 .input-wrapper textarea,
-.input-wrapper select
-{
-	box-sizing: border-box;
-	width: 100%;
-	display: block;
-	outline: none;
-	border: none;
-	height: 2.5rem;
-	line-height: 2.5rem;
-	font-size: 1.1rem;
-	padding: 0.5rem 1rem;
+.input-wrapper select {
+  box-sizing: border-box;
+  width: 100%;
+  display: block;
+  outline: none;
+  border: none;
+  height: 2.5rem;
+  line-height: 2.5rem;
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
   border: 1px solid #fff;
   background: #fff;
   border-radius: 3px;
   transition: all 80ms ease-in-out;
   color: var(--color-background);
 }
-.input-wrapper input[type="text"]:focus,
-.input-wrapper input[type="date"]:focus,
-.input-wrapper input[type="datetime"]:focus,
-.input-wrapper input[type="email"]:focus,
-.input-wrapper input[type="number"]:focus,
-.input-wrapper input[type="search"]:focus,
-.input-wrapper input[type="time"]:focus,
-.input-wrapper input[type="url"]:focus,
-.input-wrapper input[type="password"]:focus,
+.input-wrapper input[type='text']:focus,
+.input-wrapper input[type='date']:focus,
+.input-wrapper input[type='datetime']:focus,
+.input-wrapper input[type='email']:focus,
+.input-wrapper input[type='number']:focus,
+.input-wrapper input[type='search']:focus,
+.input-wrapper input[type='time']:focus,
+.input-wrapper input[type='url']:focus,
+.input-wrapper input[type='password']:focus,
 .input-wrapper textarea:focus,
-.input-wrapper select:focus
-{
+.input-wrapper select:focus {
   border-color: var(--color-link-hover);
 }
 
@@ -417,7 +491,7 @@ a.button.secondary:focus {
   border-bottom: 3px solid rgb(161, 0, 0);
   color: var(--color-text);
   background-image: linear-gradient(rgb(255, 166, 166), #faa);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, .3);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
 }
 
 .success {

@@ -1,13 +1,13 @@
-name: "Docker Image"
+name: 'Docker Image'
 
 on:
   workflow_dispatch:
   schedule:
     # At 06:01 on the 5th of every month.
-    - cron: "1 6 5 * *"
+    - cron: '1 6 5 * *'
   push:
     branches:
-      - "main"
+      - 'main'
   release:
     types: [published]
 

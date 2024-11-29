@@ -34,7 +34,17 @@
     color: #999;
   }
 
-  .input-wrapper input[type="text"], .input-wrapper input[type="date"], .input-wrapper input[type="datetime"], .input-wrapper input[type="email"], .input-wrapper input[type="number"], .input-wrapper input[type="search"], .input-wrapper input[type="time"], .input-wrapper input[type="url"], .input-wrapper input[type="password"], .input-wrapper textarea, .input-wrapper select {
+  .input-wrapper input[type='text'],
+  .input-wrapper input[type='date'],
+  .input-wrapper input[type='datetime'],
+  .input-wrapper input[type='email'],
+  .input-wrapper input[type='number'],
+  .input-wrapper input[type='search'],
+  .input-wrapper input[type='time'],
+  .input-wrapper input[type='url'],
+  .input-wrapper input[type='password'],
+  .input-wrapper textarea,
+  .input-wrapper select {
     border-color: #ddd;
 
     &:focus {
@@ -125,7 +135,7 @@
     width: 0%;
     content: '';
     display: block;
-    background-color: #80A881;
+    background-color: #80a881;
     height: 0.5rem;
     border-radius: 0.5rem;
     padding: 0;
@@ -182,13 +192,13 @@
 
 #swap-accounts-select {
   box-sizing: border-box;
-	width: auto;
+  width: auto;
   max-width: 120px;
-	display: block;
-	outline: none;
-	border: none;
-	font-size: 0.9rem;
-	padding: 0.25rem 0.25rem;
+  display: block;
+  outline: none;
+  border: none;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.25rem;
   border: 1px solid #fff;
   background: #fff;
   border-radius: 3px;

@@ -1,4 +1,4 @@
-name: "Cron: Check subscriptions"
+name: 'Cron: Check subscriptions'
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2
         with:
           deno-version-file: .dvmrc
       - env:
