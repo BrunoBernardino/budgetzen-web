@@ -16,11 +16,13 @@ export const defaultDescription = 'Simple and end-to-end encrypted budget and ex
 export const helpEmail = 'help@budgetzen.net';
 
 export const PORT = Deno.env.get('PORT') || 8000;
-export const STRIPE_MONTHLY_URL = 'https://buy.stripe.com/eVa01H57C3MB6CQ14s';
-export const STRIPE_YEARLY_URL = 'https://buy.stripe.com/28o5m1dE896V0es8wV';
+export const STRIPE_MONTHLY_URL = 'https://buy.stripe.com/7sI3dT8jO5UJ3qE00y';
+export const STRIPE_YEARLY_URL = 'https://buy.stripe.com/28og0F8jOgzn8KY00z';
 export const STRIPE_CUSTOMER_URL = 'https://billing.stripe.com/p/login/4gw15w3G9bDyfWU6oo';
 export const PAYPAL_CUSTOMER_URL = 'https://www.paypal.com';
 export const IS_UNSAFE_SELF_HOSTED = Boolean(Deno.env.get('IS_UNSAFE_SELF_HOSTED') || '');
+export const MONTHLY_PRICE = 4;
+export const YEARLY_PRICE = 40;
 
 export interface PageContentResult {
   htmlContent: string;

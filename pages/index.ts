@@ -1,4 +1,4 @@
-import { helpEmail, html, PageContentResult } from '/lib/utils.ts';
+import { helpEmail, html, MONTHLY_PRICE, PageContentResult, YEARLY_PRICE } from '/lib/utils.ts';
 import verificationCodeModal from '/components/modals/verification-code.ts';
 
 export function pageAction() {
@@ -22,8 +22,8 @@ export function pageContent() {
           </p>
           <p>
             You have a <strong>30-day free trial</strong> (no credit card
-            required), and at the end, you can pay <strong>€18 / year</strong>,
-            or <strong>€2 / month</strong>, no limits.
+            required), and at the end, you can pay <strong>€${YEARLY_PRICE} / year</strong>,
+            or <strong>€${MONTHLY_PRICE} / month</strong>, no limits.
           </p>
           <form id="login-form">
             <fieldset class="input-wrapper">

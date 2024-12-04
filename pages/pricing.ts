@@ -1,4 +1,4 @@
-import { html, PageContentResult } from '/lib/utils.ts';
+import { html, MONTHLY_PRICE, PageContentResult, YEARLY_PRICE } from '/lib/utils.ts';
 
 export function pageAction() {
   return new Response('Not Implemented', { status: 501 });
@@ -10,7 +10,7 @@ export function pageContent() {
       <h1>Pricing</h1>
       <section class="hero">
         <p>Pricing is simple.</p>
-        <p>You have a <strong>30-day free trial</strong> (no credit card required), and at the end, you can pay <strong>€18 / year</strong>, or <strong>€2 / month</strong>, no limits.</p>
+        <p>You have a <strong>30-day free trial</strong> (no credit card required), and at the end, you can pay <strong>€40 / year</strong>, or <strong>€4 / month</strong>, no limits.</p>
       </section>
       <div data-has-invalid-session>
         <h2>Signup or Login first</h2>
@@ -34,11 +34,11 @@ export function pageContent() {
         </p>
         <div class="buttons-wrapper">
           <button class="secondary" type="button" id="subscribe-month">
-            Pay €2 / month
+            Pay €${MONTHLY_PRICE} / month
           </button>
           <span class="or">or</span>
           <button type="button" id="subscribe-year">
-            Pay €18 / year
+            Pay €${YEARLY_PRICE} / year
           </button>
         </div>
       </section>

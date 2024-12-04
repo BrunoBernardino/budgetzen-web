@@ -128,7 +128,7 @@ document.addEventListener('app-loaded', async () => {
     const clonedElement = (template.content.firstElementChild as HTMLDivElement).cloneNode(true) as HTMLDivElement;
 
     const paymentTextElement = clonedElement.querySelector('.subscription-value') as HTMLSpanElement;
-    paymentTextElement.textContent = isSubscriptionMonthly ? '€2 / month' : '€18 / year';
+    paymentTextElement.textContent = isSubscriptionMonthly ? 'monthly' : 'yearly';
 
     const notCanceledElement = clonedElement.querySelector('#subscription-is-not-canceled') as HTMLDivElement;
     const canceledElement = clonedElement.querySelector('#subscription-is-canceled') as HTMLDivElement;
