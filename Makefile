@@ -28,3 +28,13 @@ crons/cleanup:
 .PHONY: exec-db
 exec-db:
 	docker exec -it -u postgres $(shell basename $(CURDIR))_postgresql_1 psql
+
+prod-up-d:
+	docker compose -f docker-compose.prod.yml up -d --force-recreate --remove-orphans
+
+prod-up:
+	docker compose -f docker-compose.prod.yml up --force-recreate --remove-orphans
+	docker compose -f docker-compose.prod.yml logs -f
+
+prod-down:
+	docker compose -f docker-compose.prod.yml down

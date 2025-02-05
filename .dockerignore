@@ -1,0 +1,11 @@
+# ignore files which have nothing to do in a container.
+.do
+.github
+# we do not care for the git history in the container, saves space.
+.git
+.gitignore
+Caddyfile
+docker-compose*
+Dockerfile
+Makefile
+render.yaml
