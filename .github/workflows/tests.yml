@@ -15,6 +15,6 @@ jobs:
         continue-on-error: true
       - run: |
           cp .env.sample .env
-          docker compose up -d
+          docker compose -f docker-compose.dev.yml up -d
           make migrate-db
           make test
