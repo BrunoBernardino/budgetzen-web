@@ -16,9 +16,19 @@ It's not compatible with Budget Zen v2 ([end-to-end encrypted via Userbase](http
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/BrunoBernardino/budgetzen-web)
 
-Or check the [Development section below](#development).
+Or on your own machine:
 
-> **NOTE:** You don't need to have emails (Brevo) and subscriptions (Stripe) setup to have the app work. Those are only used for allowing others to automatically manage their account. You can simply make any `user.status = 'active'` and `user.subscription.expires_at = new Date('2100-01-01')` to "never" expire, in the database, directly.
+Download/copy [`docker-compose.yml`](/docker-compose.yml) and [`.env.sample`](/.env.sample) as `.env`.
+
+```sh
+$ docker compose up -d # makes the app available at https://localhost
+$ docker compose run --rm website bash -c "cd /app && make migrate-db" # initializes/updates the database (only needs to be executed the first time and on any updates)
+```
+
+> [!NOTE]
+> You don't need to have emails (Brevo) and subscriptions (Stripe) setup to have the app work. Those are only used for allowing others to automatically manage their account. You can simply make any `user.status = 'active'` and `user.subscription.expires_at = new Date('2100-01-01')` to "never" expire, in the database, directly.
+
+Alternatively, check the [Development section below](#development).
 
 ## Framework-less
 
@@ -39,7 +49,7 @@ Don't forget to set up your `.env` file based on `.env.sample`.
 ## Development
 
 ```sh
-$ docker compose up # (optional) runs docker with postgres, locally
+$ docker compose -f docker-compose.dev.yml up # (optional) runs docker with postgres, locally
 $ sudo caddy run # (optional) runs an https proxy for the deno app
 $ make migrate-db # runs any missing database migrations
 $ make start # runs the app

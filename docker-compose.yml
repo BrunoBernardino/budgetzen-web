@@ -2,10 +2,9 @@ services:
   postgresql:
     image: postgres:15
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=fake
-      - POSTGRES_DB=budgetzen
-    restart: on-failure
+      - POSTGRES_USER=${POSTGRESQL_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRESQL_PASSWORD:-fake}
+      - POSTGRES_DB=${POSTGRESQL_DBNAME:-budgetzen}
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
@@ -14,7 +13,46 @@ services:
       memlock:
         soft: -1
         hard: -1
+    restart: unless-stopped
+
+  website:
+    image: ghcr.io/brunobernardino/budgetzen-web:main
+    # If you want to build the image locally, uncomment the following lines and comment the image line above
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    ports:
+      - ${PORT:-8000}:8000
+    restart: unless-stopped
+    environment:
+      - BASE_URL=${BASE_URL:-https://localhost}
+      - POSTGRESQL_HOST=${POSTGRESQL_HOST:-postgresql}
+      - POSTGRESQL_USER=${POSTGRESQL_USER:-postgres}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD:-fake}
+      - POSTGRESQL_DBNAME=${POSTGRESQL_DBNAME:-budgetzen}
+      - POSTGRESQL_PORT=${POSTGRESQL_PORT:-5432}
+      - POSTGRESQL_CAFILE=${POSTGRESQL_CAFILE:-}
+      - BREVO_API_KEY=${BREVO_API_KEY:-}
+      - STRIPE_API_KEY=${STRIPE_API_KEY:-}
+
+      # any non-empty value will be considered true
+      - IS_UNSAFE_SELF_HOSTED="true"
+
+    depends_on:
+      - postgresql
+      - caddy
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    command: caddy reverse-proxy --from https://localhost:443 --to http://website:8000
+    ports:
+      - 443:443
+    volumes:
+      - caddy:/data
 
 volumes:
   pgdata:
+    driver: local
+  caddy:
     driver: local

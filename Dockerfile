@@ -1,6 +1,8 @@
-FROM denoland/deno:alpine-2.1.2
+FROM denoland/deno:alpine-2.1.9
 
 EXPOSE 8000
+
+RUN apk add bash make
 
 WORKDIR /app
 
