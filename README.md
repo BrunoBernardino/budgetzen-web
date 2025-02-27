@@ -2,6 +2,9 @@
 
 [![](https://github.com/BrunoBernardino/budgetzen-web/workflows/Run%20Tests/badge.svg)](https://github.com/BrunoBernardino/budgetzen-web/actions?workflow=Run+Tests)
 
+> [!CAUTION]
+> Budget Zen is no longer maintained. You can still self-host it, or fork this repo. As for the cloud version, signups will stop working soon, and upgrades are no longer possible.
+
 This is the web app for the [Budget Zen app](https://budgetzen.net), built with [Deno](https://deno.land) and deployed using [docker compose](https://docs.docker.com/compose/).
 
 This is v3, which is [end-to-end encrypted with open Web Standards](https://en.wikipedia.org/wiki/End-to-end_encryption), and works via web on any device (it's a PWA - Progressive Web App).
