@@ -230,25 +230,7 @@ export async function validateLogin(email: string, password: string) {
     };
 
     const response = await fetch('/api/session', { method: 'POST', headers, body: JSON.stringify(body) });
-    const { user, session_id: sessionId } = (await response.json()) as { user: User; session_id: string };
-
-    if (!user) {
-      throw new Error('Failed email/password combination.');
-    }
-
-    let keyPair: KeyPair;
-
-    try {
-      keyPair = JSON.parse(await Encryption.decrypt(user.encrypted_key_pair, passwordKey));
-    } catch (error) {
-      console.log(error);
-      await fetch('/api/session', {
-        method: 'DELETE',
-        headers,
-        body: JSON.stringify({ user_id: user.id, session_id: sessionId }),
-      });
-      throw new Error('Failed email/password combination.');
-    }
+    const { session_id: sessionId } = (await response.json()) as { session_id: string };
 
     globalThis.app.hideLoading();
 
@@ -273,13 +255,36 @@ export async function validateLogin(email: string, password: string) {
 
     globalThis.app.showLoading();
 
-    const verificationBody: { user_id: string; session_id: string; code: string } = {
-      user_id: user.id,
+    const verificationBody: { email: string; session_id: string; code: string } = {
+      email: lowercaseEmail,
       session_id: sessionId,
       code,
     };
 
-    await fetch('/api/session', { method: 'PATCH', headers, body: JSON.stringify(verificationBody) });
+    const verificationResponse = await fetch('/api/session', {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(verificationBody),
+    });
+    const { user, success } = (await verificationResponse.json()) as { user: User; success: boolean };
+
+    if (!user || !success) {
+      throw new Error('Failed code verification.');
+    }
+
+    let keyPair: KeyPair;
+
+    try {
+      keyPair = JSON.parse(await Encryption.decrypt(user.encrypted_key_pair, passwordKey));
+    } catch (error) {
+      console.log(error);
+      await fetch('/api/session', {
+        method: 'DELETE',
+        headers,
+        body: JSON.stringify({ user_id: user.id, session_id: sessionId }),
+      });
+      throw new Error('Failed email/password combination.');
+    }
 
     const otherSessions = [...(existingSession?.otherSessions || [])];
 

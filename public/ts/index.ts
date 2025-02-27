@@ -96,6 +96,7 @@ document.addEventListener('app-loaded', async () => {
     } else {
       if (error) {
         showNotification('Invalid email/password.', 'error');
+        window.app.hideLoading();
       }
     }
 

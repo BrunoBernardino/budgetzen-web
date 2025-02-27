@@ -31,19 +31,25 @@ async function validateSession(request: Request) {
 
   await sendVerifyLoginEmail(user.email, verificationCode);
 
-  return new Response(JSON.stringify({ user, session_id: session.id }), {
+  return new Response(JSON.stringify({ session_id: session.id }), {
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
   });
 }
 
 async function verifySession(request: Request) {
-  const { user_id, session_id, code }: { user_id: string; session_id: string; code: string } = await request.json();
+  const { email, session_id, code }: { email: string; session_id: string; code: string } = await request.json();
 
-  if (!user_id || !session_id || !code) {
+  if (!email || !session_id || !code) {
     return new Response('Bad Request', { status: 400 });
   }
 
-  const { user, session } = await validateUserAndSession(user_id, session_id, true);
+  const emailUser = await getUserByEmail(email);
+
+  if (!emailUser) {
+    return new Response('Not Found', { status: 404 });
+  }
+
+  const { user, session } = await validateUserAndSession(emailUser.id, session_id, true);
 
   await validateVerificationCode(user, session, code, 'session');
 
@@ -51,7 +57,7 @@ async function verifySession(request: Request) {
 
   await updateSession(session);
 
-  return new Response(JSON.stringify({ success: true }), {
+  return new Response(JSON.stringify({ user, success: true }), {
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
   });
 }
